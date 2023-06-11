@@ -9,6 +9,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -17,9 +18,9 @@ public class WebCurrencyService implements CurrencyService {
     private final RestTemplate restTemplate;
 
     @Value("${currency.service.url}")
-    private final String currencyServiceUrl;
+    private String currencyServiceUrl;
     @Value("${currency.service.key}")
-    private final String currencyServiceKey;
+    private String currencyServiceKey;
 
     @Override
     public boolean isValid(String currencyPair) {
@@ -28,19 +29,18 @@ public class WebCurrencyService implements CurrencyService {
         if (webCurrencyServiceResponse == null) {
             throw new RuntimeException("answer from Currency service was not received");
         }
-        if (webCurrencyServiceResponse.getStatus().equals("500")) {
+        if ("500".equals(webCurrencyServiceResponse.getStatus())) {
             return false;
-        } else if (webCurrencyServiceResponse.getStatus().equals("200")) {
-            return true;
+        } else {
+            return "200".equals(webCurrencyServiceResponse.getStatus());
         }
-        return false;
     }
     @Override
     public double convert(String from, double amount, String in) {
         String pair = from + in;
         String url = currencyServiceUrl + "/api/?get=rates&pairs={pair}&key={key}";
         WebCurrencyServiceResponse webCurrencyServiceResponse = restTemplate.getForObject(url, WebCurrencyServiceResponse.class, pair, currencyServiceKey);
-        int a = Integer.valueOf(webCurrencyServiceResponse.getData().values().toString());
-        return a * amount;
+        String rate = new ArrayList<>(webCurrencyServiceResponse.getData().values()).get(0);
+        return Integer.parseInt(rate) * amount;
     }
 }
