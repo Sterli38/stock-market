@@ -4,8 +4,12 @@ import com.example.stockmarket.service.response.WebCurrencyServiceResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -21,19 +25,22 @@ public class WebCurrencyService implements CurrencyService {
     public boolean isValid(String currencyPair) {
         String url = currencyServiceUrl + "/api/?get=rates&pairs={pair}&key={key}";
         WebCurrencyServiceResponse webCurrencyServiceResponse = restTemplate.getForObject(url, WebCurrencyServiceResponse.class, currencyPair, currencyServiceKey);
-        if(webCurrencyServiceResponse == null) {
+        if (webCurrencyServiceResponse == null) {
             throw new RuntimeException("answer from Currency service was not received");
         }
-        if(webCurrencyServiceResponse.getStatus().equals("500")) {
+        if (webCurrencyServiceResponse.getStatus().equals("500")) {
             return false;
         } else if (webCurrencyServiceResponse.getStatus().equals("200")) {
             return true;
         }
         return false;
     }
-
     @Override
     public double convert(String from, double amount, String in) {
-        return 0;
+        String pair = from + in;
+        String url = currencyServiceUrl + "/api/?get=rates&pairs={pair}&key={key}";
+        WebCurrencyServiceResponse webCurrencyServiceResponse = restTemplate.getForObject(url, WebCurrencyServiceResponse.class, pair, currencyServiceKey);
+        int a = Integer.valueOf(webCurrencyServiceResponse.getData().values().toString());
+        return a * amount;
     }
 }
