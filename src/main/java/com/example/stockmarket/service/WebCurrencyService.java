@@ -41,6 +41,6 @@ public class WebCurrencyService implements CurrencyService {
         String url = currencyServiceUrl + "/api/?get=rates&pairs={pair}&key={key}";
         WebCurrencyServiceResponse webCurrencyServiceResponse = restTemplate.getForObject(url, WebCurrencyServiceResponse.class, pair, currencyServiceKey);
         String rate = new ArrayList<>(webCurrencyServiceResponse.getData().values()).get(0);
-        return Integer.parseInt(rate) * amount;
+        return Double.parseDouble(rate) * amount;
     }
 }
