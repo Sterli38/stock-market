@@ -15,4 +15,9 @@ public class TrashController {
     public double convert(@RequestParam String from, @RequestParam String in, @RequestParam double amount) {
         return webCurrencyService.convert(from, amount, in);
     }
+
+    @GetMapping("/getget")
+    public boolean isValid(@RequestParam String currencyPair) {
+        return webCurrencyService.isValid(currencyPair);
+    }
 }

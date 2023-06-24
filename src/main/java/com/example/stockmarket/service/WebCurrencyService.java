@@ -1,5 +1,6 @@
 package com.example.stockmarket.service;
 
+import com.example.stockmarket.config.ApplicationProperties;
 import com.example.stockmarket.service.response.WebCurrencyServiceResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,16 +17,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WebCurrencyService implements CurrencyService {
     private final RestTemplate restTemplate;
-
-    @Value("${currency.service.url}")
-    private String currencyServiceUrl;
-    @Value("${currency.service.key}")
-    private String currencyServiceKey;
+    private final ApplicationProperties applicationProperties;
 
     @Override
     public boolean isValid(String currencyPair) {
-        String url = currencyServiceUrl + "/api/?get=rates&pairs={pair}&key={key}";
-        WebCurrencyServiceResponse webCurrencyServiceResponse = restTemplate.getForObject(url, WebCurrencyServiceResponse.class, currencyPair, currencyServiceKey);
+        String url = applicationProperties.getCurrencyServiceUrl() + "/api/?get=rates&pairs={pair}&key={key}";
+        WebCurrencyServiceResponse webCurrencyServiceResponse = restTemplate.getForObject(url, WebCurrencyServiceResponse.class, currencyPair, applicationProperties.getCurrencyServiceKey());
         if (webCurrencyServiceResponse == null) {
             throw new RuntimeException("answer from Currency service was not received");
         }
@@ -38,8 +35,8 @@ public class WebCurrencyService implements CurrencyService {
     @Override
     public double convert(String from, double amount, String in) {
         String pair = from + in;
-        String url = currencyServiceUrl + "/api/?get=rates&pairs={pair}&key={key}";
-        WebCurrencyServiceResponse webCurrencyServiceResponse = restTemplate.getForObject(url, WebCurrencyServiceResponse.class, pair, currencyServiceKey);
+        String url = applicationProperties.getCurrencyServiceUrl() + "/api/?get=rates&pairs={pair}&key={key}";
+        WebCurrencyServiceResponse webCurrencyServiceResponse = restTemplate.getForObject(url, WebCurrencyServiceResponse.class, pair, applicationProperties.getCurrencyServiceKey());
         String rate = new ArrayList<>(webCurrencyServiceResponse.getData().values()).get(0);
         return Double.parseDouble(rate) * amount;
     }
