@@ -3,6 +3,7 @@ package com.example.stockmarket.service;
 import com.example.stockmarket.dao.ParticipantDao;
 import com.example.stockmarket.entity.Participant;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,11 +19,11 @@ public class ParticipantService {
         return dao.getParticipantById(id);
     }
 
-    public void editParticipant(Long id, Participant participant) {
-        dao.editParticipant(id, participant);
+    public Participant editParticipant(Participant participant) {
+        return dao.editParticipant(participant);
     }
 
-    public void deleteParticipantById(Long id) {
-        dao.deleteParticipantById(id);
+    public Participant deleteParticipantById(Long id) {
+        return dao.deleteParticipantById(id);
     }
 }
