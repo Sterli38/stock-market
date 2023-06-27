@@ -7,17 +7,17 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/controller")
+@RequestMapping("/participant")
 public class ParticipantController {
     private final ParticipantService service;
 
     @PostMapping("/create")
     public Participant createParticipant(@RequestBody Participant participant) {
-        return createParticipant(participant);
+        return service.createParticipant(participant);
     }
 
     @GetMapping("/get/{id}")
-    public Participant getParticipantById(@PathVariable Long id) {
+    public Participant getParticipantById(@PathVariable long id) {
         return service.getParticipantById(id);
     }
 
@@ -26,8 +26,8 @@ public class ParticipantController {
         return service.editParticipant(participant);
     }
 
-    @DeleteMapping("/delete")
-    public Participant deleteParticipantById(@PathVariable Long id) {
+    @DeleteMapping("/delete/{id}")
+    public Participant deleteParticipantById(@PathVariable long id) {
         return service.deleteParticipantById(id);
     }
 }
