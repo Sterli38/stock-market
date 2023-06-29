@@ -12,5 +12,4 @@ public class Participant {
     private Date creationDate;
     @ToString.Exclude
     private String password;
-
 }
