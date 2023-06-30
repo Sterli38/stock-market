@@ -1,10 +1,8 @@
 package com.example.stockmarket.controller;
 
-import com.example.stockmarket.controller.ParticipantController.ParticipantRequest;
 import com.example.stockmarket.controller.ParticipantController.ParticipantResponse;
 import com.example.stockmarket.entity.Participant;
 import com.example.stockmarket.service.ParticipantService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
