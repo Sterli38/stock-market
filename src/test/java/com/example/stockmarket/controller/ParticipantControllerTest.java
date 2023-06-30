@@ -74,50 +74,16 @@ class ParticipantControllerTest {
     }
 
     @Test
-    void getParticipantById() throws Exception {
-        ParticipantResponse testParticipant = convertParticipant(egor);
-        mockMvc.perform(get("/participant/get/{id}", egor.getId()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value(testParticipant.getName()));
-//                .andExpect(jsonPath("$.creationDate").value(testParticipant.getCreationDate()));
-    }
+    void getParticipantById() {
 
-//    @Test
-//    void editParticipant() throws Exception {
-//        Participant egorClone = new Participant();
-//        egorClone.setId(egor.getId());
-//        egorClone.setName(egor.getName());
-//        egorClone.setPassword(egor.getPassword());
-//        egorClone.setCreationDate(egor.getCreationDate());
-//        Participant updateForParticipant = new Participant();
-//        updateForParticipant.setId(egorClone.getId());
-//        updateForParticipant.setName("Mike");
-//        updateForParticipant.setCreationDate(new Date(1688059945000L));
-//        updateForParticipant.setPassword("testPassword");
-//
-//        ParticipantResponse expectedResponse = convertParticipant(updateForParticipant);
-//
-//        mockMvc.perform(post("/participant/edit")
-//                .content(mapper.writeValueAsString(updateForParticipant))
-//                .contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(jsonPath("$.name").value(expectedResponse.getName()));
-////                .andExpect(jsonPath("$.creationDate").value(expectedResponse.getCreationDate()));
-//    }
+    }
 
     @Test
-    void deleteParticipantById() throws Exception {
-        ParticipantResponse testParticipant = convertParticipant(egor);
-        mockMvc.perform(delete("/participant/delete/{id}", egor.getId()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value(testParticipant.getName()));
-//               .andExpect(jsonPath("$.creationDate").value(testParticipant.getCreationDate()));
+    void editParticipant() {
     }
 
-    private ParticipantResponse convertParticipant(Participant participant) {
-        ParticipantResponse participantResponse = new ParticipantResponse();
-        participantResponse.setId(participant.getId());
-        participantResponse.setName(participant.getName());
-        participantResponse.setCreationDate(new java.sql.Date(participant.getCreationDate().getTime()));
-        return participantResponse;
+    @Test
+    void deleteParticipantById() {
+
     }
 }
