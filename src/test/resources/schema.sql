@@ -4,9 +4,9 @@ DROP TABLE if exists history;
 CREATE TABLE participant
 (
     id            serial primary key,
-    name          varchar not null,
-    creation_date date    not null,
-    password      varchar not null
+    name          varchar   not null,
+    creation_date timestamp not null,
+    password      varchar   not null
 );
 
 CREATE TABLE history

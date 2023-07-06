@@ -1,5 +1,5 @@
 DROP TABLE if EXISTS participant;
-DROP TABLE if EXISTS balance;
+DROP TABLE if EXISTS history;
 
 CREATE TABLE participant
 (

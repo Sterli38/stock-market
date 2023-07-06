@@ -1,11 +1,11 @@
 package com.example.stockmarket.controller.ParticipantController;
 
+import com.example.stockmarket.controller.ParticipantController.request.ParticipantRequest;
+import com.example.stockmarket.controller.ParticipantController.response.ParticipantResponse;
 import com.example.stockmarket.entity.Participant;
-import com.example.stockmarket.service.ParticipantService;
+import com.example.stockmarket.service.participantService.ParticipantService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-import java.sql.Date;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,11 +24,12 @@ public class ParticipantController {
         return convertParticipant(service.getParticipantById(id));
     }
 
-//    @PostMapping("/edit")
-//    public ParticipantResponse editParticipant(@RequestBody ParticipantRequest participantRequest) {
-//        service.editParticipant(convertParticipantRequest(participantRequest));
-//        return ;
-//    }
+    @PostMapping("/edit")
+    public ParticipantResponse editParticipant(@RequestBody ParticipantRequest participantRequest) {
+        Participant participant = service.editParticipant(convertParticipantRequest(participantRequest));
+        ParticipantResponse participantResponse = convertParticipant(participant);
+        return participantResponse;
+    }
 
     @DeleteMapping("/delete/{id}")
     public ParticipantResponse deleteParticipantById(@PathVariable long id) {
@@ -37,6 +38,7 @@ public class ParticipantController {
 
     private Participant convertParticipantRequest(ParticipantRequest participantRequest) {
         Participant participant = new Participant();
+        participant.setId(participantRequest.getId());
         participant.setName(participantRequest.getName());
         participant.setCreationDate(participantRequest.getCreationDate());
         participant.setPassword(participantRequest.getPassword());
@@ -47,7 +49,7 @@ public class ParticipantController {
         ParticipantResponse participantResponse = new ParticipantResponse();
         participantResponse.setId(participant.getId());
         participantResponse.setName(participant.getName());
-        participantResponse.setCreationDate(new java.sql.Date(participant.getCreationDate().getTime()));
+        participantResponse.setCreationDate(participant.getCreationDate().getTime());
         return participantResponse;
     }
 }

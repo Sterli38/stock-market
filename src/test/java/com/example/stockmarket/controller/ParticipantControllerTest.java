@@ -1,8 +1,8 @@
 package com.example.stockmarket.controller;
 
-import com.example.stockmarket.controller.ParticipantController.ParticipantResponse;
+import com.example.stockmarket.controller.ParticipantController.response.ParticipantResponse;
 import com.example.stockmarket.entity.Participant;
-import com.example.stockmarket.service.ParticipantService;
+import com.example.stockmarket.service.participantService.ParticipantService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,7 +56,7 @@ class ParticipantControllerTest {
     @Test
     void createParticipant() throws Exception {
         Participant testParticipant = new Participant();
-        Date date = new Date(1687532277);
+        Date date = new Date(1687532277000L);
         testParticipant.setName("TestName");
         testParticipant.setCreationDate(date);
         testParticipant.setPassword("TestPassword");
@@ -67,8 +67,8 @@ class ParticipantControllerTest {
                         .content(mapper.writeValueAsString(testParticipant))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").isNumber())
-                .andExpect(jsonPath("$.name").value(expectedParticipant.getName()));
-//                .andExpect(jsonPath("$.creationDate").value(expectedParticipant.getCreationDate()));
+                .andExpect(jsonPath("$.name").value(expectedParticipant.getName()))
+                .andExpect(jsonPath("$.creationDate").value(expectedParticipant.getCreationDate()));
     }
 
     @Test
@@ -76,32 +76,34 @@ class ParticipantControllerTest {
         ParticipantResponse testParticipant = convertParticipant(egor);
         mockMvc.perform(get("/participant/get/{id}", egor.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value(testParticipant.getName()));
-//                .andExpect(jsonPath("$.creationDate").value(testParticipant.getCreationDate()));
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.name").value(testParticipant.getName()))
+                .andExpect(jsonPath("$.creationDate").value(testParticipant.getCreationDate()));
     }
 
 
-//    @Test
-//    void editParticipant() throws Exception {
-//        Participant egorClone = new Participant();
-//        egorClone.setId(egor.getId());
-//        egorClone.setName(egor.getName());
-//        egorClone.setPassword(egor.getPassword());
-//        egorClone.setCreationDate(egor.getCreationDate());
-//        Participant updateForParticipant = new Participant();
-//        updateForParticipant.setId(egorClone.getId());
-//        updateForParticipant.setName("Mike");
-//        updateForParticipant.setCreationDate(new Date(1688059945000L));
-//        updateForParticipant.setPassword("testPassword");
-//
-//        ParticipantResponse expectedResponse = convertParticipant(updateForParticipant);
-//
-//        mockMvc.perform(post("/participant/edit")
-//                .content(mapper.writeValueAsString(updateForParticipant))
-//                .contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(jsonPath("$.name").value(expectedResponse.getName()));
-////                .andExpect(jsonPath("$.creationDate").value(expectedResponse.getCreationDate()));
-//    }
+    @Test
+    void editParticipant() throws Exception {
+        Participant egorClone = new Participant();
+        egorClone.setId(egor.getId());
+        egorClone.setName(egor.getName());
+        egorClone.setPassword(egor.getPassword());
+        egorClone.setCreationDate(egor.getCreationDate());
+        Participant updateForParticipant = new Participant();
+        updateForParticipant.setId(egorClone.getId());
+        updateForParticipant.setName("Mike");
+        updateForParticipant.setCreationDate(new Date(1688059945000L));
+        updateForParticipant.setPassword("testPassword");
+
+        ParticipantResponse expectedResponse = convertParticipant(updateForParticipant);
+
+        mockMvc.perform(post("/participant/edit")
+                .content(mapper.writeValueAsString(updateForParticipant))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.name").value(expectedResponse.getName()))
+                .andExpect(jsonPath("$.creationDate").value(expectedResponse.getCreationDate()));
+    }
 
 
     @Test
@@ -109,8 +111,9 @@ class ParticipantControllerTest {
         ParticipantResponse testParticipant = convertParticipant(egor);
         mockMvc.perform(delete("/participant/delete/{id}", egor.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value(testParticipant.getName()));
-//               .andExpect(jsonPath("$.creationDate").value(testParticipant.getCreationDate()));
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.name").value(testParticipant.getName()))
+               .andExpect(jsonPath("$.creationDate").value(testParticipant.getCreationDate()));
     }
 
 
@@ -118,7 +121,7 @@ class ParticipantControllerTest {
         ParticipantResponse participantResponse = new ParticipantResponse();
         participantResponse.setId(participant.getId());
         participantResponse.setName(participant.getName());
-        participantResponse.setCreationDate(new java.sql.Date(participant.getCreationDate().getTime()));
+        participantResponse.setCreationDate(participant.getCreationDate().getTime());
         return participantResponse;
     }
 

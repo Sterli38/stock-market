@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
 import java.sql.Date;
+import java.sql.Time;
 import java.sql.Timestamp;
 
 @Repository
@@ -27,15 +28,12 @@ public class ParticipantDatabaseDao implements ParticipantDao {
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
             ps.setString(1, participant.getName());
-            ps.setDate(2, new Date(participant.getCreationDate().getTime()));
+            ps.setTimestamp(2, new Timestamp(participant.getCreationDate().getTime()));
             ps.setString(3, participant.getPassword());
             return ps;
         }, keyHolder);
         Participant returnParticipant = getParticipantById(keyHolder.getKey().longValue());
         return returnParticipant;
-//        String sql = "INSERT INTO participant(name, creation_date, password) values(?, ?, ?) RETURNING *";
-//      return jdbcTemplate.queryForObject(sql, new ParticipantMapper(), participant.getName(), participant.getCreationDate(), participant.getPassword());
-
     }
 
     @Override
@@ -52,20 +50,8 @@ public class ParticipantDatabaseDao implements ParticipantDao {
     @Override
     public Participant editParticipant(Participant participant) {
         String sql = "UPDATE participant SET name = ?, creation_date = ?, password = ? WHERE id = ?";
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
-            ps.setString(1, participant.getName());
-            ps.setDate(2, new Date(participant.getCreationDate().getTime()));
-            ps.setString(3, participant.getPassword());
-            ps.setLong(4, participant.getId());
-            return ps;
-        }, keyHolder);
         jdbcTemplate.update(sql, participant.getName(), participant.getCreationDate(), participant.getPassword(), participant.getId());
-        return getParticipantById(keyHolder.getKey().longValue());
-//        String sql = "UPDATE participant SET name = ?, creation_date = ?, password = ? WHERE id = ? RETURNING *";
-//        return jdbcTemplate.queryForObject(sql, new ParticipantMapper(), participant.getName(), participant.getCreationDate(), participant.getPassword(), participant.getId());
-
+        return getParticipantById(participant.getId());
     }
 
     @Override
@@ -74,7 +60,5 @@ public class ParticipantDatabaseDao implements ParticipantDao {
         String sql = "DELETE FROM participant WHERE id = ?";
         jdbcTemplate.update(sql, id);
         return returnParticipant;
-//        String sql = "DELETE FROM participant WHERE id = ? RETURNING *";
-//        return jdbcTemplate.queryForObject(sql, new ParticipantMapper(), id);
     }
 }

@@ -1,4 +1,4 @@
-package com.example.stockmarket.controller.ParticipantController;
+package com.example.stockmarket.controller.ParticipantController.response;
 
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -9,5 +9,5 @@ import java.sql.Date;
 public class ParticipantResponse {
     private Long id;
     private String name;
-    private Date creationDate;
+    private Long creationDate;
 }
