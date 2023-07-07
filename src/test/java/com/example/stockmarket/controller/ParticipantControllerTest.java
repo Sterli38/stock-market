@@ -30,15 +30,17 @@ class ParticipantControllerTest {
     @Autowired
     private ObjectMapper mapper;
 
-    private Participant egor = new Participant();
-    private Participant lena = new Participant();
+    private Participant egor;
+    private Participant lena;
 
     @BeforeEach
     void setup() {
+        egor = new Participant();
         egor.setName("Egor");
         egor.setCreationDate(new Date(1687791478000L));
         egor.setPassword("testPasswordEgor");
         long egorId = service.createParticipant(egor).getId();
+        lena = new Participant();
         lena.setName("Lena");
         lena.setCreationDate(new Date(1687532277000L));
         lena.setPassword("testPasswordLena");
@@ -73,12 +75,12 @@ class ParticipantControllerTest {
 
     @Test
     void getParticipantById() throws Exception {
-        ParticipantResponse testParticipant = convertParticipant(egor);
+
         mockMvc.perform(get("/participant/get/{id}", egor.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNumber())
-                .andExpect(jsonPath("$.name").value(testParticipant.getName()))
-                .andExpect(jsonPath("$.creationDate").value(testParticipant.getCreationDate()));
+                .andExpect(jsonPath("$.name").value(egor.getName()))
+                .andExpect(jsonPath("$.creationDate").value(egor.getCreationDate().getTime()));
     }
 
 
@@ -124,6 +126,4 @@ class ParticipantControllerTest {
         participantResponse.setCreationDate(participant.getCreationDate().getTime());
         return participantResponse;
     }
-
-
 }
