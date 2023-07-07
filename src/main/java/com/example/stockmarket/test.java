@@ -9,6 +9,6 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class test {
     public test(JdbcTemplate jdbcTemplate) {
-         log.info(String.valueOf(jdbcTemplate.queryForObject("SELECT count(*) FROM participant", Integer.class)));
+//         log.info(String.valueOf(jdbcTemplate.queryForObject("SELECT count(*) FROM participant", Integer.class)));
     }
 }
