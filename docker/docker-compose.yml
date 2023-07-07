@@ -1,0 +1,7 @@
+version: "3"
+
+services:
+  database:
+    build: database/
+    ports:
+      - "8091:5432"
