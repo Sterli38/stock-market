@@ -1,7 +1,9 @@
 package com.example.stockmarket.service;
 
+import com.example.stockmarket.config.ApplicationProperties;
 import com.example.stockmarket.service.response.WebCurrencyServiceResponse;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -13,6 +15,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
@@ -25,56 +30,56 @@ import static org.mockito.Mockito.*;
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
 class WebCurrencyServiceTest {
-    @Value("${currency.service.url}")
-    String currencyServiceUrl;
-    @Value("${currency.service.key}")
-    String currencyKey;
+    @Autowired
+    ApplicationProperties properties;
     @Mock
-    RestTemplate restTemplate;
-    @InjectMocks
-    WebCurrencyService webCurrencyService;
+    private RestTemplate restTemplate;
+    @Autowired
+    private WebCurrencyService webCurrencyService;
+
+    @BeforeEach
+    public void setup() {
+        ReflectionTestUtils.setField(webCurrencyService, "restTemplate", restTemplate);
+    }
 
     @Test
     public void isValidTest() {
         String pair = "USDRUB";
+        String url = properties.getCurrencyServiceUrl() + "/api/?get=rates&pairs={pair}&key={key}";
+
         Map<String, String> response = new HashMap<>();
         response.put(pair, "64.1824");
-        String url = currencyServiceUrl + "/api/?get=rates&pairs={pair}&key={key}";
         WebCurrencyServiceResponse webCurrencyServiceResponse = new WebCurrencyServiceResponse();
         webCurrencyServiceResponse.setStatus("200");
         webCurrencyServiceResponse.setMessage("rates");
-//        webCurrencyServiceResponse.setData();
+        webCurrencyServiceResponse.setData(response);
 
         when(restTemplate.getForObject(eq(url), any(), anyString(), anyString()))
-        .thenReturn(webCurrencyServiceResponse);
-
-//        HttpHeaders httpHeaders = new HttpHeaders();
-//        when(restTemplate.headForHeaders(any())).thenReturn(httpHeaders);
-//
-//        Assertions.assertSame(httpHeaders, restTemplate.headForHeaders(null));
+                .thenReturn(webCurrencyServiceResponse);
 
         boolean result = webCurrencyService.isValid(pair);
-//
+
         assertTrue(result);
     }
 
     @Test
     public void convertTest() {
         String pair = "USDRUB";
+        double amount = 100;
+        String url = properties.getCurrencyServiceUrl() + "/api/?get=rates&pairs={pair}&key={key}";
+
         Map<String, String> response = new HashMap<>();
         response.put(pair, "64.1824");
-        String url = currencyServiceUrl + "/api/?get=rates&pairs={pair}&key={key}";
         WebCurrencyServiceResponse webCurrencyServiceResponse = new WebCurrencyServiceResponse();
         webCurrencyServiceResponse.setStatus("200");
         webCurrencyServiceResponse.setMessage("rates");
+        webCurrencyServiceResponse.setData(response);
 
-                when(restTemplate.getForObject(url, WebCurrencyServiceResponse.class, pair, currencyKey))
+        double expectResult = Double.parseDouble(new ArrayList<>(webCurrencyServiceResponse.getData().values()).get(0)) * amount;
+
+        when(restTemplate.getForObject(url, WebCurrencyServiceResponse.class, pair, properties.getCurrencyServiceKey()))
                 .thenReturn(webCurrencyServiceResponse);
 
-
-        double expectResult = Double.parseDouble(new ArrayList<>(webCurrencyServiceResponse.getData().values()).get(0));
-
         Assertions.assertEquals(expectResult, webCurrencyService.convert("USD", 100, "RUB"));
-
     }
 }
