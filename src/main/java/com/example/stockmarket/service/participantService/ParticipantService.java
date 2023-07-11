@@ -1,4 +1,4 @@
-package com.example.stockmarket.service;
+package com.example.stockmarket.service.participantService;
 
 import com.example.stockmarket.dao.ParticipantDao;
 import com.example.stockmarket.entity.Participant;
