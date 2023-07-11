@@ -102,7 +102,7 @@ class ParticipantControllerTest {
         updateForParticipant.setCreationDate(new Date(1688059945000L));
         updateForParticipant.setPassword("testPassword");
 
-        MvcResult result = mockMvc.perform(post("/participant/edit")
+        mockMvc.perform(post("/participant/edit")
                         .content(mapper.writeValueAsString(updateForParticipant))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").isNumber())
@@ -110,9 +110,7 @@ class ParticipantControllerTest {
                 .andExpect(jsonPath("$.creationDate").value(updateForParticipant.getCreationDate()))
                 .andReturn();
 
-        int updateParticipantId = JsonPath.read(result.getResponse().getContentAsString(), "$.id");
-
-        mockMvc.perform(get("/participant/get/{id}", updateParticipantId))
+        mockMvc.perform(get("/participant/get/{id}", updateForParticipant.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.name").value(updateForParticipant.getName()))
@@ -128,5 +126,7 @@ class ParticipantControllerTest {
                 .andExpect(jsonPath("$.name").value(egor.getName()))
                 .andExpect(jsonPath("$.creationDate").value(egor.getCreationDate()));
 
+        mockMvc.perform(get("/participant/get/{id}", egor.getId()))
+                .andExpect(status().isNotFound());
     }
 }

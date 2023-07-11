@@ -5,6 +5,9 @@ import com.example.stockmarket.controller.ParticipantController.response.Partici
 import com.example.stockmarket.entity.Participant;
 import com.example.stockmarket.service.participantService.ParticipantService;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,8 +23,13 @@ public class ParticipantController {
     }
 
     @GetMapping("/get/{id}")
-    public ParticipantResponse getParticipantById(@PathVariable long id) {
-        return convertParticipant(service.getParticipantById(id));
+    public ResponseEntity<ParticipantResponse> getParticipantById(@PathVariable long id) {
+        Participant participant = service.getParticipantById(id);
+        if ( participant != null ) {
+            return ResponseEntity.ok(convertParticipant(participant));
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @PostMapping("/edit")
