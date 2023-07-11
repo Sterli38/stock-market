@@ -1,7 +1,6 @@
 package com.example.stockmarket.controller;
 
-import com.example.stockmarket.controller.ParticipantController.request.ParticipantRequest;
-import com.example.stockmarket.controller.ParticipantController.response.ParticipantResponse;
+import com.example.stockmarket.controller.request.ParticipantRequest;
 import com.example.stockmarket.entity.Participant;
 import com.example.stockmarket.service.participantService.ParticipantService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,7 +14,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultMatcher;
 
 
 import java.util.Date;

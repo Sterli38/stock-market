@@ -1,15 +1,16 @@
-package com.example.stockmarket.controller.ParticipantController;
+package com.example.stockmarket.controller;
 
-import com.example.stockmarket.controller.ParticipantController.request.ParticipantRequest;
-import com.example.stockmarket.controller.ParticipantController.response.ParticipantResponse;
+import com.example.stockmarket.controller.request.ParticipantRequest;
+import com.example.stockmarket.controller.response.ParticipantResponse;
 import com.example.stockmarket.entity.Participant;
 import com.example.stockmarket.service.participantService.ParticipantService;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+@Validated
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/participant")

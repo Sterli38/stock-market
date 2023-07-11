@@ -1,9 +1,6 @@
-package com.example.stockmarket.controller.ParticipantController.response;
+package com.example.stockmarket.controller.response;
 
-import jakarta.validation.constraints.*;
 import lombok.*;
-
-import java.sql.Date;
 
 @Data
 public class ParticipantResponse {
