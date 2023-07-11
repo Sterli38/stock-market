@@ -1,8 +1,7 @@
 package com.example.stockmarket.controller;
 
-import com.example.stockmarket.dao.ParticipantDao;
 import com.example.stockmarket.entity.Participant;
-import com.example.stockmarket.service.ParticipantService;
+import com.example.stockmarket.service.participantService.ParticipantService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
