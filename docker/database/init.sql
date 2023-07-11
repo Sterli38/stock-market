@@ -4,13 +4,10 @@ DROP TABLE if EXISTS history;
 CREATE TABLE participant
 (
     id            serial primary key,
-    name          varchar not null,
-    creation_date timestamp    not null,
-    password      varchar not null
+    name          varchar   not null,
+    creation_date timestamp not null,
+    password      varchar   not null
 );
-
-INSERT INTO participant(name, creation_date, password)
-values ('Egor', '2023-09-09', 'pasw123');
 
 CREATE TABLE history
 (
@@ -22,6 +19,9 @@ CREATE TABLE history
     payment_currency   varchar,
     commission         double precision
 );
+
+INSERT INTO participant(name, creation_date, password)
+values ('Egor', '2023-09-09', 'pasw123');
 
 INSERT INTO history(date, amount, participant_id, purchased_currency, payment_currency, commission)
 values ('2023-10-22 10:00:01', '100.23', 1, 'EUR', 'USD', '0.434'),

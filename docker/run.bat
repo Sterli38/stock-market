@@ -1,1 +1,0 @@
-docker run --name stock-market -d -p 8091:5432 stock-market:latest
