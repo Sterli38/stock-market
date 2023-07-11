@@ -1,4 +1,4 @@
-package com.example.stockmarket.controller.ParticipantController.request;
+package com.example.stockmarket.controller.request;
 
 import jakarta.validation.constraints.*;
 import lombok.Data;
