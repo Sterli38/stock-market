@@ -1,6 +1,9 @@
 package com.example.stockmarket.controller;
 
+import com.example.stockmarket.controller.request.CreateParticipantRequest;
+import com.example.stockmarket.controller.request.GetParticipantIdRequest;
 import com.example.stockmarket.controller.request.ParticipantRequest;
+import com.example.stockmarket.controller.request.UpdateParticipantRequest;
 import com.example.stockmarket.controller.response.ParticipantResponse;
 import com.example.stockmarket.entity.Participant;
 import com.example.stockmarket.service.participantService.ParticipantService;
@@ -18,14 +21,14 @@ public class ParticipantController {
     private final ParticipantService service;
 
     @PostMapping("/create")
-    public ParticipantResponse createParticipant(@RequestBody ParticipantRequest participantRequest) {
-        Participant participant = convertParticipantRequest(participantRequest);
+    public ParticipantResponse createParticipant(@RequestBody CreateParticipantRequest createParticipantRequest) {
+        Participant participant = convertParticipantRequest(createParticipantRequest);
         return convertParticipant(service.createParticipant(participant));
     }
 
-    @GetMapping("/get/{id}")
-    public ResponseEntity<ParticipantResponse> getParticipantById(@PathVariable long id) {
-        Participant participant = service.getParticipantById(id);
+    @GetMapping("/get")
+    public ResponseEntity<ParticipantResponse> getParticipantById(@RequestBody GetParticipantIdRequest getParticipantIdRequest) {
+        Participant participant = service.getParticipantById(getParticipantIdRequest.getId());
         if ( participant != null ) {
             return ResponseEntity.ok(convertParticipant(participant));
         } else {
@@ -34,15 +37,15 @@ public class ParticipantController {
     }
 
     @PostMapping("/edit")
-    public ParticipantResponse editParticipant(@RequestBody ParticipantRequest participantRequest) {
-        Participant participant = service.editParticipant(convertParticipantRequest(participantRequest));
+    public ParticipantResponse editParticipant(@RequestBody UpdateParticipantRequest updateParticipantRequest) {
+        Participant participant = service.editParticipant(convertParticipantRequest(updateParticipantRequest));
         ParticipantResponse participantResponse = convertParticipant(participant);
         return participantResponse;
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ParticipantResponse deleteParticipantById(@PathVariable long id) {
-        return convertParticipant(service.deleteParticipantById(id));
+    @DeleteMapping("/delete")
+    public ParticipantResponse deleteParticipantById(@RequestBody GetParticipantIdRequest getParticipantIdRequest) {
+        return convertParticipant(service.deleteParticipantById(getParticipantIdRequest.getId()));
     }
 
     private Participant convertParticipantRequest(ParticipantRequest participantRequest) {
