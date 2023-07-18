@@ -1,4 +1,4 @@
-package com.example.stockmarket.service.response;
+package com.example.stockmarket.controller.response;
 
 import lombok.Data;
 import lombok.Value;

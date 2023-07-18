@@ -1,9 +1,8 @@
 package com.example.stockmarket.service;
 
 import com.example.stockmarket.config.ApplicationProperties;
-import com.example.stockmarket.service.response.WebCurrencyServiceResponse;
+import com.example.stockmarket.controller.response.WebCurrencyServiceResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -28,6 +27,7 @@ public class WebCurrencyService implements CurrencyService {
             return "200".equals(webCurrencyServiceResponse.getStatus());
         }
     }
+
     @Override
     public double convert(String from, double amount, String in) {
         String pair = from + in;

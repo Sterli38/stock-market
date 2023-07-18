@@ -11,13 +11,14 @@ CREATE TABLE participant
 
 CREATE TABLE history
 (
-    id                 serial primary key,
-    date               timestamp        not null,
-    amount             double precision not null,
-    participant_id     int              not null,
-    purchased_currency varchar          not null,
-    payment_currency   varchar,
-    commission         double precision
+    id                serial primary key,
+    operation_type    varchar                         not null,
+    date              timestamp                       not null,
+    amount            double precision                not null,
+    participant_id    int REFERENCES participant (id) not null,
+    received_currency varchar,
+    given_currency    varchar,
+    commission        double precision
 );
 
 INSERT INTO participant(name, creation_date, password)
