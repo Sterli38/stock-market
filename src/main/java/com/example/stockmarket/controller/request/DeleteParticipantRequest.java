@@ -5,5 +5,5 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class UpdateParticipantRequest extends CreateParticipantRequest {
+public class DeleteParticipantRequest extends ParticipantRequest {
 }

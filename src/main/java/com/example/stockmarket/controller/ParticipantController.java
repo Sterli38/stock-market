@@ -1,9 +1,6 @@
 package com.example.stockmarket.controller;
 
-import com.example.stockmarket.controller.request.CreateParticipantRequest;
-import com.example.stockmarket.controller.request.GetParticipantIdRequest;
-import com.example.stockmarket.controller.request.ParticipantRequest;
-import com.example.stockmarket.controller.request.UpdateParticipantRequest;
+import com.example.stockmarket.controller.request.*;
 import com.example.stockmarket.controller.response.ParticipantResponse;
 import com.example.stockmarket.entity.Participant;
 import com.example.stockmarket.service.participantService.ParticipantService;
@@ -27,7 +24,7 @@ public class ParticipantController {
     }
 
     @GetMapping("/get")
-    public ResponseEntity<ParticipantResponse> getParticipantById(@RequestBody GetParticipantIdRequest getParticipantIdRequest) {
+    public ResponseEntity<ParticipantResponse> getParticipantById(@RequestBody GetParticipantRequest getParticipantIdRequest) {
         Participant participant = service.getParticipantById(getParticipantIdRequest.getId());
         if ( participant != null ) {
             return ResponseEntity.ok(convertParticipant(participant));
@@ -44,11 +41,11 @@ public class ParticipantController {
     }
 
     @DeleteMapping("/delete")
-    public ParticipantResponse deleteParticipantById(@RequestBody GetParticipantIdRequest getParticipantIdRequest) {
-        return convertParticipant(service.deleteParticipantById(getParticipantIdRequest.getId()));
+    public ParticipantResponse deleteParticipantById(@RequestBody DeleteParticipantRequest deleteParticipantRequest) {
+        return convertParticipant(service.deleteParticipantById(deleteParticipantRequest.getId()));
     }
 
-    private Participant convertParticipantRequest(ParticipantRequest participantRequest) {
+    private Participant convertParticipantRequest(CreateParticipantRequest participantRequest) {
         Participant participant = new Participant();
         participant.setId(participantRequest.getId());
         participant.setName(participantRequest.getName());
