@@ -2,7 +2,7 @@ package com.example.stockmarket.controller;
 
 import com.example.stockmarket.controller.request.TransactionRequest;
 import com.example.stockmarket.entity.Transaction;
-import com.example.stockmarket.service.replenishmentService.TransactionService;
+import com.example.stockmarket.service.transactionService.TransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -14,13 +14,13 @@ import org.springframework.web.bind.annotation.*;
 public class TransactionController {
     private final TransactionService service;
 
-    @PostMapping("/add")
-    public void replenishment(@RequestBody TransactionRequest transactionalRequest) {
-        service.replenishment(convertTransactionalRequest(transactionalRequest));
+    @PostMapping("/depositing")
+    public void depositing(@RequestBody TransactionRequest transactionalRequest) {
+        service.depositing(convertTransactionalRequest(transactionalRequest));
     }
 
     @PostMapping("/buy")
-    public void buy(@RequestBody TransactionRequest transactionalRequest) {
+    public void buy(@RequestBody TransactionRequest transactionalRequest)  {
         service.buy(convertTransactionalRequest(transactionalRequest));
     }
 

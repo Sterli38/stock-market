@@ -7,7 +7,7 @@ import java.util.Date;
 @Data
 public class Transaction {
     private Long id;
-    private String operationType;
+    private Long operationTypeId;
     private Date date;
     private double amount;
     private Long participantId;

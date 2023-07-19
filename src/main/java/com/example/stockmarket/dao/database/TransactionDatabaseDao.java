@@ -14,27 +14,21 @@ import java.util.List;
 public class TransactionDatabaseDao implements TransactionDao {
     private final JdbcTemplate jdbcTemplate;
 
-    public void add(Transaction transaction) {
-        String sql = "INSERT INTO history (operation_type, date,amount, participant_id, received_currency, commission)" +
-                " values(?, ?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sql, transaction.getOperationType(),transaction.getDate(), transaction.getAmount(), transaction.getParticipantId(),
-                transaction.getReceivedCurrency(), transaction.getCommission());
+    @Override
+    public void saveTransaction(Transaction transaction) { // у нас нет типа операции у нас теперь id типа операции
+        String sql = "INSERT INTO history (operation_type_id, date, amount, participant_id, received_currency, given_currency, commission)" +
+                " values(?, ?, ?, ?, ?, ?, ?)";
+        jdbcTemplate.update(sql, transaction.getOperationTypeId(), transaction.getDate(), transaction.getAmount(), transaction.getParticipantId(),
+                transaction.getReceivedCurrency(), transaction.getGivenCurrency(), transaction.getCommission());
     }
 
-    public void buy(Transaction transaction) {
-        String sql = "INSERT INTO history (operation_type, date, amount, participant_id, received_currency, given_currency, commission) " +
-                "values(?, ?, ?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sql, transaction.getOperationType(), transaction.getDate(), transaction.getAmount(),
-                transaction.getParticipantId(), transaction.getReceivedCurrency(), transaction.getGivenCurrency(), transaction.getCommission());
-    }
+    @Override
+    public Long findTypeById(String type) {
+        String sql = "SELECT id FROM operation_type WHERE type = ?";
+        return jdbcTemplate.queryForObject(sql, Long.class, type);
+}
 
-    public void sell(Transaction transaction) {
-        String sql = "INSERT INTO history (operation_type, date, amount, participant_id, given_currency, received_currency, commission) " +
-                "values(?, ?, ?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sql, transaction.getOperationType(), transaction.getDate(), transaction.getAmount(),
-                transaction.getParticipantId(), transaction.getGivenCurrency(), transaction.getReceivedCurrency(), transaction.getCommission());
-    }
-
+    @Override
     public List<Transaction> getBalanceByCurrency(Transaction transaction) {
         String sql = "SELECT * FROM history WHERE participant_id = ? and received_currency = ? or given_currency = ?";
         return jdbcTemplate.query(sql, new TransactionMapper(), transaction.getParticipantId(), transaction.getReceivedCurrency(), transaction.getGivenCurrency());
