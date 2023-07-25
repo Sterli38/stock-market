@@ -6,9 +6,7 @@ import java.util.List;
 
 public interface TransactionDao {
 
-    void saveTransaction(Transaction transaction);
-
-    Long findTypeById(String type);
+    Transaction saveTransaction(Transaction transaction);
 
     List<Transaction> getBalanceByCurrency(Transaction transaction);
 }

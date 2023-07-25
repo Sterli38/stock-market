@@ -1,6 +1,10 @@
 package com.example.stockmarket.controller;
 
+import com.example.stockmarket.controller.request.BalanceRequest;
 import com.example.stockmarket.controller.request.TransactionRequest;
+import com.example.stockmarket.controller.response.BalanceByCurrencyResponse;
+import com.example.stockmarket.controller.response.TransactionalResponse;
+import com.example.stockmarket.entity.OperationType;
 import com.example.stockmarket.entity.Transaction;
 import com.example.stockmarket.service.transactionService.TransactionService;
 import lombok.RequiredArgsConstructor;
@@ -14,24 +18,30 @@ import org.springframework.web.bind.annotation.*;
 public class TransactionController {
     private final TransactionService service;
 
-    @PostMapping("/depositing")
-    public void depositing(@RequestBody TransactionRequest transactionalRequest) {
-        service.depositing(convertTransactionalRequest(transactionalRequest));
+    @PostMapping("/makeDepositing")
+    public TransactionalResponse makeDepositing(@RequestBody TransactionRequest transactionalRequest) {
+        Transaction transaction = convertTransactionalRequest(transactionalRequest);
+        transaction.setOperationType(OperationType.DEPOSITING);
+        return convertToTransactionalResponse(service.depositing(transaction));
     }
 
     @PostMapping("/buy")
-    public void buy(@RequestBody TransactionRequest transactionalRequest)  {
-        service.buy(convertTransactionalRequest(transactionalRequest));
+    public TransactionalResponse buy(@RequestBody TransactionRequest transactionalRequest)  {
+        Transaction transaction = convertTransactionalRequest(transactionalRequest);
+        transaction.setOperationType(OperationType.BUYING);
+        return convertToTransactionalResponse(service.buy(transaction));
     }
 
     @PostMapping("/sell")
-    public void sell(@RequestBody TransactionRequest transactionalRequest) {
-        service.sell(convertTransactionalRequest(transactionalRequest));
+    public TransactionalResponse sell(@RequestBody TransactionRequest transactionalRequest) {
+        Transaction transaction = convertTransactionalRequest(transactionalRequest);
+        transaction.setOperationType(OperationType.SELLING);
+       return convertToTransactionalResponse(service.sell(transaction));
     }
 
     @GetMapping("/get")
-    public void getBalanceByCurrency(@RequestBody TransactionRequest transactionalRequest) {
-        service.getBalanceByCurrency(convertTransactionalRequest(transactionalRequest));
+    public BalanceByCurrencyResponse getBalanceByCurrency(@RequestBody BalanceRequest balanceRequest) {
+        return convertToBalanceResponse(service.getBalanceByCurrency(convertBalanceRequest(balanceRequest)));
     }
 
     private Transaction convertTransactionalRequest(TransactionRequest request) {
@@ -43,5 +53,25 @@ public class TransactionController {
         transaction.setGivenCurrency(request.getGivenCurrency());
 
         return transaction;
+    }
+
+    private Transaction convertBalanceRequest(BalanceRequest request) {
+        Transaction transaction = new Transaction();
+        transaction.setParticipantId(request.getParticipantId());
+        transaction.setReceivedCurrency(request.getReceivedCurrency());
+
+        return transaction;
+    }
+
+    private TransactionalResponse convertToTransactionalResponse (Transaction transaction) {
+        TransactionalResponse transactionalResponse = new TransactionalResponse();
+        transactionalResponse.setTransactionId(transaction.getId());
+        return transactionalResponse;
+    }
+
+    private BalanceByCurrencyResponse convertToBalanceResponse(double sum) {
+        BalanceByCurrencyResponse balanceByCurrencyResponse = new BalanceByCurrencyResponse();
+        balanceByCurrencyResponse.setCurrencyBalance(sum);
+        return balanceByCurrencyResponse;
     }
 }
