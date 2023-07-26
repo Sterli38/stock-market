@@ -1,6 +1,8 @@
 package com.example.stockmarket.controller;
 
+import com.example.stockmarket.controller.request.CreateParticipantRequest;
 import com.example.stockmarket.controller.request.ParticipantRequest;
+import com.example.stockmarket.controller.request.UpdateParticipantRequest;
 import com.example.stockmarket.entity.Participant;
 import com.example.stockmarket.service.participantService.ParticipantService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -59,7 +61,7 @@ class ParticipantControllerTest {
 
     @Test
     void createParticipant() throws Exception {
-        ParticipantRequest testParticipant = new ParticipantRequest();
+        CreateParticipantRequest testParticipant = new CreateParticipantRequest();
         Date date = new Date(1687532277000L);
         testParticipant.setName("TestName");
         testParticipant.setCreationDate(date);
@@ -75,8 +77,11 @@ class ParticipantControllerTest {
                 .andReturn();
 
         int id = JsonPath.read(result.getResponse().getContentAsString(), "$.id");
+        testParticipant.setId(Long.valueOf(id));
 
-        mockMvc.perform(get("/participant/get/{id}", id))
+        mockMvc.perform(get("/participant/get")
+                        .content(mapper.writeValueAsString(testParticipant))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.name").value(testParticipant.getName()))
                 .andExpect(jsonPath("$.creationDate").value(testParticipant.getCreationDate()));
@@ -84,7 +89,9 @@ class ParticipantControllerTest {
 
     @Test
     void getParticipantById() throws Exception {
-        mockMvc.perform(get("/participant/get/{id}", egor.getId()))
+        mockMvc.perform(get("/participant/get")
+                        .content(mapper.writeValueAsString(egor))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.name").value(egor.getName()))
@@ -94,7 +101,7 @@ class ParticipantControllerTest {
 
     @Test
     void editParticipant() throws Exception {
-        ParticipantRequest updateForParticipant = new ParticipantRequest();
+        UpdateParticipantRequest updateForParticipant = new UpdateParticipantRequest();
         updateForParticipant.setId(egor.getId());
         updateForParticipant.setName("testName");
         updateForParticipant.setCreationDate(new Date(1688059945000L));
@@ -108,7 +115,9 @@ class ParticipantControllerTest {
                 .andExpect(jsonPath("$.creationDate").value(updateForParticipant.getCreationDate()))
                 .andReturn();
 
-        mockMvc.perform(get("/participant/get/{id}", updateForParticipant.getId()))
+        mockMvc.perform(get("/participant/get")
+                        .content(mapper.writeValueAsString(updateForParticipant))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.name").value(updateForParticipant.getName()))
@@ -118,13 +127,17 @@ class ParticipantControllerTest {
 
     @Test
     void deleteParticipantById() throws Exception {
-        mockMvc.perform(delete("/participant/delete/{id}", egor.getId()))
+        mockMvc.perform(delete("/participant/delete")
+                        .content(mapper.writeValueAsString(egor))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.name").value(egor.getName()))
                 .andExpect(jsonPath("$.creationDate").value(egor.getCreationDate()));
 
-        mockMvc.perform(get("/participant/get/{id}", egor.getId()))
+        mockMvc.perform(get("/participant/get")
+                        .content(mapper.writeValueAsString(egor))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
 }
