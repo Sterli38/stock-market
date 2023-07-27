@@ -31,8 +31,8 @@ CREATE TABLE history
 
 INSERT INTO operation_type(type)
 values ('DEPOSITING'),
-       ('BUYING'),
-       ('SELLING');
+       ('EXCHANGE'),
+       ('WITHDRAWAL');
 
 INSERT INTO participant(name, creation_date, password)
 values ('Egor', '2023-09-09', 'pasw123');

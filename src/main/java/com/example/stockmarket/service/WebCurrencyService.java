@@ -2,6 +2,7 @@ package com.example.stockmarket.service;
 
 import com.example.stockmarket.config.ApplicationProperties;
 import com.example.stockmarket.controller.response.WebCurrencyServiceResponse;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -29,6 +30,7 @@ public class WebCurrencyService implements CurrencyService {
     }
 
     @Override
+    @NotNull
     public double convert(String from, double amount, String in) {
         String pair = from + in;
         String url = applicationProperties.getCurrencyServiceUrl() + "/api/?get=rates&pairs={pair}&key={key}";

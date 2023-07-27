@@ -1,4 +1,4 @@
-package com.example.stockmarket.controller.request;
+package com.example.stockmarket.controller.request.transactionRequest;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;

@@ -1,9 +1,9 @@
 package com.example.stockmarket.controller;
 
-import com.example.stockmarket.controller.request.BalanceRequest;
-import com.example.stockmarket.controller.request.TransactionRequest;
+import com.example.stockmarket.controller.request.transactionRequest.BalanceRequest;
+import com.example.stockmarket.controller.request.transactionRequest.TransactionRequest;
 import com.example.stockmarket.controller.response.BalanceByCurrencyResponse;
-import com.example.stockmarket.controller.response.TransactionalResponse;
+import com.example.stockmarket.controller.response.TransactionResponse;
 import com.example.stockmarket.entity.OperationType;
 import com.example.stockmarket.entity.Transaction;
 import com.example.stockmarket.service.transactionService.TransactionService;
@@ -19,29 +19,29 @@ public class TransactionController {
     private final TransactionService service;
 
     @PostMapping("/makeDepositing")
-    public TransactionalResponse makeDepositing(@RequestBody TransactionRequest transactionalRequest) {
+    public TransactionResponse makeDepositing(@RequestBody TransactionRequest transactionalRequest) {
         Transaction transaction = convertTransactionalRequest(transactionalRequest);
         transaction.setOperationType(OperationType.DEPOSITING);
         return convertToTransactionalResponse(service.depositing(transaction));
     }
 
-    @PostMapping("/buy")
-    public TransactionalResponse buy(@RequestBody TransactionRequest transactionalRequest)  {
-        Transaction transaction = convertTransactionalRequest(transactionalRequest);
-        transaction.setOperationType(OperationType.BUYING);
-        return convertToTransactionalResponse(service.buy(transaction));
+    @GetMapping("/withdrawal")
+    public TransactionResponse withdrawal(@RequestBody TransactionRequest transactionRequest) {
+        Transaction transaction = convertTransactionalRequest(transactionRequest);
+        transaction.setOperationType(OperationType.WITHDRAWAL);
+        return convertToTransactionalResponse(service.withdrawal(transaction));
     }
 
-    @PostMapping("/sell")
-    public TransactionalResponse sell(@RequestBody TransactionRequest transactionalRequest) {
+    @PostMapping("/exchange")
+    public TransactionResponse exchange(@RequestBody TransactionRequest transactionalRequest)  {
         Transaction transaction = convertTransactionalRequest(transactionalRequest);
-        transaction.setOperationType(OperationType.SELLING);
-       return convertToTransactionalResponse(service.sell(transaction));
+        transaction.setOperationType(OperationType.EXCHANGE);
+        return convertToTransactionalResponse(service.exchange(transaction));
     }
 
     @GetMapping("/get")
     public BalanceByCurrencyResponse getBalanceByCurrency(@RequestBody BalanceRequest balanceRequest) {
-        return convertToBalanceResponse(service.getBalanceByCurrency(convertBalanceRequest(balanceRequest)));
+        return convertToBalanceResponse(service.getBalanceByCurrency(balanceRequest.getParticipantId(), balanceRequest.getCurrency()));
     }
 
     private Transaction convertTransactionalRequest(TransactionRequest request) {
@@ -55,16 +55,8 @@ public class TransactionController {
         return transaction;
     }
 
-    private Transaction convertBalanceRequest(BalanceRequest request) {
-        Transaction transaction = new Transaction();
-        transaction.setParticipantId(request.getParticipantId());
-        transaction.setReceivedCurrency(request.getReceivedCurrency());
-
-        return transaction;
-    }
-
-    private TransactionalResponse convertToTransactionalResponse (Transaction transaction) {
-        TransactionalResponse transactionalResponse = new TransactionalResponse();
+    private TransactionResponse convertToTransactionalResponse (Transaction transaction) {
+        TransactionResponse transactionalResponse = new TransactionResponse();
         transactionalResponse.setTransactionId(transaction.getId());
         return transactionalResponse;
     }

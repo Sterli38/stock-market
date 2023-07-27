@@ -1,6 +1,9 @@
 package com.example.stockmarket.controller;
 
-import com.example.stockmarket.controller.request.*;
+import com.example.stockmarket.controller.request.participantRequest.CreateParticipantRequest;
+import com.example.stockmarket.controller.request.participantRequest.DeleteParticipantRequest;
+import com.example.stockmarket.controller.request.participantRequest.GetParticipantRequest;
+import com.example.stockmarket.controller.request.participantRequest.UpdateParticipantRequest;
 import com.example.stockmarket.controller.response.ParticipantResponse;
 import com.example.stockmarket.entity.Participant;
 import com.example.stockmarket.service.participantService.ParticipantService;
@@ -36,8 +39,7 @@ public class ParticipantController {
     @PostMapping("/edit")
     public ParticipantResponse editParticipant(@RequestBody UpdateParticipantRequest updateParticipantRequest) {
         Participant participant = service.editParticipant(convertParticipantRequest(updateParticipantRequest));
-        ParticipantResponse participantResponse = convertParticipant(participant);
-        return participantResponse;
+        return convertParticipant(participant);
     }
 
     @DeleteMapping("/delete")

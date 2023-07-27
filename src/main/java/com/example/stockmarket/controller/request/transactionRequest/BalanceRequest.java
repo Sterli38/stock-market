@@ -1,4 +1,4 @@
-package com.example.stockmarket.controller.request;
+package com.example.stockmarket.controller.request.transactionRequest;
 
 
 import jakarta.validation.constraints.NotNull;
@@ -11,6 +11,6 @@ public class BalanceRequest {
     @NotNull
     @Positive
     private Long participantId;
-    @Nullable
-    private String receivedCurrency;
+    @NotNull
+    private String currency;
 }

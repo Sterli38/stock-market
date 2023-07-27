@@ -9,7 +9,9 @@ import com.example.stockmarket.service.WebCurrencyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -19,17 +21,21 @@ public class TransactionService {
     private final StockMarketSettings stockMarketSettings;
 
     public Transaction depositing(Transaction transaction) {
-        transaction.setOperationType(OperationType.DEPOSITING);
         transaction.setCommission(calculateCommission(transaction.getAmount(), transaction.getReceivedCurrency()));
         return dao.saveTransaction(transaction);
     }
 
-    public Transaction buy(Transaction transaction) {
+    public Transaction withdrawal(Transaction transaction) {
+        transaction.setCommission(calculateCommission(transaction.getAmount(), transaction.getGivenCurrency()));
+        return dao.saveTransaction(transaction);
+    }
+
+    public Transaction exchange(Transaction transaction) {
         String pair = transaction.getReceivedCurrency() + transaction.getGivenCurrency();
+
         if (!webCurrencyService.isValid(pair)) {
             throw new CurrencyPairIsNotValidException(pair);
         }
-        transaction.setOperationType(OperationType.BUYING);
 
         double amountReceivedCurrency = webCurrencyService.convert(transaction.getGivenCurrency(), transaction.getAmount(), transaction.getReceivedCurrency());
 
@@ -38,65 +44,71 @@ public class TransactionService {
         return dao.saveTransaction(transaction);
     }
 
-    public Transaction sell(Transaction transaction) {
-        String pair = transaction.getReceivedCurrency() + transaction.getGivenCurrency();
-        if (!webCurrencyService.isValid(pair)) {
-         throw new CurrencyPairIsNotValidException(pair);
-        }
-            transaction.setOperationType(OperationType.SELLING);
+    public double getBalanceByCurrency(Long id, String currency) {
+        List<Transaction> transactions = dao.getBalanceByCurrency(id, currency);
 
-//            double amountReceivedCurrency = webCurrencyService.convert(transaction.getReceivedCurrency(), transaction.getAmount(), transaction.getGivenCurrency());
-
-            transaction.setCommission(calculateCommission(transaction.getAmount(), transaction.getGivenCurrency()));
-            return dao.saveTransaction(transaction);
-    }
-
-    public double getBalanceByCurrency(Transaction transaction) {
-        List<Transaction> transactions = dao.getBalanceByCurrency(transaction);
-
-        List<Transaction> transactions1 = transactions.stream()
+        List<Transaction> depositing = transactions.stream()
                 .filter(i -> i.getOperationType() == OperationType.DEPOSITING)
                 .toList();
 
-        List<Transaction> transactions2 = transactions.stream()
-                .filter(i -> i.getOperationType() == OperationType.BUYING)
+        List<Transaction> replenishment = transactions.stream()
+                .filter(i -> i.getOperationType() == OperationType.EXCHANGE)
+                .filter(i -> Objects.equals(i.getReceivedCurrency(), currency))
                 .toList();
 
-        List<Transaction> transactions3 = transactions.stream()
-                .filter(i -> i.getOperationType() == OperationType.SELLING)
+        List<Transaction> subtraction = transactions.stream()
+                .filter(i -> i.getOperationType() == OperationType.EXCHANGE)
+                .filter(i -> Objects.equals(i.getGivenCurrency(), currency))
                 .toList();
 
-        double sum = 0;
-        double sum1 = 0;
-        double sum2 = 0;
 
-        for (Transaction value : transactions1) {
-            sum += value.getAmount() - value.getCommission();
+        List<Transaction> subtraction1 = new ArrayList<>();
+        for(Transaction element: subtraction) {
+            element.setAmount(webCurrencyService.convert(element.getReceivedCurrency(), element.getAmount(), element.getGivenCurrency()));
+            element.setCommission(calculateCommission(element.getAmount(), element.getGivenCurrency()));
+            subtraction1.add(element);
         }
 
-        for (Transaction value : transactions2) {
-            sum1 += value.getAmount() - value.getCommission();
+        List<Transaction> withdrawal = transactions.stream()
+                .filter(i -> i.getOperationType() == OperationType.WITHDRAWAL)
+                .toList();
+
+        double depositingSum = 0;
+        double replenishmentSum = 0;
+        double subtractionSum = 0;
+        double withdrawalSum = 0;
+
+        for (Transaction value : depositing) {
+            depositingSum += value.getAmount() - value.getCommission();
         }
 
-        for (Transaction value : transactions3) {
-            sum2 += value.getAmount() - value.getCommission();
+        for (Transaction value : replenishment) {
+            replenishmentSum += value.getAmount() - value.getCommission();
         }
 
-        return sum + sum1 - sum2;
+        for (Transaction value : subtraction1) {
+            subtractionSum += value.getAmount() - value.getCommission();
+        }
+
+        for (Transaction value : withdrawal) {
+            withdrawalSum += value.getAmount() - value.getCommission();
+        }
+
+        return depositingSum + replenishmentSum - (withdrawalSum + subtractionSum);
     }
 
     private double calculateCommission(double amount, String currency) {
         double commission = 0;
         double amountOfRub;
-        String transferCurrency = "RUB";
-        if(!currency.equals(transferCurrency)) {
-            amountOfRub = webCurrencyService.convert(currency, amount, transferCurrency);
+        
+        if(!currency.equals(stockMarketSettings.getBaseCurrency())) {
+            amountOfRub = webCurrencyService.convert(currency, amount, stockMarketSettings.getBaseCurrency());
         } else {
             amountOfRub = amount;
         }
 
-        if (amountOfRub < stockMarketSettings.getCommissionThreshold()) {
-            commission = amount * stockMarketSettings.getCommission();
+        if (amountOfRub < stockMarketSettings.getThresholdOfCommissionApplication()) {
+            commission = amount * stockMarketSettings.getPercent();
         }
         return commission;
     }

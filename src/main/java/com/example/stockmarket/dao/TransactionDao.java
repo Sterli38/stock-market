@@ -8,5 +8,5 @@ public interface TransactionDao {
 
     Transaction saveTransaction(Transaction transaction);
 
-    List<Transaction> getBalanceByCurrency(Transaction transaction);
+    List<Transaction> getBalanceByCurrency(Long id, String currency);
 }

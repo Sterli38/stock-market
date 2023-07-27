@@ -3,6 +3,6 @@ package com.example.stockmarket.controller.response;
 import lombok.Data;
 
 @Data
-public class TransactionalResponse {
+public class TransactionResponse {
     private Long TransactionId;
 }

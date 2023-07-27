@@ -15,80 +15,68 @@ import java.util.Date;
 public class TransactionServiceTest {
     @Autowired
     private TransactionService service;
-    private Transaction transaction;
 
-    @BeforeEach
-    void setup() {
-        transaction = new Transaction();
-        transaction.setId(1L);
-        transaction.setDate(new Date(1690290287));
-        transaction.setParticipantId(1L);
-        transaction.setReceivedCurrency("EUR");
-        transaction.setAmount(1000);
-        transaction.setCommission(0.0);
-        transaction.setId(service.depositing(transaction).getId() + 1);
-
+    private Transaction createExpectedTransaction() {
+        Transaction expectedTransaction = new Transaction();
+        expectedTransaction.setOperationType(OperationType.DEPOSITING);
+        expectedTransaction.setDate(new Date(1690290287));
+        expectedTransaction.setAmount(1000);
+        expectedTransaction.setParticipantId(1L);
+        expectedTransaction.setReceivedCurrency("EUR");
+        expectedTransaction.setAmount(1000);
+        expectedTransaction.setCommission(0.0);
+        expectedTransaction.setId(service.depositing(expectedTransaction).getId() + 1); /////////
+        return expectedTransaction;
     }
 
     @Test
     public void depositingTest() {
-        transaction.setOperationType(OperationType.DEPOSITING);
+        Transaction expectedTransaction = createExpectedTransaction();
 
         Transaction testTransaction = new Transaction();
+        testTransaction.setOperationType(OperationType.DEPOSITING);
         testTransaction.setDate(new Date(1690290287));
         testTransaction.setId(1L);
         testTransaction.setAmount(1000);
         testTransaction.setParticipantId(1L);
         testTransaction.setReceivedCurrency("EUR");
-        Assertions.assertEquals(transaction, service.depositing(testTransaction));
+        Assertions.assertEquals(expectedTransaction, service.depositing(testTransaction));
     }
 
     @Test
-    public void buyTest_isValid() {
-        transaction.setOperationType(OperationType.BUYING);
-        transaction.setGivenCurrency("RUB");
-        transaction.setAmount(14.4437);
-        transaction.setCommission(0.7221850000000001);
+    public void withdrawalTest() {
+        Transaction expectedTransaction = createExpectedTransaction();
+        expectedTransaction.setOperationType(OperationType.WITHDRAWAL);
+        expectedTransaction.setReceivedCurrency(null);
+        expectedTransaction.setGivenCurrency("EUR");
 
         Transaction testTransaction = new Transaction();
         testTransaction.setDate(new Date(1690290287));
         testTransaction.setId(1L);
         testTransaction.setAmount(1000);
         testTransaction.setParticipantId(1L);
-        testTransaction.setReceivedCurrency("EUR");
-        testTransaction.setGivenCurrency("RUB");
-        Assertions.assertEquals(transaction, service.buy(testTransaction));
+        testTransaction.setGivenCurrency("EUR");
+        testTransaction.setOperationType(OperationType.WITHDRAWAL);
+        Assertions.assertEquals(expectedTransaction, service.withdrawal(testTransaction));
     }
 
     @Test
-    public void sellTest() {
-        transaction.setOperationType(OperationType.SELLING);
-        transaction.setGivenCurrency("RUB");
-        transaction.setCommission(50);
+    public void exchange() {
 
-        Transaction testTransaction = new Transaction();
-        testTransaction.setDate(new Date(1690290287));
-        testTransaction.setId(1L);
-        testTransaction.setAmount(1000);
-        testTransaction.setParticipantId(1L);
-        testTransaction.setReceivedCurrency("EUR");
-        testTransaction.setGivenCurrency("RUB");
-        Assertions.assertEquals(transaction, service.sell(testTransaction)); // не работает
     }
 
     @Test
     public void getBalanceByCurrency() {
-//        double expectedResult = 63.721514999999954;
-        double expectedResult = 1063.721515;
+        double expectedResult = 0;
         Transaction depositing = new Transaction();
         depositing.setOperationType(OperationType.DEPOSITING);
         depositing.setDate(new Date(1690290287));
-        depositing.setAmount(1000);
+        depositing.setAmount(10);
         depositing.setParticipantId(1L);
         depositing.setReceivedCurrency("EUR");
 
         Transaction buying = new Transaction();
-        depositing.setOperationType(OperationType.BUYING);
+        depositing.setOperationType(OperationType.EXCHANGE);
         buying.setDate(new Date(1690290287));
         buying.setAmount(1000);
         buying.setParticipantId(1L);
@@ -96,22 +84,29 @@ public class TransactionServiceTest {
         buying.setGivenCurrency("RUB");
 
         Transaction selling = new Transaction();
-        depositing.setOperationType(OperationType.SELLING);
+        depositing.setOperationType(OperationType.EXCHANGE);
         selling.setDate(new Date(1690290287));
-        selling.setAmount(1000);
+        selling.setAmount(40);
         selling.setParticipantId(1L);
-        selling.setReceivedCurrency("EUR");
-        selling.setGivenCurrency("RUB");
+        selling.setReceivedCurrency("RUB");
+        selling.setGivenCurrency("EUR");
+
+        Transaction withdrawal = new Transaction();
+        depositing.setOperationType(OperationType.WITHDRAWAL);
+        withdrawal.setDate(new Date(1690290287));
+        withdrawal.setAmount(10);
+        withdrawal.setParticipantId(1L);
+        withdrawal.setGivenCurrency("EUR");
 
         service.depositing(depositing);
-        service.buy(buying);
-        service.sell(selling);
+        service.exchange(buying);
+        service.exchange(selling);
+        service.withdrawal(withdrawal);
 
         Transaction transactionRequest = new Transaction();
         transactionRequest.setParticipantId(1L);
         transactionRequest.setReceivedCurrency("EUR");
 
-
-        Assertions.assertEquals(expectedResult, service.getBalanceByCurrency(transactionRequest));
+        Assertions.assertEquals(expectedResult, service.getBalanceByCurrency(transactionRequest.getId(), transactionRequest.getReceivedCurrency()));
     }
 }

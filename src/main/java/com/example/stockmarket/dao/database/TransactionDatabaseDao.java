@@ -20,15 +20,12 @@ public class TransactionDatabaseDao implements TransactionDao {
 
     @Override
     public Transaction saveTransaction(Transaction transaction) {
-//        String sql = "INSERT INTO history (operation_type_id, date, amount, participant_id, received_currency, given_currency, commission)" +
-//                " values((SELECT id FROM operation_type WHERE type = ?), ?, ?, ?, ?, ?, ?)";
-
         String sql = "INSERT INTO history (operation_type_id, date, amount, participant_id, received_currency, given_currency, commission)" +
-                "values (?, ?, ?, ?, ?, ?, ?)";
+                "values ((SELECT id FROM operation_type WHERE type = ?), ?, ?, ?, ?, ?, ?)";
         KeyHolder holder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
-            ps.setLong(1, transaction.getOperationType().ordinal() + 1);
+            ps.setString(1, transaction.getOperationType().name());
             ps.setTimestamp(2, new Timestamp(transaction.getDate().getTime()));
             ps.setDouble(3, transaction.getAmount());
             ps.setLong(4, transaction.getParticipantId());
@@ -42,9 +39,11 @@ public class TransactionDatabaseDao implements TransactionDao {
     }
 
     @Override
-    public List<Transaction> getBalanceByCurrency(Transaction transaction) {
-        String sql = "SELECT history.id, history.operation_type_id, history.amount, history.commission FROM history  " +
-                "WHERE participant_id = ? and received_currency = ? or given_currency = ?";
-        return jdbcTemplate.query(sql, new TransactionMapper(), transaction.getParticipantId(), transaction.getReceivedCurrency(), transaction.getGivenCurrency());
+    public List<Transaction> getBalanceByCurrency(Long id, String currency) {
+//        String sql = "SELECT id, operation_type_id, amount, commission FROM history " +
+//                "WHERE participant_id = ? and (received_currency = ? or given_currency = ?)";
+//        return jdbcTemplate.query(sql, new TransactionMapper(), id, currency, currency);
+        String sql = "SELECT history.id, operation_type.type, amount, commission, received_currency, given_currency FROM history JOIN operation_type on history.operation_type_id = operation_type.id WHERE participant_id = ? and (received_currency = ? or given_currency = ?)";
+        return jdbcTemplate.query(sql, new TransactionMapper(), id, currency, currency);
  }
 }

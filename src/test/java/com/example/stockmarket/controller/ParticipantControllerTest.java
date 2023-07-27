@@ -1,8 +1,7 @@
 package com.example.stockmarket.controller;
 
-import com.example.stockmarket.controller.request.CreateParticipantRequest;
-import com.example.stockmarket.controller.request.ParticipantRequest;
-import com.example.stockmarket.controller.request.UpdateParticipantRequest;
+import com.example.stockmarket.controller.request.participantRequest.CreateParticipantRequest;
+import com.example.stockmarket.controller.request.participantRequest.UpdateParticipantRequest;
 import com.example.stockmarket.entity.Participant;
 import com.example.stockmarket.service.participantService.ParticipantService;
 import com.fasterxml.jackson.databind.ObjectMapper;
