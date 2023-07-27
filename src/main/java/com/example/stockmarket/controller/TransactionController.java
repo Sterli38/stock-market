@@ -21,21 +21,18 @@ public class TransactionController {
     @PostMapping("/makeDepositing")
     public TransactionResponse makeDepositing(@RequestBody TransactionRequest transactionalRequest) {
         Transaction transaction = convertTransactionalRequest(transactionalRequest);
-        transaction.setOperationType(OperationType.DEPOSITING);
         return convertToTransactionalResponse(service.depositing(transaction));
     }
 
     @GetMapping("/withdrawal")
     public TransactionResponse withdrawal(@RequestBody TransactionRequest transactionRequest) {
         Transaction transaction = convertTransactionalRequest(transactionRequest);
-        transaction.setOperationType(OperationType.WITHDRAWAL);
         return convertToTransactionalResponse(service.withdrawal(transaction));
     }
 
     @PostMapping("/exchange")
     public TransactionResponse exchange(@RequestBody TransactionRequest transactionalRequest)  {
         Transaction transaction = convertTransactionalRequest(transactionalRequest);
-        transaction.setOperationType(OperationType.EXCHANGE);
         return convertToTransactionalResponse(service.exchange(transaction));
     }
 

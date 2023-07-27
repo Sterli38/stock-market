@@ -12,12 +12,9 @@ public class TransactionRequest {
     @NotNull
     private Date date;
     @NotNull
-    private double amount;
-    @NotNull
+    private Double amount;
     @Positive
     private Long participantId;
-    @Nullable
     private String receivedCurrency;
-    @Nullable
     private String givenCurrency;
 }

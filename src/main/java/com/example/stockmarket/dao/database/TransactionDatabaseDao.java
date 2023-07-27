@@ -43,7 +43,8 @@ public class TransactionDatabaseDao implements TransactionDao {
 //        String sql = "SELECT id, operation_type_id, amount, commission FROM history " +
 //                "WHERE participant_id = ? and (received_currency = ? or given_currency = ?)";
 //        return jdbcTemplate.query(sql, new TransactionMapper(), id, currency, currency);
-        String sql = "SELECT history.id, operation_type.type, amount, commission, received_currency, given_currency FROM history JOIN operation_type on history.operation_type_id = operation_type.id WHERE participant_id = ? and (received_currency = ? or given_currency = ?)";
+        String sql = "SELECT history.id, operation_type.type, amount, commission, received_currency, given_currency FROM history " +
+                "JOIN operation_type on history.operation_type_id = operation_type.id WHERE participant_id = ? and (received_currency = ? or given_currency = ?)";
         return jdbcTemplate.query(sql, new TransactionMapper(), id, currency, currency);
  }
 }

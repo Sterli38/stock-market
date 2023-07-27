@@ -21,18 +21,20 @@ public class TransactionService {
     private final StockMarketSettings stockMarketSettings;
 
     public Transaction depositing(Transaction transaction) {
+        transaction.setOperationType(OperationType.DEPOSITING);
         transaction.setCommission(calculateCommission(transaction.getAmount(), transaction.getReceivedCurrency()));
         return dao.saveTransaction(transaction);
     }
 
     public Transaction withdrawal(Transaction transaction) {
+        transaction.setOperationType(OperationType.WITHDRAWAL);
         transaction.setCommission(calculateCommission(transaction.getAmount(), transaction.getGivenCurrency()));
         return dao.saveTransaction(transaction);
     }
 
     public Transaction exchange(Transaction transaction) {
         String pair = transaction.getReceivedCurrency() + transaction.getGivenCurrency();
-
+        transaction.setOperationType(OperationType.EXCHANGE);
         if (!webCurrencyService.isValid(pair)) {
             throw new CurrencyPairIsNotValidException(pair);
         }
@@ -101,14 +103,14 @@ public class TransactionService {
         double commission = 0;
         double amountOfRub;
         
-        if(!currency.equals(stockMarketSettings.getBaseCurrency())) {
-            amountOfRub = webCurrencyService.convert(currency, amount, stockMarketSettings.getBaseCurrency());
+        if(!currency.equals(stockMarketSettings.getThresholdOfCommissionUsage())) {
+            amountOfRub = webCurrencyService.convert(currency, amount, stockMarketSettings.getThresholdBaseCurrency());
         } else {
             amountOfRub = amount;
         }
 
-        if (amountOfRub < stockMarketSettings.getThresholdOfCommissionApplication()) {
-            commission = amount * stockMarketSettings.getPercent();
+        if (amountOfRub < stockMarketSettings.getThresholdOfCommissionUsage()) {
+            commission = amount * stockMarketSettings.getCommissionPercent();
         }
         return commission;
     }
