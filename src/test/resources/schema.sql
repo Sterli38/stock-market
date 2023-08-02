@@ -36,4 +36,5 @@ values ('DEPOSITING'),
        ('WITHDRAWAL');
 
 INSERT INTO participant(name, creation_date, password)
-values ('Egor', '2023-09-09', 'pasw123');
+values ('Egor', '2023-09-09', 'pasw123'),
+       ('TestName', '2023-09-08', 'testPassword');

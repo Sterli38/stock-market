@@ -19,16 +19,20 @@ import java.util.Date;
 
 @SpringBootTest
 public class TransactionServiceTest {
-    @Mock
-    private RestTemplate restTemplate;
-    @Autowired
-    private WebCurrencyService webCurrencyService;
     @Autowired
     private TransactionService service;
 
+    private TransactionRequest createTransactionRequest(long participantId) {
+        TransactionRequest transactionRequest = new TransactionRequest();
+        transactionRequest.setParticipantId(participantId);
+        transactionRequest.setGivenCurrency("EUR");
+        transactionRequest.setGivenAmount(200.0);
+        service.depositing(transactionRequest);
+        return transactionRequest;
+    }
+
     @Test
     public void depositingTest() {
-
         TransactionRequest request = new TransactionRequest();
         request.setParticipantId(1L);
         request.setGivenCurrency("EUR");
@@ -49,6 +53,7 @@ public class TransactionServiceTest {
 
     @Test
     public void withdrawalTest() {
+        createTransactionRequest(1L);
         TransactionRequest request = new TransactionRequest();
         request.setParticipantId(1L);
         request.setGivenCurrency("EUR");
@@ -56,7 +61,6 @@ public class TransactionServiceTest {
 
         Transaction expectedTransaction = new Transaction();
         expectedTransaction.setOperationType(OperationType.WITHDRAWAL);
-        expectedTransaction.setDate(new Date());
         expectedTransaction.setId(1L);
         expectedTransaction.setGivenAmount(50.0);
         expectedTransaction.setParticipantId(1L);
@@ -64,10 +68,12 @@ public class TransactionServiceTest {
         expectedTransaction.setCommission(2.5);
         Transaction actualTransaction = service.withdrawal(request);
         expectedTransaction.setId(actualTransaction.getId());
+        expectedTransaction.setDate(actualTransaction.getDate());
         Assertions.assertEquals(expectedTransaction, actualTransaction);
     }
     @Test
     public void exchange() {
+        createTransactionRequest(1L);
         MakeExchangeRequest request = new MakeExchangeRequest();
         request.setParticipantId(1L);
         request.setGivenCurrency("EUR");
@@ -92,11 +98,17 @@ public class TransactionServiceTest {
     @Test
     public void getBalanceByCurrency() {
 //        Double expectedResult = 44.33;
-        double expectedResult = 44.3322725;
+        double expectedResult = 195.8322725;
+        BalanceRequest balanceRequest = new BalanceRequest();
+        balanceRequest.setParticipantId(1L);
+        balanceRequest.setGivenCurrency("EUR");
+
+        createTransactionRequest(1L);
+
         TransactionRequest depositing = new TransactionRequest();
         depositing.setParticipantId(1L);
-        depositing.setGivenCurrency("EUR");
-        depositing.setGivenAmount(50.0);
+        depositing.setGivenCurrency("RUB");
+        depositing.setGivenAmount(2000.0);
 
         MakeExchangeRequest buying = new MakeExchangeRequest();
         buying.setParticipantId(1L);
@@ -115,15 +127,10 @@ public class TransactionServiceTest {
         withdrawal.setGivenCurrency("EUR");
         withdrawal.setGivenAmount(5.0);
 
-
         service.depositing(depositing);
         service.exchange(buying);
         service.exchange(selling);
         service.withdrawal(withdrawal);
-
-        BalanceRequest balanceRequest = new BalanceRequest();
-        balanceRequest.setParticipantId(1L);
-        balanceRequest.setGivenCurrency("EUR");
 
         Assertions.assertEquals(expectedResult, service.getBalanceByCurrency(balanceRequest.getParticipantId(), balanceRequest.getGivenCurrency()));
     }

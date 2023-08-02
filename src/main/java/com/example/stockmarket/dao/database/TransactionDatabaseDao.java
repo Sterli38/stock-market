@@ -40,7 +40,7 @@ public class TransactionDatabaseDao implements TransactionDao {
     }
 
     @Override
-    public List<Transaction> getBalanceByCurrency(Long id, String currency) {
+    public List<Transaction> getTransactionsByCurrency(Long id, String currency) {
         String sql = "SELECT operation_type.type, received_amount, given_amount, commission, received_currency, given_currency FROM history " +
                 "JOIN operation_type on history.operation_type_id = operation_type.id WHERE participant_id = ? and (received_currency = ? or given_currency = ?)";
         return jdbcTemplate.query(sql, new TransactionMapper(), id, currency, currency);

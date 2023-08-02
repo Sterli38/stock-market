@@ -7,11 +7,11 @@ import com.example.stockmarket.dao.TransactionDao;
 import com.example.stockmarket.entity.OperationType;
 import com.example.stockmarket.entity.Transaction;
 import com.example.stockmarket.exception.CurrencyPairIsNotValidException;
+import com.example.stockmarket.exception.NotEnoughCurrencyException;
 import com.example.stockmarket.service.WebCurrencyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -44,6 +44,9 @@ public class TransactionService {
     }
 
     public Transaction withdrawal(TransactionRequest transactionRequest) {
+        if(!isOperationApplicable(transactionRequest.getGivenAmount(), transactionRequest.getGivenCurrency(), transactionRequest.getParticipantId())) {
+            throw new NotEnoughCurrencyException(transactionRequest.getGivenCurrency());
+        }
         Transaction transaction = new Transaction();
         transaction.setOperationType(OperationType.WITHDRAWAL);
         transaction.setDate(new Date());
@@ -58,6 +61,9 @@ public class TransactionService {
         String pair = makeExchangeRequest.getGivenCurrency() + makeExchangeRequest.getRequiredCurrency();
         if (!webCurrencyService.isValid(pair)) {
             throw new CurrencyPairIsNotValidException(pair);
+        }
+        if(!isOperationApplicable(makeExchangeRequest.getGivenAmount(), makeExchangeRequest.getGivenCurrency(), makeExchangeRequest.getParticipantId())) {
+            throw new NotEnoughCurrencyException(makeExchangeRequest.getGivenCurrency());
         }
 
         Transaction transaction = new Transaction();
@@ -77,7 +83,7 @@ public class TransactionService {
     }
 
     public double getBalanceByCurrency(Long id, String currency) {
-        List<Transaction> transactions = dao.getBalanceByCurrency(id, currency);
+        List<Transaction> transactions = dao.getTransactionsByCurrency(id, currency);
 
         List<Transaction> depositing = transactions.stream()
                 .filter(i -> i.getOperationType() == OperationType.DEPOSITING)
@@ -111,14 +117,14 @@ public class TransactionService {
         }
 
         for (Transaction value : subtraction) {
-            subtractionSum += value.getGivenAmount() - value.getCommission();
+            subtractionSum += value.getGivenAmount();
         }
 
         for (Transaction value : withdrawal) {
             withdrawalSum += value.getGivenAmount() - value.getCommission();
         }
 
-        return depositingSum + replenishmentSum - (withdrawalSum + subtractionSum);
+        return depositingSum + replenishmentSum - withdrawalSum - subtractionSum;
     }
 
 
@@ -136,5 +142,14 @@ public class TransactionService {
             commission = amount * stockMarketSettings.getCommissionPercent();
         }
         return commission;
+    }
+
+    /**
+     * Проверка достаточности денежных средств для операции
+     * @return
+     */
+    private boolean isOperationApplicable(double amount, String currency, long participantId) {
+        double balance = getBalanceByCurrency(participantId, currency);
+        return balance >= amount;
     }
 }
