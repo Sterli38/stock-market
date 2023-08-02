@@ -2,6 +2,7 @@ package com.example.stockmarket.service;
 
 import com.example.stockmarket.config.ApplicationProperties;
 import com.example.stockmarket.controller.response.WebCurrencyServiceResponse;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,11 +30,18 @@ class WebCurrencyServiceTest {
     @Mock
     private RestTemplate restTemplate;
     @Autowired
+    private RestTemplate originalRestTemplate;
+    @Autowired
     private WebCurrencyService webCurrencyService;
 
     @BeforeEach
     public void setup() {
         ReflectionTestUtils.setField(webCurrencyService, "restTemplate", restTemplate);
+    }
+
+    @AfterEach
+    public void after() {
+        ReflectionTestUtils.setField(webCurrencyService, "restTemplate", originalRestTemplate);
     }
 
     @Test

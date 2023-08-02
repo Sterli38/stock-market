@@ -23,6 +23,15 @@ public class TransactionService {
     private final WebCurrencyService webCurrencyService;
     private final StockMarketSettings stockMarketSettings;
 
+    @Override
+    public String toString() {
+        return "TransactionService{" +
+                "dao=" + dao +
+                ", webCurrencyService=" + webCurrencyService +
+                ", stockMarketSettings=" + stockMarketSettings +
+                '}';
+    }
+
     public Transaction depositing(TransactionRequest transactionRequest) {
         Transaction transaction = new Transaction();
         transaction.setOperationType(OperationType.DEPOSITING);

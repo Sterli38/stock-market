@@ -9,18 +9,26 @@ import com.example.stockmarket.service.transactionService.TransactionService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Date;
 
 @SpringBootTest
 public class TransactionServiceTest {
+    @Mock
+    private RestTemplate restTemplate;
+    @Autowired
+    private WebCurrencyService webCurrencyService;
     @Autowired
     private TransactionService service;
 
     @Test
     public void depositingTest() {
+
         TransactionRequest request = new TransactionRequest();
         request.setParticipantId(1L);
         request.setGivenCurrency("EUR");
@@ -68,7 +76,6 @@ public class TransactionServiceTest {
 
         Transaction expectedTransaction = new Transaction();
         expectedTransaction.setOperationType(OperationType.EXCHANGE);
-        expectedTransaction.setDate(new Date());
         expectedTransaction.setId(1L);
         expectedTransaction.setGivenAmount(20.0);
         expectedTransaction.setReceivedAmount(1315.636);
@@ -78,6 +85,7 @@ public class TransactionServiceTest {
         expectedTransaction.setCommission(1);
         Transaction actualTransaction = service.exchange(request);
         expectedTransaction.setId(actualTransaction.getId());
+        expectedTransaction.setDate(actualTransaction.getDate());
         Assertions.assertEquals(expectedTransaction, actualTransaction);
     }
 
