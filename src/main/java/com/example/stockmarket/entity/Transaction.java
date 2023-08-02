@@ -9,7 +9,8 @@ public class Transaction {
     private Long id;
     private OperationType operationType;
     private Date date;
-    private double amount;
+    private Double receivedAmount;
+    private Double givenAmount;
     private Long participantId;
     private String receivedCurrency;
     private String givenCurrency;

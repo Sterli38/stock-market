@@ -1,6 +1,8 @@
 package com.example.stockmarket.service.transactionService;
 
 import com.example.stockmarket.config.StockMarketSettings;
+import com.example.stockmarket.controller.request.transactionRequest.MakeExchangeRequest;
+import com.example.stockmarket.controller.request.transactionRequest.TransactionRequest;
 import com.example.stockmarket.dao.TransactionDao;
 import com.example.stockmarket.entity.OperationType;
 import com.example.stockmarket.entity.Transaction;
@@ -10,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -20,30 +23,48 @@ public class TransactionService {
     private final WebCurrencyService webCurrencyService;
     private final StockMarketSettings stockMarketSettings;
 
-    public Transaction depositing(Transaction transaction) {
+    public Transaction depositing(TransactionRequest transactionRequest) {
+        Transaction transaction = new Transaction();
         transaction.setOperationType(OperationType.DEPOSITING);
-        transaction.setCommission(calculateCommission(transaction.getAmount(), transaction.getReceivedCurrency()));
+        transaction.setDate(new Date());
+        transaction.setParticipantId(transactionRequest.getParticipantId());
+        transaction.setGivenCurrency(transactionRequest.getGivenCurrency());
+        transaction.setGivenAmount(transactionRequest.getGivenAmount());
+        transaction.setCommission(calculateCommission(transactionRequest.getGivenAmount(), transactionRequest.getGivenCurrency()));
         return dao.saveTransaction(transaction);
     }
 
-    public Transaction withdrawal(Transaction transaction) {
+    public Transaction withdrawal(TransactionRequest transactionRequest) {
+        Transaction transaction = new Transaction();
         transaction.setOperationType(OperationType.WITHDRAWAL);
-        transaction.setCommission(calculateCommission(transaction.getAmount(), transaction.getGivenCurrency()));
+        transaction.setDate(new Date());
+        transaction.setParticipantId(transactionRequest.getParticipantId());
+        transaction.setGivenCurrency(transactionRequest.getGivenCurrency());
+        transaction.setGivenAmount(transactionRequest.getGivenAmount());
+        transaction.setCommission(calculateCommission(transactionRequest.getGivenAmount(), transactionRequest.getGivenCurrency()));
         return dao.saveTransaction(transaction);
     }
 
-    public Transaction exchange(Transaction transaction) {
-        String pair = transaction.getReceivedCurrency() + transaction.getGivenCurrency();
-        transaction.setOperationType(OperationType.EXCHANGE);
+    public Transaction exchange(MakeExchangeRequest makeExchangeRequest) {
+        String pair = makeExchangeRequest.getGivenCurrency() + makeExchangeRequest.getRequiredCurrency();
         if (!webCurrencyService.isValid(pair)) {
             throw new CurrencyPairIsNotValidException(pair);
         }
 
-        double amountReceivedCurrency = webCurrencyService.convert(transaction.getGivenCurrency(), transaction.getAmount(), transaction.getReceivedCurrency());
+        Transaction transaction = new Transaction();
+        transaction.setParticipantId(makeExchangeRequest.getParticipantId());
+        transaction.setGivenCurrency(makeExchangeRequest.getGivenCurrency());
+        transaction.setGivenAmount(makeExchangeRequest.getGivenAmount());
+        transaction.setReceivedCurrency(makeExchangeRequest.getRequiredCurrency());
+        transaction.setOperationType(OperationType.EXCHANGE);
+        transaction.setDate(new Date());
+        transaction.setCommission(calculateCommission(transaction.getGivenAmount(), transaction.getGivenCurrency()));
 
-        transaction.setCommission(calculateCommission(amountReceivedCurrency, transaction.getReceivedCurrency()));
-        transaction.setAmount(amountReceivedCurrency);
-        return dao.saveTransaction(transaction);
+        double receivedAmount = webCurrencyService.convert(transaction.getGivenCurrency(), transaction.getGivenAmount() - transaction.getCommission(), transaction.getReceivedCurrency());
+        transaction.setReceivedAmount(receivedAmount);
+
+        Transaction saveTransaction = dao.saveTransaction(transaction);
+        return saveTransaction;
     }
 
     public double getBalanceByCurrency(Long id, String currency) {
@@ -63,14 +84,6 @@ public class TransactionService {
                 .filter(i -> Objects.equals(i.getGivenCurrency(), currency))
                 .toList();
 
-
-        List<Transaction> subtraction1 = new ArrayList<>();
-        for(Transaction element: subtraction) {
-            element.setAmount(webCurrencyService.convert(element.getReceivedCurrency(), element.getAmount(), element.getGivenCurrency()));
-            element.setCommission(calculateCommission(element.getAmount(), element.getGivenCurrency()));
-            subtraction1.add(element);
-        }
-
         List<Transaction> withdrawal = transactions.stream()
                 .filter(i -> i.getOperationType() == OperationType.WITHDRAWAL)
                 .toList();
@@ -81,29 +94,30 @@ public class TransactionService {
         double withdrawalSum = 0;
 
         for (Transaction value : depositing) {
-            depositingSum += value.getAmount() - value.getCommission();
+            depositingSum += value.getGivenAmount() - value.getCommission();
         }
 
         for (Transaction value : replenishment) {
-            replenishmentSum += value.getAmount() - value.getCommission();
+            replenishmentSum += value.getReceivedAmount();
         }
 
-        for (Transaction value : subtraction1) {
-            subtractionSum += value.getAmount() - value.getCommission();
+        for (Transaction value : subtraction) {
+            subtractionSum += value.getGivenAmount() - value.getCommission();
         }
 
         for (Transaction value : withdrawal) {
-            withdrawalSum += value.getAmount() - value.getCommission();
+            withdrawalSum += value.getGivenAmount() - value.getCommission();
         }
 
         return depositingSum + replenishmentSum - (withdrawalSum + subtractionSum);
     }
 
+
     private double calculateCommission(double amount, String currency) {
         double commission = 0;
         double amountOfRub;
-        
-        if(!currency.equals(stockMarketSettings.getThresholdOfCommissionUsage())) {
+
+        if(!currency.equals(stockMarketSettings.getThresholdBaseCurrency())) {
             amountOfRub = webCurrencyService.convert(currency, amount, stockMarketSettings.getThresholdBaseCurrency());
         } else {
             amountOfRub = amount;

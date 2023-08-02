@@ -1,15 +1,13 @@
 package com.example.stockmarket.controller.request.transactionRequest;
 
-
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Data;
-import org.springframework.lang.Nullable;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class BalanceRequest {
-    @Positive
-    private Long participantId;
+public class MakeExchangeRequest extends TransactionRequest {
     @NotNull
-    private String givenCurrency;
+    private String requiredCurrency;
 }

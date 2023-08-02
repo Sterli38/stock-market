@@ -1,5 +1,8 @@
 package com.example.stockmarket.service;
 
+import com.example.stockmarket.controller.request.transactionRequest.BalanceRequest;
+import com.example.stockmarket.controller.request.transactionRequest.MakeExchangeRequest;
+import com.example.stockmarket.controller.request.transactionRequest.TransactionRequest;
 import com.example.stockmarket.entity.OperationType;
 import com.example.stockmarket.entity.Transaction;
 import com.example.stockmarket.service.transactionService.TransactionService;
@@ -16,97 +19,104 @@ public class TransactionServiceTest {
     @Autowired
     private TransactionService service;
 
-    private Transaction createExpectedTransaction() {
-        Transaction expectedTransaction = new Transaction();
-        expectedTransaction.setOperationType(OperationType.DEPOSITING);
-        expectedTransaction.setDate(new Date(1690290287));
-        expectedTransaction.setAmount(1000);
-        expectedTransaction.setParticipantId(1L);
-        expectedTransaction.setReceivedCurrency("EUR");
-        expectedTransaction.setAmount(1000);
-        expectedTransaction.setCommission(0.0);
-        expectedTransaction.setId(service.depositing(expectedTransaction).getId() + 1); /////////
-        return expectedTransaction;
-    }
-
     @Test
     public void depositingTest() {
-        Transaction expectedTransaction = createExpectedTransaction();
+        TransactionRequest request = new TransactionRequest();
+        request.setParticipantId(1L);
+        request.setGivenCurrency("EUR");
+        request.setGivenAmount(50.0);
 
-        Transaction testTransaction = new Transaction();
-        testTransaction.setOperationType(OperationType.DEPOSITING);
-        testTransaction.setDate(new Date(1690290287));
-        testTransaction.setId(1L);
-        testTransaction.setAmount(1000);
-        testTransaction.setParticipantId(1L);
-        testTransaction.setReceivedCurrency("EUR");
-        Assertions.assertEquals(expectedTransaction, service.depositing(testTransaction));
+       Transaction expectedTransaction = new Transaction();
+        expectedTransaction.setOperationType(OperationType.DEPOSITING);
+        expectedTransaction.setDate(new Date());
+        expectedTransaction.setId(1L);
+        expectedTransaction.setGivenAmount(50.0);
+        expectedTransaction.setParticipantId(1L);
+        expectedTransaction.setGivenCurrency("EUR");
+        expectedTransaction.setCommission(2.5);
+        Transaction actualTransaction = service.depositing(request);
+        expectedTransaction.setId(actualTransaction.getId());
+        Assertions.assertEquals(expectedTransaction, actualTransaction);
     }
 
     @Test
     public void withdrawalTest() {
-        Transaction expectedTransaction = createExpectedTransaction();
+        TransactionRequest request = new TransactionRequest();
+        request.setParticipantId(1L);
+        request.setGivenCurrency("EUR");
+        request.setGivenAmount(50.0);
+
+        Transaction expectedTransaction = new Transaction();
         expectedTransaction.setOperationType(OperationType.WITHDRAWAL);
-        expectedTransaction.setReceivedCurrency(null);
+        expectedTransaction.setDate(new Date());
+        expectedTransaction.setId(1L);
+        expectedTransaction.setGivenAmount(50.0);
+        expectedTransaction.setParticipantId(1L);
         expectedTransaction.setGivenCurrency("EUR");
-
-        Transaction testTransaction = new Transaction();
-        testTransaction.setDate(new Date(1690290287));
-        testTransaction.setId(1L);
-        testTransaction.setAmount(1000);
-        testTransaction.setParticipantId(1L);
-        testTransaction.setGivenCurrency("EUR");
-        testTransaction.setOperationType(OperationType.WITHDRAWAL);
-        Assertions.assertEquals(expectedTransaction, service.withdrawal(testTransaction));
+        expectedTransaction.setCommission(2.5);
+        Transaction actualTransaction = service.withdrawal(request);
+        expectedTransaction.setId(actualTransaction.getId());
+        Assertions.assertEquals(expectedTransaction, actualTransaction);
     }
-
     @Test
     public void exchange() {
+        MakeExchangeRequest request = new MakeExchangeRequest();
+        request.setParticipantId(1L);
+        request.setGivenCurrency("EUR");
+        request.setRequiredCurrency("RUB");
+        request.setGivenAmount(20.0);
 
+        Transaction expectedTransaction = new Transaction();
+        expectedTransaction.setOperationType(OperationType.EXCHANGE);
+        expectedTransaction.setDate(new Date());
+        expectedTransaction.setId(1L);
+        expectedTransaction.setGivenAmount(20.0);
+        expectedTransaction.setReceivedAmount(1315.636);
+        expectedTransaction.setParticipantId(1L);
+        expectedTransaction.setGivenCurrency("EUR");
+        expectedTransaction.setReceivedCurrency("RUB");
+        expectedTransaction.setCommission(1);
+        Transaction actualTransaction = service.exchange(request);
+        expectedTransaction.setId(actualTransaction.getId());
+        Assertions.assertEquals(expectedTransaction, actualTransaction);
     }
 
     @Test
     public void getBalanceByCurrency() {
-        double expectedResult = 0;
-        Transaction depositing = new Transaction();
-        depositing.setOperationType(OperationType.DEPOSITING);
-        depositing.setDate(new Date(1690290287));
-        depositing.setAmount(10);
+//        Double expectedResult = 44.33;
+        double expectedResult = 44.3322725;
+        TransactionRequest depositing = new TransactionRequest();
         depositing.setParticipantId(1L);
-        depositing.setReceivedCurrency("EUR");
+        depositing.setGivenCurrency("EUR");
+        depositing.setGivenAmount(50.0);
 
-        Transaction buying = new Transaction();
-        depositing.setOperationType(OperationType.EXCHANGE);
-        buying.setDate(new Date(1690290287));
-        buying.setAmount(1000);
+        MakeExchangeRequest buying = new MakeExchangeRequest();
         buying.setParticipantId(1L);
-        buying.setReceivedCurrency("EUR");
         buying.setGivenCurrency("RUB");
+        buying.setRequiredCurrency("EUR");
+        buying.setGivenAmount(1500.0);
 
-        Transaction selling = new Transaction();
-        depositing.setOperationType(OperationType.EXCHANGE);
-        selling.setDate(new Date(1690290287));
-        selling.setAmount(40);
+        MakeExchangeRequest selling = new MakeExchangeRequest();
         selling.setParticipantId(1L);
-        selling.setReceivedCurrency("RUB");
         selling.setGivenCurrency("EUR");
+        selling.setRequiredCurrency("RUB");
+        selling.setGivenAmount(20.0);
 
-        Transaction withdrawal = new Transaction();
-        depositing.setOperationType(OperationType.WITHDRAWAL);
-        withdrawal.setDate(new Date(1690290287));
-        withdrawal.setAmount(10);
+        TransactionRequest withdrawal = new TransactionRequest();
         withdrawal.setParticipantId(1L);
         withdrawal.setGivenCurrency("EUR");
+        withdrawal.setGivenAmount(5.0);
+
 
         service.depositing(depositing);
         service.exchange(buying);
         service.exchange(selling);
         service.withdrawal(withdrawal);
 
-        Transaction transactionRequest = new Transaction();
-        transactionRequest.setParticipantId(1L);
-        transactionRequest.setReceivedCurrency("EUR");
+        BalanceRequest balanceRequest = new BalanceRequest();
+        balanceRequest.setParticipantId(1L);
+        balanceRequest.setGivenCurrency("EUR");
 
-        Assertions.assertEquals(expectedResult, service.getBalanceByCurrency(transactionRequest.getId(), transactionRequest.getReceivedCurrency()));
+        Assertions.assertEquals(expectedResult, service.getBalanceByCurrency(balanceRequest.getParticipantId(), balanceRequest.getGivenCurrency()));
     }
 }
