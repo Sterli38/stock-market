@@ -1,5 +1,7 @@
-DROP TABLE if EXISTS participant;
 DROP TABLE if EXISTS history;
+DROP TABLE if EXISTS participant;
+DROP TABLE if EXISTS operation_type;
+
 
 CREATE TABLE participant
 (
@@ -9,24 +11,39 @@ CREATE TABLE participant
     password      varchar   not null
 );
 
-CREATE TABLE history
+CREATE TABLE operation_type
 (
-    id                 serial primary key,
-    date               timestamp        not null,
-    amount             double precision not null,
-    participant_id     int              not null,
-    purchased_currency varchar          not null,
-    payment_currency   varchar,
-    commission         double precision
+    id   serial primary key,
+    type varchar not null
 );
 
+CREATE TABLE history
+(
+    id                serial primary key,
+    operation_type_id int REFERENCES operation_type (id) not null,
+    date              timestamp                          not null,
+    given_amount      double precision,
+    received_amount   double precision,
+    participant_id    int REFERENCES participant (id)    not null,
+    received_currency varchar,
+    given_currency    varchar,
+    commission        double precision
+);
+
+INSERT INTO operation_type(type)
+values ('DEPOSITING'),
+       ('EXCHANGE'),
+       ('WITHDRAWAL');
+
+-- тестовые данные
 INSERT INTO participant(name, creation_date, password)
 values ('Egor', '2023-09-09', 'pasw123');
 
-INSERT INTO history(date, amount, participant_id, purchased_currency, payment_currency, commission)
-values ('2023-10-22 10:00:01', '100.23', 1, 'EUR', 'USD', '0.434'),
-       ('2023-09-15 22:34:03', '12.25', 1, 'EUR', 'USD', '0.42'),
-       ('2023-03-10 20:54:33', '22.25', 1, 'EUR', 'USD', '0.8');
+INSERT INTO history(operation_type_id, date, given_amount, received_amount, participant_id, given_currency, received_currency, commission)
+values (1, '2023-09-07', 50.0, null, 1, 'EUR', null, 2.5),
+       (2, '2023-09-07', 1500.0, 20.58, 1, 'RUB', 'EUR', 75),
+       (2, '2023-09-07', 20, 1315.636, 1, 'EUR', 'RUB', 1),
+       (3, '2023-09-07', 5.0, null, 1, 'EUR', null, 0.25);
 
 
 

@@ -1,5 +1,7 @@
+DROP TABLE if EXISTS history;
 DROP TABLE if EXISTS participant;
-DROP TABLE if exists history;
+DROP TABLE if EXISTS operation_type;
+
 
 CREATE TABLE participant
 (
@@ -9,13 +11,30 @@ CREATE TABLE participant
     password      varchar   not null
 );
 
+CREATE TABLE operation_type
+(
+    id   serial primary key,
+    type varchar not null
+);
+
 CREATE TABLE history
 (
-    id                 serial primary key,
-    date               timestamp        not null,
-    amount             double precision not null,
-    participant_id     int              not null,
-    purchased_currency varchar          not null,
-    payment_currency   varchar,
-    commission         double precision
+    id                serial primary key,
+    operation_type_id int REFERENCES operation_type (id) not null,
+    date              timestamp                          not null,
+    received_amount   double precision,
+    given_amount      double precision,
+    participant_id    int REFERENCES participant (id)    not null,
+    received_currency varchar,
+    given_currency    varchar,
+    commission        double precision
 );
+
+INSERT INTO operation_type(type)
+values ('DEPOSITING'),
+       ('EXCHANGE'),
+       ('WITHDRAWAL');
+
+INSERT INTO participant(name, creation_date, password)
+values ('Egor', '2023-09-09', 'pasw123'),
+       ('TestName', '2023-09-08', 'testPassword');
