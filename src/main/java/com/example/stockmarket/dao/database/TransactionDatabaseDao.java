@@ -20,7 +20,7 @@ public class TransactionDatabaseDao implements TransactionDao {
 
     @Override
     public Transaction saveTransaction(Transaction transaction) {
-        String sql = "INSERT INTO history (operation_type_id, date, received_amount, given_amount, participant_id, received_currency, given_currency, commission)" +
+        String sql = "INSERT INTO transaction (operation_type_id, date, received_amount, given_amount, participant_id, received_currency, given_currency, commission)" +
                 "values ((SELECT id FROM operation_type WHERE type = ?), ?, ?, ?, ?, ?, ?, ?)";
         KeyHolder holder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
@@ -40,9 +40,9 @@ public class TransactionDatabaseDao implements TransactionDao {
     }
 
     @Override
-    public List<Transaction> getTransactionsByCurrency(Long id, String currency) {
-        String sql = "SELECT operation_type.type, received_amount, given_amount, commission, received_currency, given_currency FROM history " +
-                "JOIN operation_type on history.operation_type_id = operation_type.id WHERE participant_id = ? and (received_currency = ? or given_currency = ?)";
-        return jdbcTemplate.query(sql, new TransactionMapper(), id, currency, currency);
+    public List<Transaction> getTransactionsByCurrency(Long participantId, String currency) {
+        String sql = "SELECT operation_type.type, received_amount, given_amount, commission, received_currency, given_currency FROM transaction " +
+                "JOIN operation_type on transaction.operation_type_id = operation_type.id WHERE participant_id = ? and (received_currency = ? or given_currency = ?)";
+        return jdbcTemplate.query(sql, new TransactionMapper(), participantId, currency, currency);
     }
 }

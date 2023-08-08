@@ -87,8 +87,8 @@ public class TransactionService {
         return saveTransaction;
     }
 
-    public double getBalanceByCurrency(Long id, String currency) {
-        List<Transaction> transactions = dao.getTransactionsByCurrency(id, currency);
+    public double getBalanceByCurrency(Long participantId, String currency) {
+        List<Transaction> transactions = dao.getTransactionsByCurrency(participantId, currency);
 
         List<Transaction> depositing = new ArrayList<>();
         List<Transaction> replenishment = new ArrayList<>();
