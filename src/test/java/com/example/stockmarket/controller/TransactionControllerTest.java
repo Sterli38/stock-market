@@ -1,11 +1,10 @@
 package com.example.stockmarket.controller;
 
-import com.example.stockmarket.controller.request.transactionRequest.BalanceRequest;
-import com.example.stockmarket.controller.request.transactionRequest.MakeExchangeRequest;
 import com.example.stockmarket.controller.request.transactionRequest.TransactionRequest;
+import com.example.stockmarket.controller.request.transactionRequest.MakeExchangeRequest;
+import com.example.stockmarket.controller.request.transactionRequest.InputOutputRequest;
 import com.example.stockmarket.service.transactionService.TransactionService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -28,18 +27,18 @@ public class TransactionControllerTest {
     @Autowired
     private TransactionService service;
 
-    private TransactionRequest makeDepositingRequest(long participantId) {
-        TransactionRequest transactionRequest = new TransactionRequest();
-        transactionRequest.setParticipantId(participantId);
-        transactionRequest.setGivenCurrency("EUR");
-        transactionRequest.setGivenAmount(200.0);
-        service.depositing(transactionRequest);
-        return transactionRequest;
+    private InputOutputRequest makeDepositingRequest(long participantId) {
+        InputOutputRequest inputOutputRequest = new InputOutputRequest();
+        inputOutputRequest.setParticipantId(participantId);
+        inputOutputRequest.setGivenCurrency("EUR");
+        inputOutputRequest.setGivenAmount(200.0);
+        service.depositing(inputOutputRequest);
+        return inputOutputRequest;
     }
 
     @Test
     void makeDepositingTest() throws Exception {
-        TransactionRequest testRequest = makeDepositingRequest(1);
+        InputOutputRequest testRequest = makeDepositingRequest(1);
 
         mockMvc.perform(post("/transactional/makeDepositing")
                 .content(mapper.writeValueAsString(testRequest))
@@ -52,7 +51,7 @@ public class TransactionControllerTest {
     void makeWithdrawalTest() throws Exception {
         makeDepositingRequest(1);
 
-        TransactionRequest testRequest = new TransactionRequest();
+        InputOutputRequest testRequest = new InputOutputRequest();
         testRequest.setParticipantId(1L);
         testRequest.setGivenCurrency("EUR");
         testRequest.setGivenAmount(50.0);
@@ -68,7 +67,7 @@ public class TransactionControllerTest {
     void makeBadWithdrawalTest() throws Exception {
         makeDepositingRequest(1);
 
-        TransactionRequest testRequest = new TransactionRequest();
+        InputOutputRequest testRequest = new InputOutputRequest();
         testRequest.setParticipantId(1L);
         testRequest.setGivenCurrency("EUR");
         testRequest.setGivenAmount(5000.0);
@@ -117,13 +116,13 @@ public class TransactionControllerTest {
     @Test
     void getBalanceByCurrencyTest() throws Exception {
 
-        BalanceRequest balanceRequest = new BalanceRequest();
-        balanceRequest.setParticipantId(2L);
-        balanceRequest.setGivenCurrency("EUR");
+        TransactionRequest transactionRequest = new TransactionRequest();
+        transactionRequest.setParticipantId(2L);
+        transactionRequest.setGivenCurrency("EUR");
 
         makeDepositingRequest(2);
 
-        TransactionRequest depositing = new TransactionRequest();
+        InputOutputRequest depositing = new InputOutputRequest();
         depositing.setParticipantId(2L);
         depositing.setGivenCurrency("RUB");
         depositing.setGivenAmount(2000.0);
@@ -140,7 +139,7 @@ public class TransactionControllerTest {
         selling.setRequiredCurrency("RUB");
         selling.setGivenAmount(20.0);
 
-        TransactionRequest withdrawal = new TransactionRequest();
+        InputOutputRequest withdrawal = new InputOutputRequest();
         withdrawal.setParticipantId(2L);
         withdrawal.setGivenCurrency("EUR");
         withdrawal.setGivenAmount(5.0);
@@ -151,7 +150,7 @@ public class TransactionControllerTest {
         service.withdrawal(withdrawal);
 
         mockMvc.perform(get("/transactional/get")
-                .content(mapper.writeValueAsString(balanceRequest))
+                .content(mapper.writeValueAsString(transactionRequest))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("currencyBalance").value(195.8322725));
     }
@@ -159,12 +158,12 @@ public class TransactionControllerTest {
     @Test
     void getBadBalanceByCurrencyTest() throws Exception {
 
-        BalanceRequest balanceRequest = new BalanceRequest();
-        balanceRequest.setParticipantId(2L);
-        balanceRequest.setGivenCurrency("EURO"); // Проверка на валюту на которой нет транзакций
+        TransactionRequest transactionRequest = new TransactionRequest();
+        transactionRequest.setParticipantId(2L);
+        transactionRequest.setGivenCurrency("EURO"); // Проверка на валюту на которой нет транзакций
 
         mockMvc.perform(get("/transactional/get")
-                        .content(mapper.writeValueAsString(balanceRequest))
+                        .content(mapper.writeValueAsString(transactionRequest))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("currencyBalance").value(0));
     }

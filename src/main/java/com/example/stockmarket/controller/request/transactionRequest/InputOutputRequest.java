@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class MakeExchangeRequest extends InputOutputRequest {
+public class InputOutputRequest extends TransactionRequest {
     @NotNull
-    private String requiredCurrency;
+    private Double givenAmount;
 }

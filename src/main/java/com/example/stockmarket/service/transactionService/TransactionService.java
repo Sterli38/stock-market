@@ -2,7 +2,7 @@ package com.example.stockmarket.service.transactionService;
 
 import com.example.stockmarket.config.StockMarketSettings;
 import com.example.stockmarket.controller.request.transactionRequest.MakeExchangeRequest;
-import com.example.stockmarket.controller.request.transactionRequest.TransactionRequest;
+import com.example.stockmarket.controller.request.transactionRequest.InputOutputRequest;
 import com.example.stockmarket.dao.TransactionDao;
 import com.example.stockmarket.entity.OperationType;
 import com.example.stockmarket.entity.Transaction;
@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @Service
@@ -35,29 +34,29 @@ public class TransactionService {
                 '}';
     }
 
-    public Transaction depositing(TransactionRequest transactionRequest) {
+    public Transaction depositing(InputOutputRequest inputOutputRequest) {
         Transaction transaction = new Transaction();
         transaction.setOperationType(OperationType.DEPOSITING);
         transaction.setDate(new Date());
-        transaction.setParticipantId(transactionRequest.getParticipantId());
-        transaction.setGivenCurrency(transactionRequest.getGivenCurrency());
-        transaction.setGivenAmount(transactionRequest.getGivenAmount());
-        transaction.setCommission(calculateCommission(transactionRequest.getGivenAmount(), transactionRequest.getGivenCurrency()));
+        transaction.setParticipantId(inputOutputRequest.getParticipantId());
+        transaction.setGivenCurrency(inputOutputRequest.getGivenCurrency());
+        transaction.setGivenAmount(inputOutputRequest.getGivenAmount());
+        transaction.setCommission(calculateCommission(inputOutputRequest.getGivenAmount(), inputOutputRequest.getGivenCurrency()));
         return dao.saveTransaction(transaction);
     }
 
-    public Transaction withdrawal(TransactionRequest transactionRequest) {
-        if(!isOperationApplicable(transactionRequest.getGivenAmount(), transactionRequest.getGivenCurrency(), transactionRequest.getParticipantId())) {
-            log.warn("Невозможно вывести: {} в количестве {} у пользователя: {} недостаточно средств", transactionRequest.getGivenCurrency() , transactionRequest.getGivenCurrency(), transactionRequest.getParticipantId());
-            throw new NotEnoughCurrencyException(transactionRequest.getGivenCurrency());
+    public Transaction withdrawal(InputOutputRequest inputOutputRequest) {
+        if(!isOperationApplicable(inputOutputRequest.getGivenAmount(), inputOutputRequest.getGivenCurrency(), inputOutputRequest.getParticipantId())) {
+            log.warn("Невозможно вывести: {} в количестве {} у пользователя: {} недостаточно средств", inputOutputRequest.getGivenCurrency() , inputOutputRequest.getGivenCurrency(), inputOutputRequest.getParticipantId());
+            throw new NotEnoughCurrencyException(inputOutputRequest.getGivenCurrency());
         }
         Transaction transaction = new Transaction();
         transaction.setOperationType(OperationType.WITHDRAWAL);
         transaction.setDate(new Date());
-        transaction.setParticipantId(transactionRequest.getParticipantId());
-        transaction.setGivenCurrency(transactionRequest.getGivenCurrency());
-        transaction.setGivenAmount(transactionRequest.getGivenAmount());
-        transaction.setCommission(calculateCommission(transactionRequest.getGivenAmount(), transactionRequest.getGivenCurrency()));
+        transaction.setParticipantId(inputOutputRequest.getParticipantId());
+        transaction.setGivenCurrency(inputOutputRequest.getGivenCurrency());
+        transaction.setGivenAmount(inputOutputRequest.getGivenAmount());
+        transaction.setCommission(calculateCommission(inputOutputRequest.getGivenAmount(), inputOutputRequest.getGivenCurrency()));
         return dao.saveTransaction(transaction);
     }
 

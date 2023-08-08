@@ -1,19 +1,15 @@
 package com.example.stockmarket.service;
 
-import com.example.stockmarket.controller.request.transactionRequest.BalanceRequest;
-import com.example.stockmarket.controller.request.transactionRequest.MakeExchangeRequest;
 import com.example.stockmarket.controller.request.transactionRequest.TransactionRequest;
+import com.example.stockmarket.controller.request.transactionRequest.MakeExchangeRequest;
+import com.example.stockmarket.controller.request.transactionRequest.InputOutputRequest;
 import com.example.stockmarket.entity.OperationType;
 import com.example.stockmarket.entity.Transaction;
 import com.example.stockmarket.service.transactionService.TransactionService;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.Date;
 
@@ -22,18 +18,18 @@ public class TransactionServiceTest {
     @Autowired
     private TransactionService service;
 
-    private TransactionRequest createTransactionRequest(long participantId) {
-        TransactionRequest transactionRequest = new TransactionRequest();
-        transactionRequest.setParticipantId(participantId);
-        transactionRequest.setGivenCurrency("EUR");
-        transactionRequest.setGivenAmount(200.0);
-        service.depositing(transactionRequest);
-        return transactionRequest;
+    private InputOutputRequest createTransactionRequest(long participantId) {
+        InputOutputRequest inputOutputRequest = new InputOutputRequest();
+        inputOutputRequest.setParticipantId(participantId);
+        inputOutputRequest.setGivenCurrency("EUR");
+        inputOutputRequest.setGivenAmount(200.0);
+        service.depositing(inputOutputRequest);
+        return inputOutputRequest;
     }
 
     @Test
     public void depositingTest() {
-        TransactionRequest request = new TransactionRequest();
+        InputOutputRequest request = new InputOutputRequest();
         request.setParticipantId(1L);
         request.setGivenCurrency("EUR");
         request.setGivenAmount(50.0);
@@ -54,7 +50,7 @@ public class TransactionServiceTest {
     @Test
     public void withdrawalTest() {
         createTransactionRequest(1L);
-        TransactionRequest request = new TransactionRequest();
+        InputOutputRequest request = new InputOutputRequest();
         request.setParticipantId(1L);
         request.setGivenCurrency("EUR");
         request.setGivenAmount(50.0);
@@ -99,13 +95,13 @@ public class TransactionServiceTest {
     public void getBalanceByCurrency() {
 //        Double expectedResult = 44.33;
         double expectedResult = 195.8322725;
-        BalanceRequest balanceRequest = new BalanceRequest();
-        balanceRequest.setParticipantId(1L);
-        balanceRequest.setGivenCurrency("EUR");
+        TransactionRequest transactionRequest = new TransactionRequest();
+        transactionRequest.setParticipantId(1L);
+        transactionRequest.setGivenCurrency("EUR");
 
         createTransactionRequest(1L);
 
-        TransactionRequest depositing = new TransactionRequest();
+        InputOutputRequest depositing = new InputOutputRequest();
         depositing.setParticipantId(1L);
         depositing.setGivenCurrency("RUB");
         depositing.setGivenAmount(2000.0);
@@ -122,7 +118,7 @@ public class TransactionServiceTest {
         selling.setRequiredCurrency("RUB");
         selling.setGivenAmount(20.0);
 
-        TransactionRequest withdrawal = new TransactionRequest();
+        InputOutputRequest withdrawal = new InputOutputRequest();
         withdrawal.setParticipantId(1L);
         withdrawal.setGivenCurrency("EUR");
         withdrawal.setGivenAmount(5.0);
@@ -132,6 +128,6 @@ public class TransactionServiceTest {
         service.exchange(selling);
         service.withdrawal(withdrawal);
 
-        Assertions.assertEquals(expectedResult, service.getBalanceByCurrency(balanceRequest.getParticipantId(), balanceRequest.getGivenCurrency()));
+        Assertions.assertEquals(expectedResult, service.getBalanceByCurrency(transactionRequest.getParticipantId(), transactionRequest.getGivenCurrency()));
     }
 }
