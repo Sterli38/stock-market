@@ -22,8 +22,8 @@ CREATE TABLE history
     id                serial primary key,
     operation_type_id int REFERENCES operation_type (id) not null,
     date              timestamp                          not null,
-    received_amount   double precision,
     given_amount      double precision,
+    received_amount   double precision,
     participant_id    int REFERENCES participant (id)    not null,
     received_currency varchar,
     given_currency    varchar,
@@ -35,6 +35,6 @@ values ('DEPOSITING'),
        ('EXCHANGE'),
        ('WITHDRAWAL');
 
+-- тестовые данные
 INSERT INTO participant(name, creation_date, password)
-values ('Egor', '2023-09-09', 'pasw123'),
-       ('TestName', '2023-09-08', 'testPassword');
+values ('Egor', '2023-09-09', 'pasw123');

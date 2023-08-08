@@ -1,7 +1,7 @@
 package com.example.stockmarket.dao.database;
 
 import com.example.stockmarket.dao.TransactionDao;
-import com.example.stockmarket.dao.TransactionMapper;
+import com.example.stockmarket.dao.mapper.TransactionMapper;
 import com.example.stockmarket.entity.Transaction;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;

@@ -1,7 +1,7 @@
 package com.example.stockmarket.dao.database;
 
 import com.example.stockmarket.dao.ParticipantDao;
-import com.example.stockmarket.dao.ParticipantMapper;
+import com.example.stockmarket.dao.mapper.ParticipantMapper;
 import com.example.stockmarket.entity.Participant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -12,8 +12,6 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
-import java.sql.Date;
-import java.sql.Time;
 import java.sql.Timestamp;
 
 @Repository

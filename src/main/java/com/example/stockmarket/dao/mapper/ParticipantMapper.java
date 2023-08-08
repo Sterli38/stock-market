@@ -1,4 +1,4 @@
-package com.example.stockmarket.dao;
+package com.example.stockmarket.dao.mapper;
 
 import com.example.stockmarket.entity.Participant;
 import org.springframework.jdbc.core.RowMapper;

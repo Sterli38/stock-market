@@ -108,24 +108,6 @@ public class TransactionService {
         }
 
 
-//        List<Transaction> depositing = transactions.stream()
-//                .filter(i -> i.getOperationType() == OperationType.DEPOSITING)
-//                .toList();
-//
-//        List<Transaction> replenishment = transactions.stream()
-//                .filter(i -> i.getOperationType() == OperationType.EXCHANGE)
-//                .filter(i -> Objects.equals(i.getReceivedCurrency(), currency))
-//                .toList();
-//
-//        List<Transaction> subtraction = transactions.stream()
-//                .filter(i -> i.getOperationType() == OperationType.EXCHANGE)
-//                .filter(i -> Objects.equals(i.getGivenCurrency(), currency))
-//                .toList();
-//
-//        List<Transaction> withdrawal = transactions.stream()
-//                .filter(i -> i.getOperationType() == OperationType.WITHDRAWAL)
-//                .toList();
-
         double depositingSum = 0;
         double replenishmentSum = 0;
         double subtractionSum = 0;
