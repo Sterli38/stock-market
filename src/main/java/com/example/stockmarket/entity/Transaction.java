@@ -11,7 +11,7 @@ public class Transaction {
     private Date date;
     private Double receivedAmount;
     private Double givenAmount;
-    private Long participantId;
+    private Participant participant;
     private String receivedCurrency;
     private String givenCurrency;
     private double commission;
