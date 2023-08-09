@@ -7,13 +7,9 @@ import com.example.stockmarket.entity.OperationType;
 import com.example.stockmarket.entity.Transaction;
 import com.example.stockmarket.service.transactionService.TransactionService;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.Date;
 

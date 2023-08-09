@@ -36,6 +36,7 @@ public class TransactionService {
     }
 
     public Transaction depositing(TransactionRequest transactionRequest) {
+        log.info("Выполнение операции пополнения в валюте: {}", transactionRequest.getGivenCurrency());
         Transaction transaction = new Transaction();
         transaction.setOperationType(OperationType.DEPOSITING);
         transaction.setDate(new Date());
@@ -43,6 +44,8 @@ public class TransactionService {
         transaction.setGivenCurrency(transactionRequest.getGivenCurrency());
         transaction.setGivenAmount(transactionRequest.getGivenAmount());
         transaction.setCommission(calculateCommission(transactionRequest.getGivenAmount(), transactionRequest.getGivenCurrency()));
+        log.info("Сохранение операции пополнения");
+        log.info("Завершение операции пополнения");
         return dao.saveTransaction(transaction);
     }
 
@@ -51,6 +54,7 @@ public class TransactionService {
             log.warn("Невозможно вывести: {} в количестве {} у пользователя: {} недостаточно средств", transactionRequest.getGivenCurrency() , transactionRequest.getGivenCurrency(), transactionRequest.getParticipantId());
             throw new NotEnoughCurrencyException(transactionRequest.getGivenCurrency());
         }
+        log.info("Выполнение операции вывода в валюте: {}", transactionRequest.getGivenCurrency());
         Transaction transaction = new Transaction();
         transaction.setOperationType(OperationType.WITHDRAWAL);
         transaction.setDate(new Date());
@@ -58,18 +62,22 @@ public class TransactionService {
         transaction.setGivenCurrency(transactionRequest.getGivenCurrency());
         transaction.setGivenAmount(transactionRequest.getGivenAmount());
         transaction.setCommission(calculateCommission(transactionRequest.getGivenAmount(), transactionRequest.getGivenCurrency()));
+        log.info("Сохранение операции вывода");
+        log.info("Завершение операции вывода");
         return dao.saveTransaction(transaction);
     }
 
     public Transaction exchange(MakeExchangeRequest makeExchangeRequest) {
         String pair = makeExchangeRequest.getGivenCurrency() + makeExchangeRequest.getRequiredCurrency();
         if (!webCurrencyService.isValid(pair)) {
+            log.warn("Пользователь {} ввёл неккоректную пару валют: {}" , makeExchangeRequest.getParticipantId(), pair);
             throw new CurrencyPairIsNotValidException(pair);
         }
         if(!isOperationApplicable(makeExchangeRequest.getGivenAmount(), makeExchangeRequest.getGivenCurrency(), makeExchangeRequest.getParticipantId())) {
             log.warn("Невозможно обменять {} на {}, в количестве {} у пользователя: {} недостаточно средств", makeExchangeRequest.getGivenCurrency(), makeExchangeRequest.getRequiredCurrency(), makeExchangeRequest.getGivenAmount(), makeExchangeRequest.getParticipantId());
             throw new NotEnoughCurrencyException(makeExchangeRequest.getGivenCurrency());
         }
+        log.info("Выполняется операция по обмену валюты: {} на валюту: {}", makeExchangeRequest.getGivenCurrency(), makeExchangeRequest.getRequiredCurrency());
 
         Transaction transaction = new Transaction();
         transaction.setParticipantId(makeExchangeRequest.getParticipantId());
@@ -83,11 +91,15 @@ public class TransactionService {
         double receivedAmount = webCurrencyService.convert(transaction.getGivenCurrency(), transaction.getGivenAmount() - transaction.getCommission(), transaction.getReceivedCurrency());
         transaction.setReceivedAmount(receivedAmount);
 
+        log.info("Сохранение операции обмена");
+        log.info("Завершение операции обмена");
         Transaction saveTransaction = dao.saveTransaction(transaction);
         return saveTransaction;
     }
 
     public double getBalanceByCurrency(Long id, String currency) {
+        log.info("Подсчёт баланса в валюте: {}", currency);
+        log.trace("Получение данных из бд");
         List<Transaction> transactions = dao.getTransactionsByCurrency(id, currency);
 
         List<Transaction> depositing = new ArrayList<>();
@@ -95,63 +107,63 @@ public class TransactionService {
         List<Transaction> subtraction = new ArrayList<>();
         List<Transaction> withdrawal = new ArrayList<>();
 
+        log.trace("Подсчёт операций по категориям по валюте {} :", currency);
         for(Transaction transaction: transactions) {
             if(transaction.getOperationType() == OperationType.DEPOSITING) {
+                log.trace("Собираем операции пополнения в валюте");
                 depositing.add(transaction);
             } else if (transaction.getOperationType() == OperationType.EXCHANGE && transaction.getReceivedCurrency().equals(currency)) {
+                log.trace("Собираем операции приобретение валюты при обмене");
                 replenishment.add(transaction);
             } else if (transaction.getOperationType() == OperationType.EXCHANGE && transaction.getGivenCurrency().equals(currency)) {
+                log.trace("Собираем операции продажи валюты при обмене");
                 subtraction.add(transaction);
             } else if(transaction.getOperationType() == OperationType.WITHDRAWAL) {
+                log.trace("Собираем операции вывода в данной валюте");
                 withdrawal.add(transaction);
             }
         }
-
-
-//        List<Transaction> depositing = transactions.stream()
-//                .filter(i -> i.getOperationType() == OperationType.DEPOSITING)
-//                .toList();
-//
-//        List<Transaction> replenishment = transactions.stream()
-//                .filter(i -> i.getOperationType() == OperationType.EXCHANGE)
-//                .filter(i -> Objects.equals(i.getReceivedCurrency(), currency))
-//                .toList();
-//
-//        List<Transaction> subtraction = transactions.stream()
-//                .filter(i -> i.getOperationType() == OperationType.EXCHANGE)
-//                .filter(i -> Objects.equals(i.getGivenCurrency(), currency))
-//                .toList();
-//
-//        List<Transaction> withdrawal = transactions.stream()
-//                .filter(i -> i.getOperationType() == OperationType.WITHDRAWAL)
-//                .toList();
 
         double depositingSum = 0;
         double replenishmentSum = 0;
         double subtractionSum = 0;
         double withdrawalSum = 0;
 
+        log.trace("Выполняем расчёт суммы всех операций на пополнение");
         for (Transaction value : depositing) {
             depositingSum += value.getGivenAmount() - value.getCommission();
         }
+        log.trace("Сумма операций пополения: {}", depositingSum);
 
+
+        log.trace("Выполняем расчёт суммы всех операций на приобретение валюты при обмене");
         for (Transaction value : replenishment) {
             replenishmentSum += value.getReceivedAmount();
         }
+        log.trace("Сумма всех операций по покупке: {}", replenishmentSum);
 
+
+        log.trace("Выполняем расчёт суммы всех операций на продажу при обмене");
         for (Transaction value : subtraction) {
             subtractionSum += value.getGivenAmount();
         }
+        log.trace("Сумма операций по продаже: {}", subtractionSum);
 
+
+        log.trace("Выполняем расчёт суммы всех операций вывода");
         for (Transaction value : withdrawal) {
             withdrawalSum += value.getGivenAmount() - value.getCommission(); // возможно стоит оптимизировать
         }
+        log.trace("Сумма операций вывода: {}", withdrawalSum);
 
+        log.trace("Подсчёт баланса:");
+        log.info("Подсчёт баланса завершён");
         return depositingSum + replenishmentSum - withdrawalSum - subtractionSum;
     }
 
 
     private double calculateCommission(double amount, String currency) {
+        log.info("Расчёт комиссии");
         double commission = 0;
         double amountOfRub;
 
@@ -164,6 +176,8 @@ public class TransactionService {
         if (amountOfRub < stockMarketSettings.getThresholdOfCommissionUsage()) {
             commission = amount * stockMarketSettings.getCommissionPercent();
         }
+        log.trace("Рамзер комиссии для суммы : {}, в валюте {}, равен {}", amount, currency, commission);
+        log.info("Установлена комиссия на платёж"); //
         return commission;
     }
 
@@ -172,6 +186,7 @@ public class TransactionService {
      * @return
      */
     private boolean isOperationApplicable(double amount, String currency, long participantId) {
+        log.info("Проверка достаточности денежных средств для выполнения операции в валюте: {}", currency);
         double balance = getBalanceByCurrency(participantId, currency);
         return balance >= amount;
     }
