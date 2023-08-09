@@ -29,7 +29,7 @@ public class TransactionDatabaseDao implements TransactionDao {
             ps.setTimestamp(2, new Timestamp(transaction.getDate().getTime()));
             ps.setObject(3, transaction.getReceivedAmount());
             ps.setObject(4, transaction.getGivenAmount());
-            ps.setLong(5, transaction.getParticipantId());
+            ps.setLong(5, transaction.getParticipant().getId());
             ps.setString(6, transaction.getReceivedCurrency());
             ps.setString(7, transaction.getGivenCurrency());
             ps.setDouble(8, transaction.getCommission());
@@ -41,8 +41,10 @@ public class TransactionDatabaseDao implements TransactionDao {
 
     @Override
     public List<Transaction> getTransactionsByCurrency(Long participantId, String currency) {
-        String sql = "SELECT operation_type.type, received_amount, given_amount, commission, received_currency, given_currency FROM transaction " +
-                "JOIN operation_type on transaction.operation_type_id = operation_type.id WHERE participant_id = ? and (received_currency = ? or given_currency = ?)";
+        String sql = "SELECT participant.id, participant.name, participant.creation_date, operation_type.type, received_amount, given_amount, commission, received_currency, given_currency FROM transaction" +
+                " JOIN operation_type on transaction.operation_type_id = operation_type.id" +
+                " JOIN participant on transaction.participant_id = participant.id " +
+                " WHERE participant_id = ? and (received_currency = ? or given_currency = ?)";
         return jdbcTemplate.query(sql, new TransactionMapper(), participantId, currency, currency);
     }
 }

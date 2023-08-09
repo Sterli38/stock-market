@@ -4,16 +4,13 @@ import com.example.stockmarket.controller.request.transactionRequest.BalanceRequ
 import com.example.stockmarket.controller.request.transactionRequest.MakeExchangeRequest;
 import com.example.stockmarket.controller.request.transactionRequest.TransactionRequest;
 import com.example.stockmarket.entity.OperationType;
+import com.example.stockmarket.entity.Participant;
 import com.example.stockmarket.entity.Transaction;
 import com.example.stockmarket.service.transactionService.TransactionService;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.Date;
 
@@ -34,6 +31,8 @@ public class TransactionServiceTest {
     @Test
     public void depositingTest() {
         TransactionRequest request = new TransactionRequest();
+        Participant participant = new Participant();
+        participant.setId(1L);
         request.setParticipantId(1L);
         request.setGivenCurrency("EUR");
         request.setGivenAmount(50.0);
@@ -43,7 +42,7 @@ public class TransactionServiceTest {
         expectedTransaction.setDate(new Date());
         expectedTransaction.setId(1L);
         expectedTransaction.setGivenAmount(50.0);
-        expectedTransaction.setParticipantId(1L);
+        expectedTransaction.setParticipant(participant);
         expectedTransaction.setGivenCurrency("EUR");
         expectedTransaction.setCommission(2.5);
         Transaction actualTransaction = service.depositing(request);
@@ -55,6 +54,8 @@ public class TransactionServiceTest {
     public void withdrawalTest() {
         createTransactionRequest(1L);
         TransactionRequest request = new TransactionRequest();
+        Participant participant = new Participant();
+        participant.setId(1L);
         request.setParticipantId(1L);
         request.setGivenCurrency("EUR");
         request.setGivenAmount(50.0);
@@ -63,7 +64,7 @@ public class TransactionServiceTest {
         expectedTransaction.setOperationType(OperationType.WITHDRAWAL);
         expectedTransaction.setId(1L);
         expectedTransaction.setGivenAmount(50.0);
-        expectedTransaction.setParticipantId(1L);
+        expectedTransaction.setParticipant(participant);
         expectedTransaction.setGivenCurrency("EUR");
         expectedTransaction.setCommission(2.5);
         Transaction actualTransaction = service.withdrawal(request);
@@ -75,6 +76,8 @@ public class TransactionServiceTest {
     public void exchange() {
         createTransactionRequest(1L);
         MakeExchangeRequest request = new MakeExchangeRequest();
+        Participant participant = new Participant();
+        participant.setId(1L);
         request.setParticipantId(1L);
         request.setGivenCurrency("EUR");
         request.setRequiredCurrency("RUB");
@@ -85,7 +88,7 @@ public class TransactionServiceTest {
         expectedTransaction.setId(1L);
         expectedTransaction.setGivenAmount(20.0);
         expectedTransaction.setReceivedAmount(1315.636);
-        expectedTransaction.setParticipantId(1L);
+        expectedTransaction.setParticipant(participant);
         expectedTransaction.setGivenCurrency("EUR");
         expectedTransaction.setReceivedCurrency("RUB");
         expectedTransaction.setCommission(1);
