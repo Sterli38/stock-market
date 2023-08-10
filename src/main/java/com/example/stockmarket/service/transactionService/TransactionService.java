@@ -42,9 +42,9 @@ public class TransactionService {
         transaction.setOperationType(OperationType.DEPOSITING);
         transaction.setDate(new Date());
         transaction.setParticipant(participant);
-        transaction.setGivenCurrency(transactionRequest.getGivenCurrency());
-        transaction.setGivenAmount(transactionRequest.getGivenAmount());
-        transaction.setCommission(calculateCommission(transactionRequest.getGivenAmount(), transactionRequest.getGivenCurrency()));
+        transaction.setReceivedCurrency(transactionRequest.getGivenCurrency());
+        transaction.setReceivedAmount(transactionRequest.getGivenAmount());
+        transaction.setCommission(calculateCommission(transaction.getReceivedAmount(), transaction.getReceivedCurrency()));
         return dao.saveTransaction(transaction);
     }
 
@@ -61,7 +61,7 @@ public class TransactionService {
         transaction.setParticipant(participant);
         transaction.setGivenCurrency(transactionRequest.getGivenCurrency());
         transaction.setGivenAmount(transactionRequest.getGivenAmount());
-        transaction.setCommission(calculateCommission(transactionRequest.getGivenAmount(), transactionRequest.getGivenCurrency()));
+        transaction.setCommission(calculateCommission(transaction.getGivenAmount(), transaction.getGivenCurrency()));
         return dao.saveTransaction(transaction);
     }
 
@@ -112,32 +112,13 @@ public class TransactionService {
             }
         }
 
-
-//        List<Transaction> depositing = transactions.stream()
-//                .filter(i -> i.getOperationType() == OperationType.DEPOSITING)
-//                .toList();
-//
-//        List<Transaction> replenishment = transactions.stream()
-//                .filter(i -> i.getOperationType() == OperationType.EXCHANGE)
-//                .filter(i -> Objects.equals(i.getReceivedCurrency(), currency))
-//                .toList();
-//
-//        List<Transaction> subtraction = transactions.stream()
-//                .filter(i -> i.getOperationType() == OperationType.EXCHANGE)
-//                .filter(i -> Objects.equals(i.getGivenCurrency(), currency))
-//                .toList();
-//
-//        List<Transaction> withdrawal = transactions.stream()
-//                .filter(i -> i.getOperationType() == OperationType.WITHDRAWAL)
-//                .toList();
-
         double depositingSum = 0;
         double replenishmentSum = 0;
         double subtractionSum = 0;
         double withdrawalSum = 0;
 
         for (Transaction value : depositing) {
-            depositingSum += value.getGivenAmount() - value.getCommission();
+            depositingSum += value.getReceivedAmount() - value.getCommission();
         }
 
         for (Transaction value : replenishment) {

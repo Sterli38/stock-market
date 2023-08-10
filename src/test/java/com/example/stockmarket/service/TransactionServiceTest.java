@@ -41,9 +41,9 @@ public class TransactionServiceTest {
         expectedTransaction.setOperationType(OperationType.DEPOSITING);
         expectedTransaction.setDate(new Date());
         expectedTransaction.setId(1L);
-        expectedTransaction.setGivenAmount(50.0);
+        expectedTransaction.setReceivedAmount(50.0);
         expectedTransaction.setParticipant(participant);
-        expectedTransaction.setGivenCurrency("EUR");
+        expectedTransaction.setReceivedCurrency("EUR");
         expectedTransaction.setCommission(2.5);
         Transaction actualTransaction = service.depositing(request);
         expectedTransaction.setId(actualTransaction.getId());
@@ -100,7 +100,6 @@ public class TransactionServiceTest {
 
     @Test
     public void getBalanceByCurrency() {
-//        Double expectedResult = 44.33;
         double expectedResult = 195.8322725;
         BalanceRequest balanceRequest = new BalanceRequest();
         balanceRequest.setParticipantId(1L);
@@ -134,6 +133,8 @@ public class TransactionServiceTest {
         service.exchange(buying);
         service.exchange(selling);
         service.withdrawal(withdrawal);
+        System.out.println(expectedResult);
+        System.out.println(service.getBalanceByCurrency(balanceRequest.getParticipantId(), balanceRequest.getGivenCurrency()));
 
         Assertions.assertEquals(expectedResult, service.getBalanceByCurrency(balanceRequest.getParticipantId(), balanceRequest.getGivenCurrency()));
     }
