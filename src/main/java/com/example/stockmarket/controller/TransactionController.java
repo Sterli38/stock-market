@@ -1,8 +1,6 @@
 package com.example.stockmarket.controller;
 
-import com.example.stockmarket.controller.request.transactionRequest.BalanceRequest;
-import com.example.stockmarket.controller.request.transactionRequest.MakeExchangeRequest;
-import com.example.stockmarket.controller.request.transactionRequest.TransactionRequest;
+import com.example.stockmarket.controller.request.transactionRequest.*;
 import com.example.stockmarket.controller.response.BalanceByCurrencyResponse;
 import com.example.stockmarket.controller.response.TransactionResponse;
 import com.example.stockmarket.entity.Transaction;
@@ -19,14 +17,14 @@ public class TransactionController {
     private final TransactionService service;
 
     @PostMapping("/makeDepositing")
-    public TransactionResponse makeDepositing(@RequestBody TransactionRequest transactionRequest) {
-        Transaction transaction = service.depositing(transactionRequest);
+    public TransactionResponse makeDepositing(@RequestBody MakeDepositingRequest makeDepositingRequest) {
+        Transaction transaction = service.depositing(makeDepositingRequest);
         return convertToTransactionalResponse(transaction);
     }
 
     @GetMapping("/withdrawal")
-    public TransactionResponse makeWithdrawal(@RequestBody TransactionRequest transactionRequest) {
-        Transaction transaction = service.withdrawal(transactionRequest);
+    public TransactionResponse makeWithdrawal(@RequestBody MakeWithdrawalRequest makeWithdrawalRequest) {
+        Transaction transaction = service.withdrawal(makeWithdrawalRequest);
         return convertToTransactionalResponse(transaction);
     }
 

@@ -1,7 +1,9 @@
 package com.example.stockmarket.service.transactionService;
 
 import com.example.stockmarket.config.StockMarketSettings;
+import com.example.stockmarket.controller.request.transactionRequest.MakeDepositingRequest;
 import com.example.stockmarket.controller.request.transactionRequest.MakeExchangeRequest;
+import com.example.stockmarket.controller.request.transactionRequest.MakeWithdrawalRequest;
 import com.example.stockmarket.controller.request.transactionRequest.TransactionRequest;
 import com.example.stockmarket.dao.TransactionDao;
 import com.example.stockmarket.entity.OperationType;
@@ -35,43 +37,43 @@ public class TransactionService {
                 '}';
     }
 
-    public Transaction depositing(TransactionRequest transactionRequest) {
+    public Transaction depositing(MakeDepositingRequest makeDepositingRequest) {
         Transaction transaction = new Transaction();
         Participant participant = new Participant();
-        participant.setId(transactionRequest.getParticipantId());
+        participant.setId(makeDepositingRequest.getParticipantId());
         transaction.setOperationType(OperationType.DEPOSITING);
         transaction.setDate(new Date());
         transaction.setParticipant(participant);
-        transaction.setGivenCurrency(transactionRequest.getGivenCurrency());
-        transaction.setGivenAmount(transactionRequest.getGivenAmount());
-        transaction.setCommission(calculateCommission(transactionRequest.getGivenAmount(), transactionRequest.getGivenCurrency()));
+        transaction.setReceivedCurrency(makeDepositingRequest.getReceivedCurrency());
+        transaction.setReceivedAmount(makeDepositingRequest.getReceivedAmount());
+        transaction.setCommission(calculateCommission(transaction.getReceivedAmount(), transaction.getReceivedCurrency()));
         return dao.saveTransaction(transaction);
     }
 
-    public Transaction withdrawal(TransactionRequest transactionRequest) {
-        if(!isOperationApplicable(transactionRequest.getGivenAmount(), transactionRequest.getGivenCurrency(), transactionRequest.getParticipantId())) {
-            log.warn("Невозможно вывести: {} в количестве {} у пользователя: {} недостаточно средств", transactionRequest.getGivenCurrency() , transactionRequest.getGivenCurrency(), transactionRequest.getParticipantId());
-            throw new NotEnoughCurrencyException(transactionRequest.getGivenCurrency());
+    public Transaction withdrawal(MakeWithdrawalRequest makeWithdrawalRequest) {
+        if(!isOperationApplicable(makeWithdrawalRequest.getGivenAmount(), makeWithdrawalRequest.getGivenCurrency(), makeWithdrawalRequest.getParticipantId())) {
+            log.warn("Невозможно вывести: {} в количестве {} у пользователя: {} недостаточно средств", makeWithdrawalRequest.getGivenCurrency() , makeWithdrawalRequest.getGivenCurrency(), makeWithdrawalRequest.getParticipantId());
+            throw new NotEnoughCurrencyException(makeWithdrawalRequest.getGivenCurrency());
         }
         Transaction transaction = new Transaction();
         Participant participant = new Participant();
-        participant.setId(transactionRequest.getParticipantId());
+        participant.setId(makeWithdrawalRequest.getParticipantId());
         transaction.setOperationType(OperationType.WITHDRAWAL);
         transaction.setDate(new Date());
         transaction.setParticipant(participant);
-        transaction.setGivenCurrency(transactionRequest.getGivenCurrency());
-        transaction.setGivenAmount(transactionRequest.getGivenAmount());
-        transaction.setCommission(calculateCommission(transactionRequest.getGivenAmount(), transactionRequest.getGivenCurrency()));
+        transaction.setGivenCurrency(makeWithdrawalRequest.getGivenCurrency());
+        transaction.setGivenAmount(makeWithdrawalRequest.getGivenAmount());
+        transaction.setCommission(calculateCommission(makeWithdrawalRequest.getGivenAmount(), makeWithdrawalRequest.getGivenCurrency()));
         return dao.saveTransaction(transaction);
     }
 
     public Transaction exchange(MakeExchangeRequest makeExchangeRequest) {
-        String pair = makeExchangeRequest.getGivenCurrency() + makeExchangeRequest.getRequiredCurrency();
+        String pair = makeExchangeRequest.getGivenCurrency() + makeExchangeRequest.getReceivedCurrency();
         if (!webCurrencyService.isValid(pair)) {
             throw new CurrencyPairIsNotValidException(pair);
         }
         if(!isOperationApplicable(makeExchangeRequest.getGivenAmount(), makeExchangeRequest.getGivenCurrency(), makeExchangeRequest.getParticipantId())) {
-            log.warn("Невозможно обменять {} на {}, в количестве {} у пользователя: {} недостаточно средств", makeExchangeRequest.getGivenCurrency(), makeExchangeRequest.getRequiredCurrency(), makeExchangeRequest.getGivenAmount(), makeExchangeRequest.getParticipantId());
+            log.warn("Невозможно обменять {} на {}, в количестве {} у пользователя: {} недостаточно средств", makeExchangeRequest.getGivenCurrency(), makeExchangeRequest.getReceivedCurrency(), makeExchangeRequest.getGivenAmount(), makeExchangeRequest.getParticipantId());
             throw new NotEnoughCurrencyException(makeExchangeRequest.getGivenCurrency());
         }
         Participant participant = new Participant();
@@ -80,7 +82,7 @@ public class TransactionService {
         transaction.setParticipant(participant);
         transaction.setGivenCurrency(makeExchangeRequest.getGivenCurrency());
         transaction.setGivenAmount(makeExchangeRequest.getGivenAmount());
-        transaction.setReceivedCurrency(makeExchangeRequest.getRequiredCurrency());
+        transaction.setReceivedCurrency(makeExchangeRequest.getReceivedCurrency());
         transaction.setOperationType(OperationType.EXCHANGE);
         transaction.setDate(new Date());
         transaction.setCommission(calculateCommission(transaction.getGivenAmount(), transaction.getGivenCurrency()));
@@ -137,7 +139,7 @@ public class TransactionService {
         double withdrawalSum = 0;
 
         for (Transaction value : depositing) {
-            depositingSum += value.getGivenAmount() - value.getCommission();
+            depositingSum += value.getReceivedAmount() - value.getCommission();
         }
 
         for (Transaction value : replenishment) {
