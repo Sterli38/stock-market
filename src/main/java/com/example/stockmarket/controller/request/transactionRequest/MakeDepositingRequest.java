@@ -6,11 +6,9 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class MakeExchangeRequest extends AbstractRequest {
+public class MakeDepositingRequest extends AbstractRequest {
     @NotNull
     private String receivedCurrency;
     @NotNull
-    private Double givenAmount;
-    @NotNull
-    private String givenCurrency;
+    private Double receivedAmount;
 }

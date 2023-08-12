@@ -3,7 +3,6 @@ package com.example.stockmarket.dao;
 import com.example.stockmarket.entity.Participant;
 import org.springframework.jdbc.core.RowMapper;
 
-import javax.swing.tree.TreePath;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 

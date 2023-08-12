@@ -12,8 +12,6 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
-import java.sql.Date;
-import java.sql.Time;
 import java.sql.Timestamp;
 
 @Repository

@@ -39,7 +39,8 @@ values ('DEPOSITING'),
 INSERT INTO participant(name, creation_date, password)
 values ('Egor', '2023-09-09', 'pasw123');
 
-INSERT INTO transaction(operation_type_id, date, given_amount, received_amount, participant_id, given_currency, received_currency, commission)
+INSERT INTO transaction(operation_type_id, date, given_amount, received_amount, participant_id, given_currency,
+                        received_currency, commission)
 values (1, '2023-09-07', 50.0, null, 1, 'EUR', null, 2.5),
        (2, '2023-09-07', 1500.0, 20.58, 1, 'RUB', 'EUR', 75),
        (2, '2023-09-07', 20, 1315.636, 1, 'EUR', 'RUB', 1),
