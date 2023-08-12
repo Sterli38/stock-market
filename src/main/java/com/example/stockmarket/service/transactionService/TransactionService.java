@@ -52,8 +52,8 @@ public class TransactionService {
     }
 
     public Transaction withdrawal(MakeWithdrawalRequest makeWithdrawalRequest) {
-        if(!isOperationApplicable(makeWithdrawalRequest.getGivenAmount(), makeWithdrawalRequest.getGivenCurrency(), makeWithdrawalRequest.getParticipantId())) {
-            log.info("Невозможно вывести: {} в количестве {} у пользователя: {} недостаточно средств", makeWithdrawalRequest.getGivenCurrency() , makeWithdrawalRequest.getGivenCurrency(), makeWithdrawalRequest.getParticipantId());
+        if (!isOperationApplicable(makeWithdrawalRequest.getGivenAmount(), makeWithdrawalRequest.getGivenCurrency(), makeWithdrawalRequest.getParticipantId())) {
+            log.info("Невозможно вывести: {} в количестве {} у пользователя: {} недостаточно средств", makeWithdrawalRequest.getGivenCurrency(), makeWithdrawalRequest.getGivenCurrency(), makeWithdrawalRequest.getParticipantId());
             throw new NotEnoughCurrencyException(makeWithdrawalRequest.getGivenCurrency());
         }
         log.trace("У пользователя: {} хватает средств для проведения операции вывода", makeWithdrawalRequest.getParticipantId());
@@ -74,10 +74,10 @@ public class TransactionService {
     public Transaction exchange(MakeExchangeRequest makeExchangeRequest) {
         String pair = makeExchangeRequest.getGivenCurrency() + makeExchangeRequest.getReceivedCurrency();
         if (!webCurrencyService.isValid(pair)) {
-            log.warn("Пользователь {} ввёл неккоректную пару валют: {}" , makeExchangeRequest.getParticipantId(), pair);
+            log.warn("Пользователь {} ввёл неккоректную пару валют: {}", makeExchangeRequest.getParticipantId(), pair);
             throw new CurrencyPairIsNotValidException(pair);
         }
-        if(!isOperationApplicable(makeExchangeRequest.getGivenAmount(), makeExchangeRequest.getGivenCurrency(), makeExchangeRequest.getParticipantId())) {
+        if (!isOperationApplicable(makeExchangeRequest.getGivenAmount(), makeExchangeRequest.getGivenCurrency(), makeExchangeRequest.getParticipantId())) {
             log.warn("Невозможно обменять {} на {}, в количестве {} у пользователя: {} недостаточно средств", makeExchangeRequest.getGivenCurrency(), makeExchangeRequest.getReceivedCurrency(), makeExchangeRequest.getGivenAmount(), makeExchangeRequest.getParticipantId());
             throw new NotEnoughCurrencyException(makeExchangeRequest.getGivenCurrency());
         }
@@ -111,14 +111,14 @@ public class TransactionService {
         List<Transaction> subtraction = new ArrayList<>();
         List<Transaction> withdrawal = new ArrayList<>();
 
-        for(Transaction transaction: transactions) {
-            if(transaction.getOperationType() == OperationType.DEPOSITING) {
+        for (Transaction transaction : transactions) {
+            if (transaction.getOperationType() == OperationType.DEPOSITING) {
                 depositing.add(transaction);
             } else if (transaction.getOperationType() == OperationType.EXCHANGE && transaction.getReceivedCurrency().equals(currency)) {
                 replenishment.add(transaction);
             } else if (transaction.getOperationType() == OperationType.EXCHANGE && transaction.getGivenCurrency().equals(currency)) {
                 subtraction.add(transaction);
-            } else if(transaction.getOperationType() == OperationType.WITHDRAWAL) {
+            } else if (transaction.getOperationType() == OperationType.WITHDRAWAL) {
                 withdrawal.add(transaction);
             }
         }
@@ -158,7 +158,7 @@ public class TransactionService {
         double commission = 0;
         double amountOfRub;
 
-        if(!currency.equals(stockMarketSettings.getThresholdBaseCurrency())) {
+        if (!currency.equals(stockMarketSettings.getThresholdBaseCurrency())) {
             amountOfRub = webCurrencyService.convert(currency, amount, stockMarketSettings.getThresholdBaseCurrency());
         } else {
             amountOfRub = amount;
@@ -175,6 +175,7 @@ public class TransactionService {
 
     /**
      * Проверка достаточности денежных средств для операции
+     *
      * @return
      */
     private boolean isOperationApplicable(double amount, String currency, long participantId) {

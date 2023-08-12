@@ -18,6 +18,7 @@ public class ParticipantDaoTest {
     private Participant egor;
     private Participant lena;
     private ParticipantDatabaseDao dao;
+
     @BeforeEach
     void setup() {
         dao = new ParticipantDatabaseDao(jdbcTemplate);

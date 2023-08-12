@@ -70,6 +70,7 @@ public class TransactionServiceTest {
         expectedTransaction.setDate(actualTransaction.getDate());
         Assertions.assertEquals(expectedTransaction, actualTransaction);
     }
+
     @Test
     public void exchange() {
         createTransactionRequest(1L);

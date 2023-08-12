@@ -1,13 +1,20 @@
 package com.example.stockmarket.controller;
 
-import com.example.stockmarket.controller.request.transactionRequest.*;
+import com.example.stockmarket.controller.request.transactionRequest.GetBalanceRequest;
+import com.example.stockmarket.controller.request.transactionRequest.MakeDepositingRequest;
+import com.example.stockmarket.controller.request.transactionRequest.MakeExchangeRequest;
+import com.example.stockmarket.controller.request.transactionRequest.MakeWithdrawalRequest;
 import com.example.stockmarket.controller.response.BalanceByCurrencyResponse;
 import com.example.stockmarket.controller.response.TransactionResponse;
 import com.example.stockmarket.entity.Transaction;
 import com.example.stockmarket.service.transactionService.TransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Validated
 @RestController
@@ -29,7 +36,7 @@ public class TransactionController {
     }
 
     @PostMapping("/exchange")
-    public TransactionResponse exchange(@RequestBody MakeExchangeRequest makeExchangeRequest)  {
+    public TransactionResponse exchange(@RequestBody MakeExchangeRequest makeExchangeRequest) {
         Transaction transaction = service.exchange(makeExchangeRequest);
         return convertToTransactionalResponse(transaction);
     }
@@ -39,7 +46,7 @@ public class TransactionController {
         return convertToBalanceResponse(service.getBalanceByCurrency(getBalanceRequest.getParticipantId(), getBalanceRequest.getCurrency()));
     }
 
-    private TransactionResponse convertToTransactionalResponse (Transaction transaction) {
+    private TransactionResponse convertToTransactionalResponse(Transaction transaction) {
         TransactionResponse transactionalResponse = new TransactionResponse();
         transactionalResponse.setTransactionId(transaction.getId());
         return transactionalResponse;
