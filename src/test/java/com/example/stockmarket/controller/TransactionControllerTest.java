@@ -115,9 +115,9 @@ public class TransactionControllerTest {
     @Test
     void getBalanceByCurrencyTest() throws Exception {
 
-        BalanceRequest balanceRequest = new BalanceRequest();
-        balanceRequest.setParticipantId(2L);
-        balanceRequest.setGivenCurrency("EUR");
+        GetBalanceRequest getBalanceRequest = new GetBalanceRequest();
+        getBalanceRequest.setParticipantId(2L);
+        getBalanceRequest.setCurrency("EUR");
 
         makeDepositingRequest(2);
 
@@ -149,7 +149,7 @@ public class TransactionControllerTest {
         service.withdrawal(withdrawal);
 
         mockMvc.perform(get("/transactional/get")
-                        .content(mapper.writeValueAsString(balanceRequest))
+                        .content(mapper.writeValueAsString(getBalanceRequest))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("currencyBalance").value(195.8322725));
     }
@@ -157,12 +157,12 @@ public class TransactionControllerTest {
     @Test
     void getBadBalanceByCurrencyTest() throws Exception {
 
-        BalanceRequest balanceRequest = new BalanceRequest();
-        balanceRequest.setParticipantId(2L);
-        balanceRequest.setGivenCurrency("EURO"); // Проверка на валюту на которой нет транзакций
+        GetBalanceRequest getBalanceRequest = new GetBalanceRequest();
+        getBalanceRequest.setParticipantId(2L);
+        getBalanceRequest.setCurrency("EURO"); // Проверка на валюту на которой нет транзакций
 
         mockMvc.perform(get("/transactional/get")
-                        .content(mapper.writeValueAsString(balanceRequest))
+                        .content(mapper.writeValueAsString(getBalanceRequest))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("currencyBalance").value(0));
     }

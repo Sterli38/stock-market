@@ -100,9 +100,9 @@ public class TransactionServiceTest {
     public void getBalanceByCurrency() {
 //        Double expectedResult = 44.33;
         double expectedResult = 195.8322725;
-        BalanceRequest balanceRequest = new BalanceRequest();
-        balanceRequest.setParticipantId(1L);
-        balanceRequest.setGivenCurrency("EUR");
+        GetBalanceRequest getBalanceRequest = new GetBalanceRequest();
+        getBalanceRequest.setParticipantId(1L);
+        getBalanceRequest.setCurrency("EUR");
 
         createTransactionRequest(1L);
 
@@ -133,6 +133,6 @@ public class TransactionServiceTest {
         service.exchange(selling);
         service.withdrawal(withdrawal);
 
-        Assertions.assertEquals(expectedResult, service.getBalanceByCurrency(balanceRequest.getParticipantId(), balanceRequest.getGivenCurrency()));
+        Assertions.assertEquals(expectedResult, service.getBalanceByCurrency(getBalanceRequest.getParticipantId(), getBalanceRequest.getCurrency()));
     }
 }

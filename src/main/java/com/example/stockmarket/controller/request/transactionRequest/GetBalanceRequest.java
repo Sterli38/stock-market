@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class BalanceRequest extends TransactionRequest {
+public class GetBalanceRequest extends AbstractRequest {
     @NotNull
-    private String givenCurrency;
+    private String currency;
 }

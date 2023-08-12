@@ -4,7 +4,6 @@ import com.example.stockmarket.config.StockMarketSettings;
 import com.example.stockmarket.controller.request.transactionRequest.MakeDepositingRequest;
 import com.example.stockmarket.controller.request.transactionRequest.MakeExchangeRequest;
 import com.example.stockmarket.controller.request.transactionRequest.MakeWithdrawalRequest;
-import com.example.stockmarket.controller.request.transactionRequest.TransactionRequest;
 import com.example.stockmarket.dao.TransactionDao;
 import com.example.stockmarket.entity.OperationType;
 import com.example.stockmarket.entity.Participant;

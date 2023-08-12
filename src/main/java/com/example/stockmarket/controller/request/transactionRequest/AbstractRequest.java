@@ -4,7 +4,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.Data;
 
 @Data
-public class TransactionRequest {
+public abstract class AbstractRequest {
     @Positive
     private Long participantId;
 }
