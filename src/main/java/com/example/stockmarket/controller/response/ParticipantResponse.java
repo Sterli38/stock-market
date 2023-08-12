@@ -1,6 +1,6 @@
 package com.example.stockmarket.controller.response;
 
-import lombok.*;
+import lombok.Data;
 
 @Data
 public class ParticipantResponse {

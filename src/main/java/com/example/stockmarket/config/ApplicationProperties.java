@@ -1,6 +1,5 @@
 package com.example.stockmarket.config;
 
-
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
