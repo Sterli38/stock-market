@@ -22,11 +22,11 @@ CREATE TABLE transaction
     id                serial primary key,
     operation_type_id int REFERENCES operation_type (id) not null,
     date              timestamp                          not null,
+    received_currency varchar,
     received_amount   double precision,
+    given_currency    varchar,
     given_amount      double precision,
     participant_id    int REFERENCES participant (id)    not null,
-    received_currency varchar,
-    given_currency    varchar,
     commission        double precision
 );
 

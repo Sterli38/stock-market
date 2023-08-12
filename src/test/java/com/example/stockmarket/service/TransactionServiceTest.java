@@ -99,7 +99,6 @@ public class TransactionServiceTest {
 
     @Test
     public void getBalanceByCurrency() {
-//        Double expectedResult = 44.33;
         double expectedResult = 195.8322725;
         GetBalanceRequest getBalanceRequest = new GetBalanceRequest();
         getBalanceRequest.setParticipantId(1L);
