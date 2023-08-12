@@ -1,4 +1,4 @@
-DROP TABLE if EXISTS history;
+DROP TABLE if EXISTS transaction;
 DROP TABLE if EXISTS participant;
 DROP TABLE if EXISTS operation_type;
 
@@ -17,7 +17,7 @@ CREATE TABLE operation_type
     type varchar not null
 );
 
-CREATE TABLE history
+CREATE TABLE transaction
 (
     id                serial primary key,
     operation_type_id int REFERENCES operation_type (id) not null,

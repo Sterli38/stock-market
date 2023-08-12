@@ -1,6 +1,7 @@
 package com.example.stockmarket.dao;
 
 import com.example.stockmarket.entity.OperationType;
+import com.example.stockmarket.entity.Participant;
 import com.example.stockmarket.entity.Transaction;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -11,6 +12,9 @@ public class TransactionMapper implements RowMapper<Transaction> {
     @Override
     public Transaction mapRow(ResultSet rs, int rowNum) throws SQLException {
         Transaction transaction = new Transaction();
+        ParticipantMapper participantMapper = new ParticipantMapper();
+        Participant participant = participantMapper.mapRow(rs, rowNum);
+        transaction.setParticipant(participant);
 
         transaction.setOperationType(OperationType.valueOf((rs.getString("type"))));
         transaction.setReceivedCurrency(rs.getString("received_currency"));

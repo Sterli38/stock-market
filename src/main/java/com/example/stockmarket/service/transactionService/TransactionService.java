@@ -5,6 +5,7 @@ import com.example.stockmarket.controller.request.transactionRequest.MakeExchang
 import com.example.stockmarket.controller.request.transactionRequest.TransactionRequest;
 import com.example.stockmarket.dao.TransactionDao;
 import com.example.stockmarket.entity.OperationType;
+import com.example.stockmarket.entity.Participant;
 import com.example.stockmarket.entity.Transaction;
 import com.example.stockmarket.exception.CurrencyPairIsNotValidException;
 import com.example.stockmarket.exception.NotEnoughCurrencyException;
@@ -16,7 +17,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @Service
@@ -37,9 +37,11 @@ public class TransactionService {
 
     public Transaction depositing(TransactionRequest transactionRequest) {
         Transaction transaction = new Transaction();
+        Participant participant = new Participant();
+        participant.setId(transactionRequest.getParticipantId());
         transaction.setOperationType(OperationType.DEPOSITING);
         transaction.setDate(new Date());
-        transaction.setParticipantId(transactionRequest.getParticipantId());
+        transaction.setParticipant(participant);
         transaction.setGivenCurrency(transactionRequest.getGivenCurrency());
         transaction.setGivenAmount(transactionRequest.getGivenAmount());
         transaction.setCommission(calculateCommission(transactionRequest.getGivenAmount(), transactionRequest.getGivenCurrency()));
@@ -55,9 +57,11 @@ public class TransactionService {
         }
         log.trace("У пользователя: {} хватает средств для проведения операции вывода", transactionRequest.getParticipantId());
         Transaction transaction = new Transaction();
+        Participant participant = new Participant();
+        participant.setId(transactionRequest.getParticipantId());
         transaction.setOperationType(OperationType.WITHDRAWAL);
         transaction.setDate(new Date());
-        transaction.setParticipantId(transactionRequest.getParticipantId());
+        transaction.setParticipant(participant);
         transaction.setGivenCurrency(transactionRequest.getGivenCurrency());
         transaction.setGivenAmount(transactionRequest.getGivenAmount());
         transaction.setCommission(calculateCommission(transactionRequest.getGivenAmount(), transactionRequest.getGivenCurrency()));
@@ -79,8 +83,10 @@ public class TransactionService {
         log.trace("Получена валидная пара: {}", pair);
         log.trace("У пользователя: {} хватает средств для проведения операции вывода", makeExchangeRequest.getParticipantId());
 
+        Participant participant = new Participant();
+        participant.setId(makeExchangeRequest.getParticipantId());
         Transaction transaction = new Transaction();
-        transaction.setParticipantId(makeExchangeRequest.getParticipantId());
+        transaction.setParticipant(participant);
         transaction.setGivenCurrency(makeExchangeRequest.getGivenCurrency());
         transaction.setGivenAmount(makeExchangeRequest.getGivenAmount());
         transaction.setReceivedCurrency(makeExchangeRequest.getRequiredCurrency());
@@ -96,8 +102,8 @@ public class TransactionService {
         return saveTransaction;
     }
 
-    public double getBalanceByCurrency(Long id, String currency) {
-        List<Transaction> transactions = dao.getTransactionsByCurrency(id, currency);
+    public double getBalanceByCurrency(Long participantId, String currency) {
+        List<Transaction> transactions = dao.getTransactionsByCurrency(participantId, currency);
 
         List<Transaction> depositing = new ArrayList<>();
         List<Transaction> replenishment = new ArrayList<>();
