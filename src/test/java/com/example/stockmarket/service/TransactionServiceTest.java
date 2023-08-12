@@ -132,8 +132,6 @@ public class TransactionServiceTest {
         service.exchange(buying);
         service.exchange(selling);
         service.withdrawal(withdrawal);
-        System.out.println(expectedResult);
-        System.out.println(service.getBalanceByCurrency(balanceRequest.getParticipantId(), balanceRequest.getGivenCurrency()));
 
         Assertions.assertEquals(expectedResult, service.getBalanceByCurrency(getBalanceRequest.getParticipantId(), getBalanceRequest.getCurrency()));
     }
