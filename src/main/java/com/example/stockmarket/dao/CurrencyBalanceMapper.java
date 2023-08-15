@@ -8,23 +8,20 @@ import org.springframework.jdbc.core.RowMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class TransactionMapper implements RowMapper<Transaction> {
+public class CurrencyBalanceMapper implements RowMapper<Transaction> {
     @Override
     public Transaction mapRow(ResultSet rs, int rowNum) throws SQLException {
+        Transaction transaction = new Transaction();
         ParticipantMapper participantMapper = new ParticipantMapper();
         Participant participant = participantMapper.mapRow(rs, rowNum);
 
-        Transaction transaction = new Transaction();
-
-        transaction.setOperationType(OperationType.valueOf(rs.getString("type")));
-        transaction.setDate(rs.getDate("date"));
+        transaction.setOperationType(OperationType.valueOf((rs.getString("type"))));
         transaction.setReceivedCurrency(rs.getString("received_currency"));
         transaction.setReceivedAmount(rs.getDouble("received_amount"));
         transaction.setGivenCurrency(rs.getString("given_currency"));
         transaction.setGivenAmount(rs.getDouble("given_amount"));
         transaction.setParticipant(participant);
         transaction.setCommission(rs.getDouble("commission"));
-
         return transaction;
     }
 }

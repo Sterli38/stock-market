@@ -1,6 +1,7 @@
 package com.example.stockmarket.service.transactionService;
 
 import com.example.stockmarket.config.StockMarketSettings;
+import com.example.stockmarket.controller.request.transactionRequest.GetTransactionsRequest;
 import com.example.stockmarket.controller.request.transactionRequest.MakeDepositingRequest;
 import com.example.stockmarket.controller.request.transactionRequest.MakeExchangeRequest;
 import com.example.stockmarket.controller.request.transactionRequest.MakeWithdrawalRequest;
@@ -8,7 +9,9 @@ import com.example.stockmarket.dao.TransactionDao;
 import com.example.stockmarket.entity.OperationType;
 import com.example.stockmarket.entity.Participant;
 import com.example.stockmarket.entity.Transaction;
+import com.example.stockmarket.entity.TransactionFilter;
 import com.example.stockmarket.exception.CurrencyPairIsNotValidException;
+import com.example.stockmarket.exception.NoCurrencyForAmountException;
 import com.example.stockmarket.exception.NotEnoughCurrencyException;
 import com.example.stockmarket.service.WebCurrencyService;
 import lombok.RequiredArgsConstructor;
@@ -153,6 +156,24 @@ public class TransactionService {
         return balance;
     }
 
+    public List<Transaction> getTransactionsByFilter(GetTransactionsRequest getTransactionsRequest) { // Принимает по идее фильтр
+        if (!IsOperationApplicableForHistory(getTransactionsRequest.getMinAmount(), getTransactionsRequest.getMaxAmount(), getTransactionsRequest.getCurrency())) {
+            throw new NoCurrencyForAmountException();
+        }
+
+        TransactionFilter transactionFilter = new TransactionFilter();
+        transactionFilter.setParticipantId(getTransactionsRequest.getParticipantId());
+        if (getTransactionsRequest.getOperationType() != null) {
+            transactionFilter.setOperationType(OperationType.valueOf(getTransactionsRequest.getOperationType()));
+        }
+        transactionFilter.setCurrency(getTransactionsRequest.getCurrency());
+        transactionFilter.setAfter(getTransactionsRequest.getAfter());
+        transactionFilter.setBefore(getTransactionsRequest.getBefore());
+        transactionFilter.setMinAmount(getTransactionsRequest.getMinAmount());
+        transactionFilter.setMaxAmount(getTransactionsRequest.getMaxAmount());
+
+        return dao.getTransactionsByFilter(transactionFilter);
+    }
 
     private double calculateCommission(double amount, String currency) {
         double commission = 0;
@@ -181,5 +202,17 @@ public class TransactionService {
     private boolean isOperationApplicable(double amount, String currency, long participantId) {
         double balance = getBalanceByCurrency(participantId, currency);
         return balance >= amount;
+    }
+
+    /**
+     * Проверка что сумма не ведена без валюты для операции
+     *
+     * @return
+     */
+    private boolean IsOperationApplicableForHistory(Double minAmount, Double maxAmount, String currency) {
+        if ((minAmount != null && currency == null) || (maxAmount != null && currency == null)) {
+        return false;
+        }
+        return true;
     }
 }
