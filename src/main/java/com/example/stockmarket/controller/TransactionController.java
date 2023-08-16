@@ -6,7 +6,6 @@ import com.example.stockmarket.controller.request.transactionRequest.MakeDeposit
 import com.example.stockmarket.controller.request.transactionRequest.MakeExchangeRequest;
 import com.example.stockmarket.controller.request.transactionRequest.MakeWithdrawalRequest;
 import com.example.stockmarket.controller.response.BalanceByCurrencyResponse;
-import com.example.stockmarket.controller.response.TransactionIdResponse;
 import com.example.stockmarket.controller.response.TransactionResponse;
 import com.example.stockmarket.entity.Transaction;
 import com.example.stockmarket.service.transactionService.TransactionService;
@@ -29,19 +28,19 @@ public class TransactionController {
     private final TransactionService service;
 
     @PostMapping("/makeDepositing")
-    public TransactionIdResponse makeDepositing(@RequestBody MakeDepositingRequest makeDepositingRequest) {
+    public TransactionResponse makeDepositing(@RequestBody MakeDepositingRequest makeDepositingRequest) {
         Transaction transaction = service.depositing(makeDepositingRequest);
         return convertToTransactionIdResponse(transaction);
     }
 
     @GetMapping("/withdrawal")
-    public TransactionIdResponse makeWithdrawal(@RequestBody MakeWithdrawalRequest makeWithdrawalRequest) {
+    public TransactionResponse makeWithdrawal(@RequestBody MakeWithdrawalRequest makeWithdrawalRequest) {
         Transaction transaction = service.withdrawal(makeWithdrawalRequest);
         return convertToTransactionIdResponse(transaction);
     }
 
     @PostMapping("/exchange")
-    public TransactionIdResponse exchange(@RequestBody MakeExchangeRequest makeExchangeRequest) {
+    public TransactionResponse exchange(@RequestBody MakeExchangeRequest makeExchangeRequest) {
         Transaction transaction = service.exchange(makeExchangeRequest);
         return convertToTransactionIdResponse(transaction);
     }
@@ -58,10 +57,10 @@ public class TransactionController {
                 .collect(Collectors.toList());
     }
 
-    private TransactionIdResponse convertToTransactionIdResponse(Transaction transaction) {
-        TransactionIdResponse transactionalResponse = new TransactionIdResponse();
-        transactionalResponse.setTransactionId(transaction.getId());
-        return transactionalResponse;
+    private TransactionResponse convertToTransactionIdResponse(Transaction transaction) {
+        TransactionResponse transactionResponse = new TransactionResponse();
+        transactionResponse.setTransactionId(transaction.getId());
+        return transactionResponse;
     }
 
     private BalanceByCurrencyResponse convertToBalanceResponse(double sum) {
