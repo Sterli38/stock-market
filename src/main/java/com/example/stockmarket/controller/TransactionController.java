@@ -46,7 +46,7 @@ public class TransactionController {
         return convertToTransactionIdResponse(transaction);
     }
 
-    @GetMapping("/getBalanceByCurrncy")
+    @GetMapping("/getBalanceByCurrency")
     public BalanceByCurrencyResponse getBalanceByCurrency(@RequestBody GetBalanceRequest getBalanceRequest) {
         return convertToBalanceResponse(service.getBalanceByCurrency(getBalanceRequest.getParticipantId(), getBalanceRequest.getCurrency()));
     }
