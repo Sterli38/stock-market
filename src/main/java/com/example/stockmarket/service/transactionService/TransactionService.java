@@ -156,21 +156,24 @@ public class TransactionService {
         return balance;
     }
 
-    public List<Transaction> getTransactionsByFilter(GetTransactionsRequest getTransactionsRequest) { // Принимает по идее фильтр
-        if (!IsOperationApplicableForHistory(getTransactionsRequest.getMinAmount(), getTransactionsRequest.getMaxAmount(), getTransactionsRequest.getCurrency())) {
-            throw new NoCurrencyForAmountException();
-        }
+    public List<Transaction> getTransactionsByFilter(GetTransactionsRequest getTransactionsRequest) {
+//        if (!IsOperationApplicableForHistory(getTransactionsRequest.getMinAmount(), getTransactionsRequest.getMaxAmount(), getTransactionsRequest.getGivenCurrency())) {
+//            throw new NoCurrencyForAmountException();
+//        }
 
         TransactionFilter transactionFilter = new TransactionFilter();
         transactionFilter.setParticipantId(getTransactionsRequest.getParticipantId());
         if (getTransactionsRequest.getOperationType() != null) {
             transactionFilter.setOperationType(OperationType.valueOf(getTransactionsRequest.getOperationType()));
         }
-        transactionFilter.setCurrency(getTransactionsRequest.getCurrency());
+        transactionFilter.setGivenCurrencies(getTransactionsRequest.getGivenCurrencies());
+        transactionFilter.setGivenMinAmount(getTransactionsRequest.getGivenMinAmount());
+        transactionFilter.setGivenMaxAmount(getTransactionsRequest.getGivenMaxAmount());
+        transactionFilter.setReceivedCurrencies(getTransactionsRequest.getReceivedCurrencies());
+        transactionFilter.setReceivedMinAmount(getTransactionsRequest.getReceivedMinAmount());
+        transactionFilter.setReceivedMaxAmount(getTransactionsRequest.getReceivedMaxAmount());
         transactionFilter.setAfter(getTransactionsRequest.getAfter());
         transactionFilter.setBefore(getTransactionsRequest.getBefore());
-        transactionFilter.setMinAmount(getTransactionsRequest.getMinAmount());
-        transactionFilter.setMaxAmount(getTransactionsRequest.getMaxAmount());
 
         return dao.getTransactionsByFilter(transactionFilter);
     }

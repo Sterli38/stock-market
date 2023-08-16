@@ -59,7 +59,7 @@ public class TransactionController {
 
     private TransactionResponse convertToTransactionIdResponse(Transaction transaction) {
         TransactionResponse transactionResponse = new TransactionResponse();
-        transactionResponse.setTransactionId(transaction.getId());
+        transactionResponse.setId(transaction.getId());
         return transactionResponse;
     }
 

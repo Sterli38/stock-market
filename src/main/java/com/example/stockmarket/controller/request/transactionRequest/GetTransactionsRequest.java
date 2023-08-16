@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 public class GetTransactionsRequest {
@@ -12,7 +13,10 @@ public class GetTransactionsRequest {
     private String operationType;
     private Date after;
     private Date before;
-    private Double minAmount;
-    private Double maxAmount;
-    private String currency;
+    private Double receivedMinAmount;
+    private Double receivedMaxAmount;
+    private Double givenMaxAmount;
+    private Double givenMinAmount;
+    private List<String> givenCurrencies;
+    private List<String> receivedCurrencies;
 }

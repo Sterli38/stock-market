@@ -3,6 +3,7 @@ package com.example.stockmarket.entity;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 public class TransactionFilter {
@@ -10,7 +11,10 @@ public class TransactionFilter {
     private OperationType operationType;
     private Date after;
     private Date before;
-    private Double minAmount;
-    private Double maxAmount;
-    private String currency;
+    private Double receivedMinAmount;
+    private Double receivedMaxAmount;
+    private Double givenMaxAmount;
+    private Double givenMinAmount;
+    private List<String> givenCurrencies;
+    private List<String> receivedCurrencies;
 }

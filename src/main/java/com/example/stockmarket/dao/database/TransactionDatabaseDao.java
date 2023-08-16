@@ -1,7 +1,6 @@
 package com.example.stockmarket.dao.database;
 
 import com.example.stockmarket.dao.TransactionDao;
-import com.example.stockmarket.dao.CurrencyBalanceMapper;
 import com.example.stockmarket.dao.TransactionMapper;
 import com.example.stockmarket.entity.Transaction;
 import com.example.stockmarket.entity.TransactionFilter;
@@ -51,7 +50,7 @@ public class TransactionDatabaseDao implements TransactionDao {
                 " JOIN operation_type on transaction.operation_type_id = operation_type.id" +
                 " JOIN participant on transaction.participant_id = participant.id " +
                 " WHERE participant_id = ? and (received_currency = ? or given_currency = ?)";
-        return jdbcTemplate.query(sql, new CurrencyBalanceMapper(), participantId, currency, currency);
+        return jdbcTemplate.query(sql, new TransactionMapper(), participantId, currency, currency);
     }
 
     public List<Transaction> getTransactionsByFilter(TransactionFilter transactionFilter) {
@@ -72,22 +71,43 @@ public class TransactionDatabaseDao implements TransactionDao {
             sqlBuilder.where("date <= :before");
             values.put("before", transactionFilter.getBefore());
         }
-        if(transactionFilter.getMinAmount() != null && transactionFilter.getCurrency() != null) {
-            sqlBuilder.where("received_amount >= :minAmount or given_amount >= :minAmount");
-            values.put("minAmount", transactionFilter.getMinAmount());
-            sqlBuilder.where("(received_currency = :currency or given_currency = :currency)");
-            values.put("currency", transactionFilter.getCurrency());
+//        if(transactionFilter.getMinAmount() != null && transactionFilter.getGivenCurrencies() != null) {
+//            sqlBuilder.where("received_amount >= :minAmount or given_amount >= :minAmount");
+//            values.put("minAmount", transactionFilter.getMinAmount());
+//            sqlBuilder.where("(received_currency = :currency or given_currency = :currency)");
+//            values.put("currency", transactionFilter.getGivenCurrencies());
+//        }
+//        if(transactionFilter.getMaxAmount() != null && transactionFilter.getCurrency() != null) {
+//            sqlBuilder.where("received_amount <= :maxAmount or given_amount <= :maxAmount");
+//            values.put("maxAmount", transactionFilter.getMaxAmount());
+//            sqlBuilder.where("(received_currency = :currency or given_currency = :currency)");
+//            values.put("currency", transactionFilter.getCurrency());
+//        }
+        if(transactionFilter.getReceivedMinAmount()!= null) {
+            sqlBuilder.where("received_amount >= :receivedMinAmount");
+            values.put("receivedMinAmount", transactionFilter.getReceivedMinAmount());
         }
-        if(transactionFilter.getMaxAmount() != null && transactionFilter.getCurrency() != null) {
-            sqlBuilder.where("received_amount <= :maxAmount or given_amount <= :maxAmount");
-            values.put("maxAmount", transactionFilter.getMaxAmount());
-            sqlBuilder.where("(received_currency = :currency or given_currency = :currency)");
-            values.put("currency", transactionFilter.getCurrency());
+        if(transactionFilter.getReceivedMaxAmount() != null) {
+            sqlBuilder.where("received_amount <= :receivedMaxAmount");
+            values.put("receivedMaxAmount", transactionFilter.getReceivedMaxAmount());
         }
-        if(transactionFilter.getCurrency() != null) {
-            sqlBuilder.where("(received_currency = :currency or given_currency = :currency)");
-            values.put("currency", transactionFilter.getCurrency());
+        if(transactionFilter.getGivenMinAmount()!= null) {
+            sqlBuilder.where("given_amount <= :givenMinAmount");
+            values.put("givenMinAmount", transactionFilter.getGivenMinAmount());
         }
+        if(transactionFilter.getGivenMinAmount()!= null) {
+            sqlBuilder.where("given_amount <= :givenMaxAmount");
+            values.put("givenMaxAmount", transactionFilter.getGivenMaxAmount());
+        }
+        if(transactionFilter.getGivenCurrencies() != null) {
+            sqlBuilder.where("given_currency IN (:givenCurrency)");
+            values.put("givenCurrency", transactionFilter.getGivenCurrencies());
+        }
+        if(transactionFilter.getReceivedCurrencies() != null) {
+            sqlBuilder.where("(received_currency IN (:receivedCurrency)");
+            values.put("receivedCurrency", transactionFilter.getReceivedCurrencies());
+        }
+
 
         sqlBuilder.where("participant_id = :participantId");
         values.put("participantId", transactionFilter.getParticipantId());

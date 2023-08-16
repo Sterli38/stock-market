@@ -8,7 +8,7 @@ import java.util.Date;
 
 @Data
 public class TransactionResponse {
-    private Long TransactionId;
+    private Long id;
     private OperationType operationType;
     private Date date;
     private String receivedCurrency;
