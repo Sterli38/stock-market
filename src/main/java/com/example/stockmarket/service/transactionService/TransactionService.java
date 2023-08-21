@@ -157,21 +157,17 @@ public class TransactionService {
     }
 
     public List<Transaction> getTransactionsByFilter(GetTransactionsRequest getTransactionsRequest) {
-//        if (!IsOperationApplicableForHistory(getTransactionsRequest.getMinAmount(), getTransactionsRequest.getMaxAmount(), getTransactionsRequest.getGivenCurrency())) {
-//            throw new NoCurrencyForAmountException();
-//        }
-
         TransactionFilter transactionFilter = new TransactionFilter();
         transactionFilter.setParticipantId(getTransactionsRequest.getParticipantId());
         if (getTransactionsRequest.getOperationType() != null) {
             transactionFilter.setOperationType(OperationType.valueOf(getTransactionsRequest.getOperationType()));
         }
-        transactionFilter.setGivenCurrencies(getTransactionsRequest.getGivenCurrencies());
-        transactionFilter.setGivenMinAmount(getTransactionsRequest.getGivenMinAmount());
-        transactionFilter.setGivenMaxAmount(getTransactionsRequest.getGivenMaxAmount());
         transactionFilter.setReceivedCurrencies(getTransactionsRequest.getReceivedCurrencies());
         transactionFilter.setReceivedMinAmount(getTransactionsRequest.getReceivedMinAmount());
         transactionFilter.setReceivedMaxAmount(getTransactionsRequest.getReceivedMaxAmount());
+        transactionFilter.setGivenCurrencies(getTransactionsRequest.getGivenCurrencies());
+        transactionFilter.setGivenMinAmount(getTransactionsRequest.getGivenMinAmount());
+        transactionFilter.setGivenMaxAmount(getTransactionsRequest.getGivenMaxAmount());
         transactionFilter.setAfter(getTransactionsRequest.getAfter());
         transactionFilter.setBefore(getTransactionsRequest.getBefore());
 
@@ -205,17 +201,5 @@ public class TransactionService {
     private boolean isOperationApplicable(double amount, String currency, long participantId) {
         double balance = getBalanceByCurrency(participantId, currency);
         return balance >= amount;
-    }
-
-    /**
-     * Проверка что сумма не ведена без валюты для операции
-     *
-     * @return
-     */
-    private boolean IsOperationApplicableForHistory(Double minAmount, Double maxAmount, String currency) {
-        if ((minAmount != null && currency == null) || (maxAmount != null && currency == null)) {
-        return false;
-        }
-        return true;
     }
 }

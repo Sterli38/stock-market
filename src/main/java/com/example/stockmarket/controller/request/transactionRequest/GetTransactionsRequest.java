@@ -15,8 +15,8 @@ public class GetTransactionsRequest {
     private Date before;
     private Double receivedMinAmount;
     private Double receivedMaxAmount;
-    private Double givenMaxAmount;
     private Double givenMinAmount;
+    private Double givenMaxAmount;
     private List<String> givenCurrencies;
     private List<String> receivedCurrencies;
 }

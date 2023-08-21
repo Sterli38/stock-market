@@ -8,6 +8,7 @@ import com.example.stockmarket.controller.request.transactionRequest.MakeWithdra
 import com.example.stockmarket.controller.response.BalanceByCurrencyResponse;
 import com.example.stockmarket.controller.response.TransactionResponse;
 import com.example.stockmarket.entity.Transaction;
+import com.example.stockmarket.exception.NoCurrencyForAmountException;
 import com.example.stockmarket.service.transactionService.TransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
@@ -52,6 +53,9 @@ public class TransactionController {
 
     @GetMapping("/getTransactions")
     public List<TransactionResponse> getTransactionsByFilter(@RequestBody GetTransactionsRequest getTransactionsRequest) {
+        if (!IsOperationApplicableForHistory(getTransactionsRequest.getReceivedMaxAmount(), getTransactionsRequest.getReceivedMinAmount(), getTransactionsRequest.getReceivedCurrencies(), getTransactionsRequest.getGivenMaxAmount(), getTransactionsRequest.getGivenMinAmount(), getTransactionsRequest.getGivenCurrencies())) {
+            throw new NoCurrencyForAmountException();
+        }
         return service.getTransactionsByFilter(getTransactionsRequest).stream()
                 .map(this::convertToTransactionResponse)
                 .collect(Collectors.toList());
@@ -72,6 +76,7 @@ public class TransactionController {
     private TransactionResponse convertToTransactionResponse(Transaction transaction) {
         TransactionResponse transactionResponse = new TransactionResponse();
 
+        transactionResponse.setId(transaction.getId());
         transactionResponse.setOperationType(transaction.getOperationType());
         transactionResponse.setDate(transaction.getDate());
         transactionResponse.setGivenCurrency(transaction.getGivenCurrency());
@@ -82,5 +87,17 @@ public class TransactionController {
         transactionResponse.setCommission(transaction.getCommission());
 
         return transactionResponse;
+    }
+
+    /**
+     * Проверка что сумма не ведена без валюты для операции
+     *
+     * @return
+     */
+    private boolean IsOperationApplicableForHistory(Double receivedMaxAmount, Double receivedMinAmount, List<String> receivedCurrency, Double givenMaxAmount, Double givenMinAmount, List<String> givenCurrency) {
+        if (((receivedMaxAmount != null || receivedMinAmount != null ) && receivedCurrency == null) || ((givenMaxAmount != null || givenMinAmount != null) && givenCurrency == null)) {
+            return false;
+        }
+        return true;
     }
 }

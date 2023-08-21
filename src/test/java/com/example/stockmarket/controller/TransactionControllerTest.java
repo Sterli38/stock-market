@@ -46,7 +46,7 @@ public class TransactionControllerTest {
                         .content(mapper.writeValueAsString(testRequest))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("transactionId").isNumber());
+                .andExpect(jsonPath("id").isNumber());
     }
 
     @Test
@@ -62,7 +62,7 @@ public class TransactionControllerTest {
                         .content(mapper.writeValueAsString(testRequest))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("transactionId").isNumber());
+                .andExpect(jsonPath("id").isNumber());
     }
 
     @Test
@@ -95,7 +95,7 @@ public class TransactionControllerTest {
                         .content(mapper.writeValueAsString(testRequest))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("transactionId").isNumber());
+                .andExpect(jsonPath("id").isNumber());
     }
 
     @Test
