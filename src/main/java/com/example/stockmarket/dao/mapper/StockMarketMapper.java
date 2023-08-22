@@ -12,7 +12,8 @@ public class StockMarketMapper implements RowMapper<Profit> {
     public Profit mapRow(ResultSet rs, int rowNum) throws SQLException {
         Profit profit = new Profit();
 
-        profit.setAmountProfit(rs.getDouble("commission"));
+        profit.setCurrency(rs.getString("currency"));
+        profit.setAmountProfit(rs.getDouble("sum"));
 
         return profit;
     }

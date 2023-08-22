@@ -43,7 +43,7 @@ public class SqlBuilder {
         }
     }
 
-    public String getSQL() {
+    public String getSql() {
         return sql.toString();
     }
 }

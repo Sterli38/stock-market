@@ -7,8 +7,7 @@ import java.util.Date;
 
 @Data
 public class StockMarketRequest {
-    @Nullable
+    private String currency;
     private Date after;
-    @Nullable
     private Date before;
 }
