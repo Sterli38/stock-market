@@ -46,7 +46,7 @@ public class TransactionDatabaseDao implements TransactionDao {
 
     @Override
     public List<Transaction> getTransactionsByCurrency(Long participantId, String currency) {
-        String sql = "SELECT transaction.id, transaction.date, participant.id, participant.name, participant.creation_date, participant.password, operation_type.type, received_amount, given_amount, commission, received_currency, given_currency FROM transaction" +
+        String sql = "SELECT transaction.id as transaction_id, transaction.date, participant.id as participant_id, participant.name, participant.creation_date, participant.password, operation_type.type, received_amount, given_amount, commission, received_currency, given_currency FROM transaction" +
                 " JOIN operation_type on transaction.operation_type_id = operation_type.id" +
                 " JOIN participant on transaction.participant_id = participant.id " +
                 " WHERE participant_id = ? and (received_currency = ? or given_currency = ?)";
