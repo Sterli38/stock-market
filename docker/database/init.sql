@@ -3,12 +3,23 @@ DROP TABLE if EXISTS participant;
 DROP TABLE if EXISTS operation_type;
 
 
+CREATE TABLE role
+(
+    id   serial primary key,
+    name varchar not null
+);
+INSERT INTO role(name)
+values ('ADMIN'),
+       ('USER');
+
+
 CREATE TABLE participant
 (
     id            serial primary key,
-    name          varchar   not null,
-    creation_date timestamp not null,
-    password      varchar   not null
+    name          varchar                  not null,
+    role_id       int REFERENCES role (id) not null,
+    creation_date timestamp                not null,
+    password      varchar                  not null
 );
 
 CREATE TABLE operation_type
@@ -36,8 +47,9 @@ values ('DEPOSITING'),
        ('WITHDRAWAL');
 
 -- тестовые данные
-INSERT INTO participant(name, creation_date, password)
-values ('Egor', '2023-09-09', 'pasw123');
+INSERT INTO participant(name, role_id, creation_date, password)
+values ('Egor', (SELECT id FROM role WHERE name = 'USER'), '2023-09-09', 'pasw123'),
+       ('TestName', (SELECT id FROM role WHERE name = 'USER'), '2023-09-08', 'testPassword');
 
 INSERT INTO transaction(operation_type_id, date, received_currency, received_amount, given_currency, given_amount,  participant_id,  commission)
 values (1, '2023-09-07', 'EUR', 50.0, null, null, 1, 2.5),-- пополнение
