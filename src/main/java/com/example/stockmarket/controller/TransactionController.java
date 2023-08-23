@@ -1,12 +1,14 @@
 package com.example.stockmarket.controller;
 
 import com.example.stockmarket.controller.request.transactionRequest.GetBalanceRequest;
+import com.example.stockmarket.controller.request.transactionRequest.GetTransactionsRequest;
 import com.example.stockmarket.controller.request.transactionRequest.MakeDepositingRequest;
 import com.example.stockmarket.controller.request.transactionRequest.MakeExchangeRequest;
 import com.example.stockmarket.controller.request.transactionRequest.MakeWithdrawalRequest;
 import com.example.stockmarket.controller.response.BalanceByCurrencyResponse;
 import com.example.stockmarket.controller.response.TransactionResponse;
 import com.example.stockmarket.entity.Transaction;
+import com.example.stockmarket.exception.NoCurrencyForAmountException;
 import com.example.stockmarket.service.transactionService.TransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
@@ -15,6 +17,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Validated
 @RestController
@@ -26,35 +31,70 @@ public class TransactionController {
     @PostMapping("/makeDepositing")
     public TransactionResponse makeDepositing(@RequestBody MakeDepositingRequest makeDepositingRequest) {
         Transaction transaction = service.depositing(makeDepositingRequest);
-        return convertToTransactionalResponse(transaction);
+        return convertToTransactionIdResponse(transaction);
     }
 
     @GetMapping("/withdrawal")
     public TransactionResponse makeWithdrawal(@RequestBody MakeWithdrawalRequest makeWithdrawalRequest) {
         Transaction transaction = service.withdrawal(makeWithdrawalRequest);
-        return convertToTransactionalResponse(transaction);
+        return convertToTransactionIdResponse(transaction);
     }
 
     @PostMapping("/exchange")
     public TransactionResponse exchange(@RequestBody MakeExchangeRequest makeExchangeRequest) {
         Transaction transaction = service.exchange(makeExchangeRequest);
-        return convertToTransactionalResponse(transaction);
+        return convertToTransactionIdResponse(transaction);
     }
 
-    @GetMapping("/get")
+    @GetMapping("/getBalanceByCurrency")
     public BalanceByCurrencyResponse getBalanceByCurrency(@RequestBody GetBalanceRequest getBalanceRequest) {
         return convertToBalanceResponse(service.getBalanceByCurrency(getBalanceRequest.getParticipantId(), getBalanceRequest.getCurrency()));
     }
 
-    private TransactionResponse convertToTransactionalResponse(Transaction transaction) {
-        TransactionResponse transactionalResponse = new TransactionResponse();
-        transactionalResponse.setTransactionId(transaction.getId());
-        return transactionalResponse;
+    @GetMapping("/getTransactions")
+    public List<TransactionResponse> getTransactionsByFilter(@RequestBody GetTransactionsRequest getTransactionsRequest) {
+        if (isOperationNotApplicableForHistory(getTransactionsRequest.getReceivedMaxAmount(), getTransactionsRequest.getReceivedMinAmount(), getTransactionsRequest.getReceivedCurrencies(), getTransactionsRequest.getGivenMaxAmount(), getTransactionsRequest.getGivenMinAmount(), getTransactionsRequest.getGivenCurrencies())) {
+            throw new NoCurrencyForAmountException();
+        }
+        return service.getTransactionsByFilter(getTransactionsRequest).stream()
+                .map(this::convertToTransactionResponse)
+                .collect(Collectors.toList());
+    }
+
+    private TransactionResponse convertToTransactionIdResponse(Transaction transaction) {
+        TransactionResponse transactionResponse = new TransactionResponse();
+        transactionResponse.setId(transaction.getId());
+        return transactionResponse;
     }
 
     private BalanceByCurrencyResponse convertToBalanceResponse(double sum) {
         BalanceByCurrencyResponse balanceByCurrencyResponse = new BalanceByCurrencyResponse();
         balanceByCurrencyResponse.setCurrencyBalance(sum);
         return balanceByCurrencyResponse;
+    }
+
+    private TransactionResponse convertToTransactionResponse(Transaction transaction) {
+        TransactionResponse transactionResponse = new TransactionResponse();
+
+        transactionResponse.setId(transaction.getId());
+        transactionResponse.setOperationType(transaction.getOperationType());
+        transactionResponse.setDate(transaction.getDate());
+        transactionResponse.setGivenCurrency(transaction.getGivenCurrency());
+        transactionResponse.setGivenAmount(transaction.getGivenAmount());
+        transactionResponse.setReceivedCurrency(transaction.getReceivedCurrency());
+        transactionResponse.setReceivedAmount(transaction.getReceivedAmount());
+        transactionResponse.setParticipant(transaction.getParticipant());
+        transactionResponse.setCommission(transaction.getCommission());
+
+        return transactionResponse;
+    }
+
+    /**
+     * Проверка что сумма не ведена без валюты для операции
+     *
+     * @return
+     */
+    private boolean isOperationNotApplicableForHistory(Double receivedMaxAmount, Double receivedMinAmount, List<String> receivedCurrency, Double givenMaxAmount, Double givenMinAmount, List<String> givenCurrency) {
+        return (((receivedMaxAmount != null || receivedMinAmount != null ) && receivedCurrency == null) || ((givenMaxAmount != null || givenMinAmount != null) && givenCurrency == null));
     }
 }
