@@ -46,7 +46,7 @@ public class TransactionControllerTest {
                         .content(mapper.writeValueAsString(testRequest))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("transactionId").isNumber());
+                .andExpect(jsonPath("id").isNumber());
     }
 
     @Test
@@ -62,7 +62,7 @@ public class TransactionControllerTest {
                         .content(mapper.writeValueAsString(testRequest))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("transactionId").isNumber());
+                .andExpect(jsonPath("id").isNumber());
     }
 
     @Test
@@ -95,7 +95,7 @@ public class TransactionControllerTest {
                         .content(mapper.writeValueAsString(testRequest))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("transactionId").isNumber());
+                .andExpect(jsonPath("id").isNumber());
     }
 
     @Test
@@ -151,7 +151,7 @@ public class TransactionControllerTest {
         service.exchange(selling);
         service.withdrawal(withdrawal);
 
-        mockMvc.perform(get("/transactional/get")
+        mockMvc.perform(get("/transactional/getBalanceByCurrency")
                         .content(mapper.writeValueAsString(getBalanceRequest))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("currencyBalance").value(195.8322725));
@@ -164,7 +164,7 @@ public class TransactionControllerTest {
         getBalanceRequest.setParticipantId(2L);
         getBalanceRequest.setCurrency("EURO"); // Проверка на валюту на которой нет транзакций
 
-        mockMvc.perform(get("/transactional/get")
+        mockMvc.perform(get("/transactional/getBalanceByCurrency")
                         .content(mapper.writeValueAsString(getBalanceRequest))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("currencyBalance").value(0));

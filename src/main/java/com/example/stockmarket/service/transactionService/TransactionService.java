@@ -1,6 +1,7 @@
 package com.example.stockmarket.service.transactionService;
 
 import com.example.stockmarket.config.StockMarketSettings;
+import com.example.stockmarket.controller.request.transactionRequest.GetTransactionsRequest;
 import com.example.stockmarket.controller.request.transactionRequest.MakeDepositingRequest;
 import com.example.stockmarket.controller.request.transactionRequest.MakeExchangeRequest;
 import com.example.stockmarket.controller.request.transactionRequest.MakeWithdrawalRequest;
@@ -8,7 +9,9 @@ import com.example.stockmarket.dao.TransactionDao;
 import com.example.stockmarket.entity.OperationType;
 import com.example.stockmarket.entity.Participant;
 import com.example.stockmarket.entity.Transaction;
+import com.example.stockmarket.entity.TransactionFilter;
 import com.example.stockmarket.exception.CurrencyPairIsNotValidException;
+import com.example.stockmarket.exception.NoCurrencyForAmountException;
 import com.example.stockmarket.exception.NotEnoughCurrencyException;
 import com.example.stockmarket.service.WebCurrencyService;
 import lombok.RequiredArgsConstructor;
@@ -153,6 +156,23 @@ public class TransactionService {
         return balance;
     }
 
+    public List<Transaction> getTransactionsByFilter(GetTransactionsRequest getTransactionsRequest) {
+        TransactionFilter transactionFilter = new TransactionFilter();
+        transactionFilter.setParticipantId(getTransactionsRequest.getParticipantId());
+        if (getTransactionsRequest.getOperationType() != null) {
+            transactionFilter.setOperationType(OperationType.valueOf(getTransactionsRequest.getOperationType()));
+        }
+        transactionFilter.setReceivedCurrencies(getTransactionsRequest.getReceivedCurrencies());
+        transactionFilter.setReceivedMinAmount(getTransactionsRequest.getReceivedMinAmount());
+        transactionFilter.setReceivedMaxAmount(getTransactionsRequest.getReceivedMaxAmount());
+        transactionFilter.setGivenCurrencies(getTransactionsRequest.getGivenCurrencies());
+        transactionFilter.setGivenMinAmount(getTransactionsRequest.getGivenMinAmount());
+        transactionFilter.setGivenMaxAmount(getTransactionsRequest.getGivenMaxAmount());
+        transactionFilter.setAfter(getTransactionsRequest.getAfter());
+        transactionFilter.setBefore(getTransactionsRequest.getBefore());
+
+        return dao.getTransactionsByFilter(transactionFilter);
+    }
 
     private double calculateCommission(double amount, String currency) {
         double commission = 0;
