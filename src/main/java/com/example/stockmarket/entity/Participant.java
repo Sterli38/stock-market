@@ -9,6 +9,7 @@ import java.util.Date;
 public class Participant {
     private Long id;
     private String name;
+    private Role role;
     private Date creationDate;
     @ToString.Exclude
     private String password;
