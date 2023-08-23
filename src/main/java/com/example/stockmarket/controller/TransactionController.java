@@ -53,7 +53,7 @@ public class TransactionController {
 
     @GetMapping("/getTransactions")
     public List<TransactionResponse> getTransactionsByFilter(@RequestBody GetTransactionsRequest getTransactionsRequest) {
-        if (!IsOperationApplicableForHistory(getTransactionsRequest.getReceivedMaxAmount(), getTransactionsRequest.getReceivedMinAmount(), getTransactionsRequest.getReceivedCurrencies(), getTransactionsRequest.getGivenMaxAmount(), getTransactionsRequest.getGivenMinAmount(), getTransactionsRequest.getGivenCurrencies())) {
+        if (isOperationNotApplicableForHistory(getTransactionsRequest.getReceivedMaxAmount(), getTransactionsRequest.getReceivedMinAmount(), getTransactionsRequest.getReceivedCurrencies(), getTransactionsRequest.getGivenMaxAmount(), getTransactionsRequest.getGivenMinAmount(), getTransactionsRequest.getGivenCurrencies())) {
             throw new NoCurrencyForAmountException();
         }
         return service.getTransactionsByFilter(getTransactionsRequest).stream()
@@ -94,10 +94,7 @@ public class TransactionController {
      *
      * @return
      */
-    private boolean IsOperationApplicableForHistory(Double receivedMaxAmount, Double receivedMinAmount, List<String> receivedCurrency, Double givenMaxAmount, Double givenMinAmount, List<String> givenCurrency) {
-        if (((receivedMaxAmount != null || receivedMinAmount != null ) && receivedCurrency == null) || ((givenMaxAmount != null || givenMinAmount != null) && givenCurrency == null)) {
-            return false;
-        }
-        return true;
+    private boolean isOperationNotApplicableForHistory(Double receivedMaxAmount, Double receivedMinAmount, List<String> receivedCurrency, Double givenMaxAmount, Double givenMinAmount, List<String> givenCurrency) {
+        return (((receivedMaxAmount != null || receivedMinAmount != null ) && receivedCurrency == null) || ((givenMaxAmount != null || givenMinAmount != null) && givenCurrency == null));
     }
 }
