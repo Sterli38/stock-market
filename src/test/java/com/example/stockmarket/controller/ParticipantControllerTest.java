@@ -3,6 +3,7 @@ package com.example.stockmarket.controller;
 import com.example.stockmarket.controller.request.participantRequest.CreateParticipantRequest;
 import com.example.stockmarket.controller.request.participantRequest.UpdateParticipantRequest;
 import com.example.stockmarket.entity.Participant;
+import com.example.stockmarket.entity.Role;
 import com.example.stockmarket.service.participantService.ParticipantService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
@@ -25,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 class ParticipantControllerTest {
     @Autowired
     private ParticipantService service;
@@ -41,11 +42,13 @@ class ParticipantControllerTest {
     void setup() {
         egor = new Participant();
         egor.setName("Egor");
+        egor.setRole(Role.USER);
         egor.setCreationDate(new Date(1687791478000L));
         egor.setPassword("testPasswordEgor");
         long egorId = service.createParticipant(egor).getId();
         lena = new Participant();
         lena.setName("Lena");
+        lena.setRole(Role.USER);
         lena.setCreationDate(new Date(1687532277000L));
         lena.setPassword("testPasswordLena");
         long lenaId = service.createParticipant(lena).getId();
@@ -64,6 +67,7 @@ class ParticipantControllerTest {
         CreateParticipantRequest testParticipant = new CreateParticipantRequest();
         Date date = new Date(1687532277000L);
         testParticipant.setName("TestName");
+        testParticipant.setRole(Role.USER);
         testParticipant.setCreationDate(date);
         testParticipant.setPassword("TestPassword");
 
@@ -73,6 +77,7 @@ class ParticipantControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.name").value(testParticipant.getName()))
+                .andExpect(jsonPath("$.role").value(testParticipant.getRole().name()))
                 .andExpect(jsonPath("$.creationDate").value(testParticipant.getCreationDate()))
                 .andReturn();
 
@@ -84,6 +89,7 @@ class ParticipantControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.name").value(testParticipant.getName()))
+                .andExpect(jsonPath("$.role").value(testParticipant.getRole().name()))
                 .andExpect(jsonPath("$.creationDate").value(testParticipant.getCreationDate()));
     }
 
@@ -95,6 +101,7 @@ class ParticipantControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.name").value(egor.getName()))
+                .andExpect(jsonPath("$.role").value(egor.getRole().name()))
                 .andExpect(jsonPath("$.creationDate").value(egor.getCreationDate().getTime()));
     }
 
@@ -104,6 +111,7 @@ class ParticipantControllerTest {
         UpdateParticipantRequest updateForParticipant = new UpdateParticipantRequest();
         updateForParticipant.setId(egor.getId());
         updateForParticipant.setName("testName");
+        updateForParticipant.setRole(Role.USER);
         updateForParticipant.setCreationDate(new Date(1688059945000L));
         updateForParticipant.setPassword("testPassword");
 
@@ -112,6 +120,7 @@ class ParticipantControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.name").value(updateForParticipant.getName()))
+                .andExpect(jsonPath("$.role").value(updateForParticipant.getRole().name()))
                 .andExpect(jsonPath("$.creationDate").value(updateForParticipant.getCreationDate()))
                 .andReturn();
 
@@ -121,6 +130,7 @@ class ParticipantControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.name").value(updateForParticipant.getName()))
+                .andExpect(jsonPath("$.role").value(updateForParticipant.getRole().name()))
                 .andExpect(jsonPath("$.creationDate").value(updateForParticipant.getCreationDate().getTime()));
     }
 
@@ -133,6 +143,7 @@ class ParticipantControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.name").value(egor.getName()))
+                .andExpect(jsonPath("$.role").value(egor.getRole().name()))
                 .andExpect(jsonPath("$.creationDate").value(egor.getCreationDate()));
 
         mockMvc.perform(get("/participant/get")

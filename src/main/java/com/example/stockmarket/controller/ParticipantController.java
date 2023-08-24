@@ -56,6 +56,7 @@ public class ParticipantController {
         Participant participant = new Participant();
         participant.setId(participantRequest.getId());
         participant.setName(participantRequest.getName());
+        participant.setRole(participantRequest.getRole());
         participant.setCreationDate(participantRequest.getCreationDate());
         participant.setPassword(participantRequest.getPassword());
         return participant;
@@ -65,6 +66,7 @@ public class ParticipantController {
         ParticipantResponse participantResponse = new ParticipantResponse();
         participantResponse.setId(participant.getId());
         participantResponse.setName(participant.getName());
+        participantResponse.setRole(participant.getRole());
         participantResponse.setCreationDate(participant.getCreationDate().getTime());
         return participantResponse;
     }

@@ -1,16 +1,13 @@
 DROP TABLE if EXISTS transaction;
 DROP TABLE if EXISTS participant;
 DROP TABLE if EXISTS operation_type;
+DROP TABLE IF EXISTS role;
 
 CREATE TABLE role
 (
     id   serial primary key,
     name varchar not null
 );
-INSERT INTO role(name)
-values ('ADMIN'),
-       ('USER');
-
 
 CREATE TABLE participant
 (
@@ -39,6 +36,10 @@ CREATE TABLE transaction
     participant_id    int REFERENCES participant (id)    not null,
     commission        double precision
 );
+
+INSERT INTO role(name)
+values ('ADMIN'),
+       ('USER');
 
 INSERT INTO operation_type(type)
 values ('DEPOSITING'),

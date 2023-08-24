@@ -10,14 +10,11 @@ import java.sql.SQLException;
 public class ParticipantMapper implements RowMapper<Participant> {
     @Override
     public Participant mapRow(ResultSet rs, int rowNum) throws SQLException {
-        RoleMapper roleMapper = new RoleMapper();
-        Role role = roleMapper.mapRow(rs, rowNum);
-
         Participant participant = new Participant();
 
         participant.setId(rs.getLong("participant_id"));
         participant.setName(rs.getString("participant_name"));
-        participant.setRole(role);
+        participant.setRole(Role.valueOf(rs.getString("role_name")));
         participant.setCreationDate(rs.getTimestamp("creation_date"));
         participant.setPassword(rs.getString("password"));
         return participant;

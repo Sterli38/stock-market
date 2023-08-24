@@ -1,17 +1,13 @@
 DROP TABLE if EXISTS transaction;
 DROP TABLE if EXISTS participant;
 DROP TABLE if EXISTS operation_type;
-
+DROP TABLE If EXISTS role;
 
 CREATE TABLE role
 (
     id   serial primary key,
     name varchar not null
 );
-INSERT INTO role(name)
-values ('ADMIN'),
-       ('USER');
-
 
 CREATE TABLE participant
 (
@@ -41,6 +37,10 @@ CREATE TABLE transaction
     commission        double precision
 );
 
+INSERT INTO role(name)
+values ('ADMIN'),
+       ('USER');
+
 INSERT INTO operation_type(type)
 values ('DEPOSITING'),
        ('EXCHANGE'),
@@ -56,26 +56,3 @@ values (1, '2023-09-07', 'EUR', 50.0, null, null, 1, 2.5),-- пополнени�
        (2, '2023-09-07', 'EUR', 20.58, 'RUB', 1500.0, 1, 75), -- обмен
        (2, '2023-09-07', 'RUB', 1315.636, 'EUR', 20, 1,  1), -- обмен
        (3, '2023-09-07', null, null, 'EUR', 5.0, 1, 0.25); -- вывод
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

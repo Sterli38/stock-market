@@ -21,13 +21,14 @@ public class ParticipantDatabaseDao implements ParticipantDao {
 
     @Override
     public Participant createParticipant(@Nullable Participant participant) {
-        String sql = "INSERT INTO participant(name, creation_date, password) values(?, ?, ?)";
+        String sql = "INSERT INTO participant(name, role_id, creation_date, password) values(?, (SELECT id FROM role WHERE name = ?), ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
             ps.setString(1, participant.getName());
-            ps.setTimestamp(2, new Timestamp(participant.getCreationDate().getTime()));
-            ps.setString(3, participant.getPassword());
+            ps.setString(2, participant.getRole().name());
+            ps.setTimestamp(3, new Timestamp(participant.getCreationDate().getTime()));
+            ps.setString(4, participant.getPassword());
             return ps;
         }, keyHolder);
         Participant returnParticipant = getParticipantById(keyHolder.getKey().longValue());
@@ -37,7 +38,7 @@ public class ParticipantDatabaseDao implements ParticipantDao {
     @Override
     @Nullable
     public Participant getParticipantById(long id) {
-        String sql = "SELECT id as participant_id, name, role.id as role_id, role.name as role_name, creation_date, password FROM participant JOIN role on participant.role_id = role.id WHERE participant_id = ?";
+        String sql = "SELECT participant.id as participant_id, participant.name as participant_name, role.name as role_name, creation_date, password FROM participant JOIN role on participant.role_id = role.id WHERE participant.id = ?";
         try {
             return jdbcTemplate.queryForObject(sql, new ParticipantMapper(), id);
         } catch (EmptyResultDataAccessException e) {
@@ -47,8 +48,8 @@ public class ParticipantDatabaseDao implements ParticipantDao {
 
     @Override
     public Participant editParticipant(Participant participant) {
-        String sql = "UPDATE participant SET name = ?, creation_date = ?, password = ? WHERE id = ?";
-        jdbcTemplate.update(sql, participant.getName(), participant.getCreationDate(), participant.getPassword(), participant.getId());
+        String sql = "UPDATE participant SET name = ?, role_id = (SELECT id FROM role WHERE name = ?), creation_date = ?, password = ? WHERE id = ?";
+        jdbcTemplate.update(sql, participant.getName(), participant.getRole().name(), participant.getCreationDate(), participant.getPassword(), participant.getId());
         return getParticipantById(participant.getId());
     }
 
