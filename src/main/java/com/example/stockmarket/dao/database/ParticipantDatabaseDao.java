@@ -46,6 +46,15 @@ public class ParticipantDatabaseDao implements ParticipantDao {
         }
     }
 
+    public Participant getParticipantByName(String name) {
+        String sql = "SELECT participant.id as participant_id, participant.name as participant_name, role.name as role_name, creation_date, password FROM participant JOIN role on participant.role_id = role.id WHERE participant.name = ?";
+        try {
+            return jdbcTemplate.queryForObject(sql, new ParticipantMapper(), name);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
     @Override
     public Participant editParticipant(Participant participant) {
         String sql = "UPDATE participant SET name = ?, role_id = (SELECT id FROM role WHERE name = ?), creation_date = ?, password = ? WHERE id = ?";
