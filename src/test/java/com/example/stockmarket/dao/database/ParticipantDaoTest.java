@@ -18,6 +18,7 @@ public class ParticipantDaoTest {
     private Participant egor;
     private Participant lena;
     private ParticipantDatabaseDao dao;
+
     @BeforeEach
     void setup() {
         dao = new ParticipantDatabaseDao(jdbcTemplate);
@@ -93,7 +94,9 @@ public class ParticipantDaoTest {
         updateParticipant.setCreationDate(new Date(1383532237000L));
         updateParticipant.setPassword("testPassword");
 
-        Assertions.assertEquals(expected, dao.editParticipant(updateParticipant));
+        Participant actualParticipant = dao.editParticipant(updateParticipant);
+
+        Assertions.assertEquals(expected, actualParticipant);
     }
 
     @Test

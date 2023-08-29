@@ -37,7 +37,7 @@ public class ParticipantDatabaseDao implements ParticipantDao {
     @Override
     @Nullable
     public Participant getParticipantById(long id) {
-        String sql = "SELECT * FROM participant WHERE id = ?";
+        String sql = "SELECT id as participant_id, name, creation_date, password FROM participant WHERE id = ?";
         try {
             return jdbcTemplate.queryForObject(sql, new ParticipantMapper(), id);
         } catch (EmptyResultDataAccessException e) {

@@ -3,7 +3,9 @@ package com.example.stockmarket.controller;
 import com.example.stockmarket.entity.Participant;
 import com.example.stockmarket.service.participantService.ParticipantService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
 import java.util.concurrent.ThreadLocalRandom;
@@ -15,8 +17,8 @@ public class ControllerForExperiment {
     private final ParticipantService service;
 
     @PostMapping("/createValues")
-    public void createParticipant () {
-        for(int i = 0; i < 2000000000; i++) {
+    public void createParticipant() {
+        for (int i = 0; i < 2000000000; i++) {
             Participant participant = new Participant();
             participant.setPassword("password");
             participant.setCreationDate(new Date());

@@ -1,11 +1,11 @@
 package com.example.stockmarket.controller;
 
-import com.example.stockmarket.controller.request.transactionRequest.BalanceRequest;
+import com.example.stockmarket.controller.request.transactionRequest.GetBalanceRequest;
+import com.example.stockmarket.controller.request.transactionRequest.MakeDepositingRequest;
 import com.example.stockmarket.controller.request.transactionRequest.MakeExchangeRequest;
-import com.example.stockmarket.controller.request.transactionRequest.TransactionRequest;
+import com.example.stockmarket.controller.request.transactionRequest.MakeWithdrawalRequest;
 import com.example.stockmarket.service.transactionService.TransactionService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -28,47 +28,48 @@ public class TransactionControllerTest {
     @Autowired
     private TransactionService service;
 
-    private TransactionRequest makeDepositingRequest(long participantId) {
-        TransactionRequest transactionRequest = new TransactionRequest();
-        transactionRequest.setParticipantId(participantId);
-        transactionRequest.setGivenCurrency("EUR");
-        transactionRequest.setGivenAmount(200.0);
-        service.depositing(transactionRequest);
-        return transactionRequest;
+    private MakeDepositingRequest makeDepositingRequest(long participantId) {
+        MakeDepositingRequest makeDepositingRequest = new MakeDepositingRequest();
+        makeDepositingRequest.setParticipantId(participantId);
+        makeDepositingRequest.setReceivedCurrency("EUR");
+        makeDepositingRequest.setReceivedAmount(200.0);
+        service.depositing(makeDepositingRequest);
+        return makeDepositingRequest;
     }
+
 
     @Test
     void makeDepositingTest() throws Exception {
-        TransactionRequest testRequest = makeDepositingRequest(1);
+        MakeDepositingRequest testRequest = makeDepositingRequest(1);
 
         mockMvc.perform(post("/transactional/makeDepositing")
-                .content(mapper.writeValueAsString(testRequest))
-                .contentType(MediaType.APPLICATION_JSON))
+                        .content(mapper.writeValueAsString(testRequest))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("transactionId").isNumber());
+                .andExpect(jsonPath("id").isNumber());
     }
 
     @Test
     void makeWithdrawalTest() throws Exception {
         makeDepositingRequest(1);
 
-        TransactionRequest testRequest = new TransactionRequest();
+        MakeWithdrawalRequest testRequest = new MakeWithdrawalRequest();
         testRequest.setParticipantId(1L);
         testRequest.setGivenCurrency("EUR");
         testRequest.setGivenAmount(50.0);
 
         mockMvc.perform(get("/transactional/withdrawal")
-                .content(mapper.writeValueAsString(testRequest))
-                .contentType(MediaType.APPLICATION_JSON))
+                        .content(mapper.writeValueAsString(testRequest))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("transactionId").isNumber());
+                .andExpect(jsonPath("id").isNumber());
     }
 
     @Test
     void makeBadWithdrawalTest() throws Exception {
         makeDepositingRequest(1);
 
-        TransactionRequest testRequest = new TransactionRequest();
+        MakeWithdrawalRequest testRequest = new MakeWithdrawalRequest();
         testRequest.setParticipantId(1L);
         testRequest.setGivenCurrency("EUR");
         testRequest.setGivenAmount(5000.0);
@@ -87,14 +88,14 @@ public class TransactionControllerTest {
         MakeExchangeRequest testRequest = new MakeExchangeRequest();
         testRequest.setParticipantId(1L);
         testRequest.setGivenCurrency("EUR");
-        testRequest.setRequiredCurrency("RUB");
+        testRequest.setReceivedCurrency("RUB");
         testRequest.setGivenAmount(50.0);
 
         mockMvc.perform(post("/transactional/exchange")
                         .content(mapper.writeValueAsString(testRequest))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("transactionId").isNumber());
+                .andExpect(jsonPath("id").isNumber());
     }
 
     @Test
@@ -104,7 +105,7 @@ public class TransactionControllerTest {
         MakeExchangeRequest testRequest = new MakeExchangeRequest();
         testRequest.setParticipantId(1L);
         testRequest.setGivenCurrency("EUR");
-        testRequest.setRequiredCurrency("RUB");
+        testRequest.setReceivedCurrency("RUB");
         testRequest.setGivenAmount(50000.0);
 
         mockMvc.perform(post("/transactional/exchange")
@@ -117,30 +118,30 @@ public class TransactionControllerTest {
     @Test
     void getBalanceByCurrencyTest() throws Exception {
 
-        BalanceRequest balanceRequest = new BalanceRequest();
-        balanceRequest.setParticipantId(2L);
-        balanceRequest.setGivenCurrency("EUR");
+        GetBalanceRequest getBalanceRequest = new GetBalanceRequest();
+        getBalanceRequest.setParticipantId(2L);
+        getBalanceRequest.setCurrency("EUR");
 
         makeDepositingRequest(2);
 
-        TransactionRequest depositing = new TransactionRequest();
+        MakeDepositingRequest depositing = new MakeDepositingRequest();
         depositing.setParticipantId(2L);
-        depositing.setGivenCurrency("RUB");
-        depositing.setGivenAmount(2000.0);
+        depositing.setReceivedCurrency("RUB");
+        depositing.setReceivedAmount(2000.0);
 
         MakeExchangeRequest buying = new MakeExchangeRequest();
         buying.setParticipantId(2L);
         buying.setGivenCurrency("RUB");
-        buying.setRequiredCurrency("EUR");
+        buying.setReceivedCurrency("EUR");
         buying.setGivenAmount(1500.0);
 
         MakeExchangeRequest selling = new MakeExchangeRequest();
         selling.setParticipantId(2L);
         selling.setGivenCurrency("EUR");
-        selling.setRequiredCurrency("RUB");
+        selling.setReceivedCurrency("RUB");
         selling.setGivenAmount(20.0);
 
-        TransactionRequest withdrawal = new TransactionRequest();
+        MakeWithdrawalRequest withdrawal = new MakeWithdrawalRequest();
         withdrawal.setParticipantId(2L);
         withdrawal.setGivenCurrency("EUR");
         withdrawal.setGivenAmount(5.0);
@@ -150,23 +151,22 @@ public class TransactionControllerTest {
         service.exchange(selling);
         service.withdrawal(withdrawal);
 
-        mockMvc.perform(get("/transactional/get")
-                .content(mapper.writeValueAsString(balanceRequest))
-                .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/transactional/getBalanceByCurrency")
+                        .content(mapper.writeValueAsString(getBalanceRequest))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("currencyBalance").value(195.8322725));
     }
 
     @Test
     void getBadBalanceByCurrencyTest() throws Exception {
 
-        BalanceRequest balanceRequest = new BalanceRequest();
-        balanceRequest.setParticipantId(2L);
-        balanceRequest.setGivenCurrency("EURO"); // Проверка на валюту на которой нет транзакций
+        GetBalanceRequest getBalanceRequest = new GetBalanceRequest();
+        getBalanceRequest.setParticipantId(2L);
+        getBalanceRequest.setCurrency("EURO"); // Проверка на валюту на которой нет транзакций
 
-        mockMvc.perform(get("/transactional/get")
-                        .content(mapper.writeValueAsString(balanceRequest))
+        mockMvc.perform(get("/transactional/getBalanceByCurrency")
+                        .content(mapper.writeValueAsString(getBalanceRequest))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("currencyBalance").value(0));
     }
 }
-
