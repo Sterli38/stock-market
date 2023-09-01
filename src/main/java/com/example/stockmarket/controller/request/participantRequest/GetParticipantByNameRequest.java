@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class GetParticipantNameRequest {
+public class GetParticipantByNameRequest {
     @NotNull
     private String name;
 }

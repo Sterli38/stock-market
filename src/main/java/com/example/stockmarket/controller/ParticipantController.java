@@ -2,8 +2,8 @@ package com.example.stockmarket.controller;
 
 import com.example.stockmarket.controller.request.participantRequest.CreateParticipantRequest;
 import com.example.stockmarket.controller.request.participantRequest.DeleteParticipantRequest;
-import com.example.stockmarket.controller.request.participantRequest.GetParticipantIdRequest;
-import com.example.stockmarket.controller.request.participantRequest.GetParticipantNameRequest;
+import com.example.stockmarket.controller.request.participantRequest.GetParticipantByIdRequest;
+import com.example.stockmarket.controller.request.participantRequest.GetParticipantByNameRequest;
 import com.example.stockmarket.controller.request.participantRequest.UpdateParticipantRequest;
 import com.example.stockmarket.controller.response.ParticipantResponse;
 import com.example.stockmarket.entity.Participant;
@@ -35,8 +35,8 @@ public class ParticipantController {
     }
 
     @GetMapping("/ADMIN/getById")
-    public ResponseEntity<ParticipantResponse> getParticipantById(@RequestBody GetParticipantIdRequest getParticipantIdRequest) {
-        Participant participant = service.getParticipantById(getParticipantIdRequest.getId());
+    public ResponseEntity<ParticipantResponse> getParticipantById(@RequestBody GetParticipantByIdRequest getParticipantByIdRequest) {
+        Participant participant = service.getParticipantById(getParticipantByIdRequest.getId());
         if (participant != null) {
             return ResponseEntity.ok(convertParticipant(participant));
         } else {
@@ -45,8 +45,8 @@ public class ParticipantController {
     }
 
     @GetMapping("/ADMIN/getByName")
-    public ResponseEntity<ParticipantResponse> getParticipantByName(@RequestBody GetParticipantNameRequest getParticipantNameRequest) {
-        Participant participant = service.getParticipantByName(getParticipantNameRequest.getName());
+    public ResponseEntity<ParticipantResponse> getParticipantByName(@RequestBody GetParticipantByNameRequest getParticipantByNameRequest) {
+        Participant participant = service.getParticipantByName(getParticipantByNameRequest.getName());
         if(participant != null) {
             return ResponseEntity.ok(convertParticipant(participant));
         } else {

@@ -1,25 +1,16 @@
 package com.example.stockmarket.controller;
 
-import com.example.stockmarket.config.security.UserDetailsServiceImpl;
-import com.example.stockmarket.controller.request.UserRequest;
-import com.example.stockmarket.dao.database.UserDatabaseDao;
 import com.example.stockmarket.entity.Participant;
 import com.example.stockmarket.entity.User;
 import com.example.stockmarket.service.participantService.ParticipantService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 @RestController
@@ -27,38 +18,6 @@ import java.util.concurrent.ThreadLocalRandom;
 @RequestMapping("/experiment")
 public class ControllerForExperiment {
     private final ParticipantService service;
-    private final UserDatabaseDao userDatabaseDao;
-    private final UserDetailsServiceImpl userDetailsService;
-    private final PasswordEncoder passwordEncoder;
-
-    @PostMapping("/addUser")
-    public void saveUser(@RequestBody UserRequest userRequest) {
-        String username = userRequest.getUsername();
-        String password = passwordEncoder.encode(userRequest.getPassword());
-        Set<String> authorities = userRequest.getAuthorities();
-
-        UserRequest user = new UserRequest();
-        user.setUsername(username);
-        user.setPassword(password);
-        user.setAuthorities(authorities);
-//        userDatabaseDao.addUser(user);
-//        String username = "Masha";
-//        String password = passwordEncoder.encode("passworddd");
-//        Set<String> authorities = new HashSet<>();
-//        authorities.add("ADMIN");
-//
-//        UserRequest user = new UserRequest();
-//        user.setUsername(username);
-//        user.setPassword(password);
-//        user.setAuthorities(authorities);
-//        userDetailsService.saveUser(user);
-//    }
-    }
-
-    @GetMapping("/getUser")
-    public User getUser(@RequestParam String username) {
-        return userDatabaseDao.getUserByUsername(username);
-    }
 
     @PostMapping("/createValues")
     public void createParticipant() {

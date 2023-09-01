@@ -21,9 +21,9 @@ public class WebConfig {
     private final UserDetailsServiceImpl userDetailsService;
 
     @Bean
-    public DaoAuthenticationProvider daoAuthenticationProvider() {
+    public DaoAuthenticationProvider daoAuthenticationProvider(PasswordEncoder passwordEncoder) {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder);
         daoAuthenticationProvider.setUserDetailsService(userDetailsService);
         return daoAuthenticationProvider;
     }
@@ -39,7 +39,7 @@ public class WebConfig {
                 .authorizeHttpRequests(i -> {
 //                    i.requestMatchers("/**").authenticated();
                     i.requestMatchers("/**").permitAll();
-//                    i.requestMatchers("/USER/**").hasAnyRole("ADMIN", "USER");
+                    i.requestMatchers("/USER/**").hasAnyRole("ADMIN", "USER");
 //                    i.requestMatchers("/ADMIN/**").hasRole("ADMIN");
                 })
                 .formLogin();
