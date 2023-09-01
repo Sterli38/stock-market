@@ -26,7 +26,7 @@ public class ParticipantDatabaseDao implements ParticipantDao {
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
             ps.setString(1, participant.getName());
-            ps.setString(2, participant.getRole().name());
+            ps.setString(2, participant.getRoles().toString());
             ps.setTimestamp(3, new Timestamp(participant.getCreationDate().getTime()));
             ps.setString(4, participant.getPassword());
             return ps;
@@ -58,7 +58,7 @@ public class ParticipantDatabaseDao implements ParticipantDao {
     @Override
     public Participant editParticipant(Participant participant) {
         String sql = "UPDATE participant SET name = ?, role_id = (SELECT id FROM role WHERE name = ?), creation_date = ?, password = ? WHERE id = ?";
-        jdbcTemplate.update(sql, participant.getName(), participant.getRole().name(), participant.getCreationDate(), participant.getPassword(), participant.getId());
+        jdbcTemplate.update(sql, participant.getName(), participant.getRoles().toString(), participant.getCreationDate(), participant.getPassword(), participant.getId());
         return getParticipantById(participant.getId());
     }
 

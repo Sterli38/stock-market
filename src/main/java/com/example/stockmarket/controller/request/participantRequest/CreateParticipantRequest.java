@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.util.Date;
+import java.util.Set;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -17,8 +18,10 @@ public class CreateParticipantRequest extends ParticipantRequest {
     @NotNull
     private Date creationDate;
     @NotNull
-    private Role role;
+    private Set<Role> role;
     @Size(min = 0, max = 30)
     @NotEmpty
     private String password;
+    @NotNull
+    private boolean enabled;
 }

@@ -42,13 +42,13 @@ class ParticipantControllerTest {
     void setup() {
         egor = new Participant();
         egor.setName("Egor");
-        egor.setRole(Role.USER);
+        egor.setRoles(Role.USER);
         egor.setCreationDate(new Date(1687791478000L));
         egor.setPassword("testPasswordEgor");
         long egorId = service.createParticipant(egor).getId();
         lena = new Participant();
         lena.setName("Lena");
-        lena.setRole(Role.USER);
+        lena.setRoles(Role.USER);
         lena.setCreationDate(new Date(1687532277000L));
         lena.setPassword("testPasswordLena");
         long lenaId = service.createParticipant(lena).getId();
@@ -101,7 +101,7 @@ class ParticipantControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.name").value(egor.getName()))
-                .andExpect(jsonPath("$.role").value(egor.getRole().name()))
+                .andExpect(jsonPath("$.role").value(egor.getRoles().name()))
                 .andExpect(jsonPath("$.creationDate").value(egor.getCreationDate().getTime()));
     }
 
@@ -143,7 +143,7 @@ class ParticipantControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.name").value(egor.getName()))
-                .andExpect(jsonPath("$.role").value(egor.getRole().name()))
+                .andExpect(jsonPath("$.role").value(egor.getRoles().name()))
                 .andExpect(jsonPath("$.creationDate").value(egor.getCreationDate()));
 
         mockMvc.perform(get("/participant/get")

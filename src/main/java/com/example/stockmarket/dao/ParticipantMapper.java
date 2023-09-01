@@ -6,6 +6,9 @@ import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ParticipantMapper implements RowMapper<Participant> {
     @Override
@@ -14,7 +17,7 @@ public class ParticipantMapper implements RowMapper<Participant> {
 
         participant.setId(rs.getLong("participant_id"));
         participant.setName(rs.getString("participant_name"));
-        participant.setRole(Role.valueOf(rs.getString("role_name")));
+        participant.setRoles(Collections.singleton(Role.valueOf(rs.getString("role_name"))));
         participant.setCreationDate(rs.getTimestamp("creation_date"));
         participant.setPassword(rs.getString("password"));
         return participant;

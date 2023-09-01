@@ -2,7 +2,8 @@ package com.example.stockmarket.controller;
 
 import com.example.stockmarket.controller.request.participantRequest.CreateParticipantRequest;
 import com.example.stockmarket.controller.request.participantRequest.DeleteParticipantRequest;
-import com.example.stockmarket.controller.request.participantRequest.GetParticipantRequest;
+import com.example.stockmarket.controller.request.participantRequest.GetParticipantIdRequest;
+import com.example.stockmarket.controller.request.participantRequest.GetParticipantNameRequest;
 import com.example.stockmarket.controller.request.participantRequest.UpdateParticipantRequest;
 import com.example.stockmarket.controller.response.ParticipantResponse;
 import com.example.stockmarket.entity.Participant;
@@ -10,6 +11,7 @@ import com.example.stockmarket.service.participantService.ParticipantService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,15 +26,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/participant")
 public class ParticipantController {
     private final ParticipantService service;
+    private final PasswordEncoder passwordEncoder;
 
-    @PostMapping("/create")
+    @PostMapping("/USER/create")
     public ParticipantResponse createParticipant(@RequestBody CreateParticipantRequest createParticipantRequest) {
         Participant participant = convertParticipantRequest(createParticipantRequest);
         return convertParticipant(service.createParticipant(participant));
     }
 
-    @GetMapping("/get")
-    public ResponseEntity<ParticipantResponse> getParticipantById(@RequestBody GetParticipantRequest getParticipantIdRequest) {
+    @GetMapping("/ADMIN/getById")
+    public ResponseEntity<ParticipantResponse> getParticipantById(@RequestBody GetParticipantIdRequest getParticipantIdRequest) {
         Participant participant = service.getParticipantById(getParticipantIdRequest.getId());
         if (participant != null) {
             return ResponseEntity.ok(convertParticipant(participant));
@@ -41,13 +44,23 @@ public class ParticipantController {
         }
     }
 
-    @PostMapping("/edit")
+    @GetMapping("/ADMIN/getByName")
+    public ResponseEntity<ParticipantResponse> getParticipantByName(@RequestBody GetParticipantNameRequest getParticipantNameRequest) {
+        Participant participant = service.getParticipantByName(getParticipantNameRequest.getName());
+        if(participant != null) {
+            return ResponseEntity.ok(convertParticipant(participant));
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PostMapping("/USER/edit")
     public ParticipantResponse editParticipant(@RequestBody UpdateParticipantRequest updateParticipantRequest) {
         Participant participant = service.editParticipant(convertParticipantRequest(updateParticipantRequest));
         return convertParticipant(participant);
     }
 
-    @DeleteMapping("/delete")
+    @DeleteMapping("/ADMIN/delete")
     public ParticipantResponse deleteParticipantById(@RequestBody DeleteParticipantRequest deleteParticipantRequest) {
         return convertParticipant(service.deleteParticipantById(deleteParticipantRequest.getId()));
     }
@@ -56,9 +69,9 @@ public class ParticipantController {
         Participant participant = new Participant();
         participant.setId(participantRequest.getId());
         participant.setName(participantRequest.getName());
-        participant.setRole(participantRequest.getRole());
+        participant.setRoles(participantRequest.getRole());
         participant.setCreationDate(participantRequest.getCreationDate());
-        participant.setPassword(participantRequest.getPassword());
+        participant.setPassword(passwordEncoder.encode(participantRequest.getPassword()));
         return participant;
     }
 
@@ -66,7 +79,7 @@ public class ParticipantController {
         ParticipantResponse participantResponse = new ParticipantResponse();
         participantResponse.setId(participant.getId());
         participantResponse.setName(participant.getName());
-        participantResponse.setRole(participant.getRole());
+        participantResponse.setRole(participant.getRoles());
         participantResponse.setCreationDate(participant.getCreationDate().getTime());
         return participantResponse;
     }

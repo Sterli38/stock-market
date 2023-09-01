@@ -34,14 +34,4 @@ public class UserDatabaseDao {
         user.setAuthorities(new HashSet<>(authorities1));
         return user;
     }
-
-    public void addUser(UserRequest user) {
-        String userSql = "INSERT INTO users(username, password, enabled)" +
-                "values(?, ?, ?)";
-//        String authoritiesSql = "INSERT INTO authorities(username, authorities)" +
-//                "values(?, ?)";
-
-        jdbcTemplate.update(userSql, user.getUsername(), user.getPassword(), user.isEnabled());
-//        jdbcTemplate.update(authoritiesSql, user.getUsername(), user.getAuthorities());
-    }
 }

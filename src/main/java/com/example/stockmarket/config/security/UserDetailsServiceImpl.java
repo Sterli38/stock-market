@@ -1,23 +1,30 @@
 package com.example.stockmarket.config.security;
 
-import com.example.stockmarket.controller.request.UserRequest;
-import com.example.stockmarket.dao.database.UserDatabaseDao;
-import com.example.stockmarket.entity.User;
+import com.example.stockmarket.dao.database.ParticipantDatabaseDao;
+import com.example.stockmarket.entity.Participant;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-    private final UserDatabaseDao userDatabaseDao;
+    private final ParticipantDatabaseDao participantDatabaseDao;
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userDatabaseDao.getUserByUsername(username);
-        return new org.springframework.security.core.userdetails.User(username, user.getPassword(), user.isEnabled(), true, true, true, user.getAuthorities());
+        Participant participant = participantDatabaseDao.getParticipantByName(username);
+        Set<GrantedAuthority> authorities = participant.getRoles().stream()
+                .map(i -> new SimpleGrantedAuthority(i.name()))
+                .collect(Collectors.toSet());
+        return new org.springframework.security.core.userdetails.User(username, participant.getPassword(), participant.isEnabled(), true, true, true, authorities);
     }
 }

@@ -41,7 +41,7 @@ public class ControllerForExperiment {
         user.setUsername(username);
         user.setPassword(password);
         user.setAuthorities(authorities);
-        userDatabaseDao.addUser(user);
+//        userDatabaseDao.addUser(user);
 //        String username = "Masha";
 //        String password = passwordEncoder.encode("passworddd");
 //        Set<String> authorities = new HashSet<>();

@@ -26,7 +26,7 @@ public class ParticipantDaoTest {
 
         egor = new Participant();
         egor.setName("Egor");
-        egor.setRole(Role.USER);
+        egor.setRoles(Role.USER);
         egor.setCreationDate(new Date(1687791478000L));
         egor.setPassword("testPasswordForEgor");
         Long egorId = dao.createParticipant(egor).getId();
@@ -34,7 +34,7 @@ public class ParticipantDaoTest {
 
         lena = new Participant();
         lena.setName("Lena");
-        lena.setRole(Role.USER);
+        lena.setRoles(Role.USER);
         lena.setCreationDate(new Date(1687532277000L));
         lena.setPassword("testPasswordForLena");
         Long idLena = dao.createParticipant(lena).getId();
@@ -51,13 +51,13 @@ public class ParticipantDaoTest {
     void createParticipant() {
         Participant expectedParticipant = new Participant();
         expectedParticipant.setName("Test");
-        expectedParticipant.setRole(Role.USER);
+        expectedParticipant.setRoles(Role.USER);
         expectedParticipant.setCreationDate(new Date(1383532237000L));
         expectedParticipant.setPassword("P");
 
         Participant newParticipant = new Participant();
         newParticipant.setName("Test");
-        newParticipant.setRole(Role.USER);
+        newParticipant.setRoles(Role.USER);
         newParticipant.setCreationDate(new Date(1383532237000L));
         newParticipant.setPassword("P");
 
@@ -74,7 +74,7 @@ public class ParticipantDaoTest {
         Participant expectedParticipant = new Participant();
         expectedParticipant.setId(lena.getId());
         expectedParticipant.setName(lena.getName());
-        expectedParticipant.setRole(Role.USER);
+        expectedParticipant.setRoles(Role.USER);
         expectedParticipant.setCreationDate(lena.getCreationDate());
         expectedParticipant.setPassword(lena.getPassword());
 
@@ -86,14 +86,14 @@ public class ParticipantDaoTest {
         Participant expected = new Participant();
         expected.setId(egor.getId());
         expected.setName("newParticipant");
-        expected.setRole(Role.USER);
+        expected.setRoles(Role.USER);
         expected.setCreationDate(new Date(1383532237000L));
         expected.setPassword("testPassword");
 
         Participant updateParticipant = new Participant();
         updateParticipant.setId(egor.getId());
         updateParticipant.setName("newParticipant");
-        updateParticipant.setRole(Role.USER);
+        updateParticipant.setRoles(Role.USER);
         updateParticipant.setCreationDate(new Date(1383532237000L));
         updateParticipant.setPassword("testPassword");
 
