@@ -16,12 +16,12 @@ public class CreateParticipantRequest extends ParticipantRequest {
     @NotEmpty
     private String name;
     @NotNull
-    private Date creationDate;
-    @NotNull
-    private Set<Role> role;
+    private Set<Role> roles;
     @Size(min = 0, max = 30)
     @NotEmpty
     private String password;
     @NotNull
     private boolean enabled;
+    @NotNull
+    private Date creationDate;
 }

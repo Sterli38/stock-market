@@ -11,6 +11,7 @@ import com.example.stockmarket.service.participantService.ParticipantService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,13 +29,14 @@ public class ParticipantController {
     private final ParticipantService service;
     private final PasswordEncoder passwordEncoder;
 
-    @PostMapping("/USER/create")
+
+    @PostMapping("/create")
     public ParticipantResponse createParticipant(@RequestBody CreateParticipantRequest createParticipantRequest) {
         Participant participant = convertParticipantRequest(createParticipantRequest);
         return convertParticipant(service.createParticipant(participant));
     }
 
-    @GetMapping("/ADMIN/getById")
+    @GetMapping("/getById")
     public ResponseEntity<ParticipantResponse> getParticipantById(@RequestBody GetParticipantByIdRequest getParticipantByIdRequest) {
         Participant participant = service.getParticipantById(getParticipantByIdRequest.getId());
         if (participant != null) {
@@ -44,7 +46,8 @@ public class ParticipantController {
         }
     }
 
-    @GetMapping("/ADMIN/getByName")
+
+    @GetMapping("/getByName")
     public ResponseEntity<ParticipantResponse> getParticipantByName(@RequestBody GetParticipantByNameRequest getParticipantByNameRequest) {
         Participant participant = service.getParticipantByName(getParticipantByNameRequest.getName());
         if(participant != null) {
@@ -54,13 +57,15 @@ public class ParticipantController {
         }
     }
 
-    @PostMapping("/USER/edit")
+
+    @PostMapping("/edit")
     public ParticipantResponse editParticipant(@RequestBody UpdateParticipantRequest updateParticipantRequest) {
         Participant participant = service.editParticipant(convertParticipantRequest(updateParticipantRequest));
         return convertParticipant(participant);
     }
 
-    @DeleteMapping("/ADMIN/delete")
+
+    @DeleteMapping("/delete")
     public ParticipantResponse deleteParticipantById(@RequestBody DeleteParticipantRequest deleteParticipantRequest) {
         return convertParticipant(service.deleteParticipantById(deleteParticipantRequest.getId()));
     }
@@ -69,9 +74,10 @@ public class ParticipantController {
         Participant participant = new Participant();
         participant.setId(participantRequest.getId());
         participant.setName(participantRequest.getName());
-        participant.setRoles(participantRequest.getRole());
-        participant.setCreationDate(participantRequest.getCreationDate());
         participant.setPassword(passwordEncoder.encode(participantRequest.getPassword()));
+        participant.setRoles(participantRequest.getRoles());
+        participant.setCreationDate(participantRequest.getCreationDate());
+        participant.setEnabled(participantRequest.isEnabled());
         return participant;
     }
 
@@ -79,8 +85,9 @@ public class ParticipantController {
         ParticipantResponse participantResponse = new ParticipantResponse();
         participantResponse.setId(participant.getId());
         participantResponse.setName(participant.getName());
-        participantResponse.setRole(participant.getRoles());
+        participantResponse.setRoles(participant.getRoles());
         participantResponse.setCreationDate(participant.getCreationDate().getTime());
+        participantResponse.setEnabled(participant.isEnabled());
         return participantResponse;
     }
 }

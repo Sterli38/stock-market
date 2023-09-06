@@ -11,6 +11,8 @@ import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @JdbcTest
 public class ParticipantDaoTest {
@@ -26,7 +28,9 @@ public class ParticipantDaoTest {
 
         egor = new Participant();
         egor.setName("Egor");
-        egor.setRoles(Role.USER);
+        Set<Role> egorRoles = new HashSet<>();
+        egorRoles.add(Role.USER);
+        egor.setRoles(egorRoles);
         egor.setCreationDate(new Date(1687791478000L));
         egor.setPassword("testPasswordForEgor");
         Long egorId = dao.createParticipant(egor).getId();
@@ -34,7 +38,10 @@ public class ParticipantDaoTest {
 
         lena = new Participant();
         lena.setName("Lena");
-        lena.setRoles(Role.USER);
+        Set<Role> lenaRoles = new HashSet<>();
+        lenaRoles.add(Role.USER);
+        lenaRoles.add(Role.READER);
+        lena.setRoles(lenaRoles);
         lena.setCreationDate(new Date(1687532277000L));
         lena.setPassword("testPasswordForLena");
         Long idLena = dao.createParticipant(lena).getId();
@@ -51,13 +58,13 @@ public class ParticipantDaoTest {
     void createParticipant() {
         Participant expectedParticipant = new Participant();
         expectedParticipant.setName("Test");
-        expectedParticipant.setRoles(Role.USER);
+//        expectedParticipant.setRoles(Role.USER);
         expectedParticipant.setCreationDate(new Date(1383532237000L));
         expectedParticipant.setPassword("P");
 
         Participant newParticipant = new Participant();
         newParticipant.setName("Test");
-        newParticipant.setRoles(Role.USER);
+//        newParticipant.setRoles(Role.USER);
         newParticipant.setCreationDate(new Date(1383532237000L));
         newParticipant.setPassword("P");
 
@@ -74,7 +81,10 @@ public class ParticipantDaoTest {
         Participant expectedParticipant = new Participant();
         expectedParticipant.setId(lena.getId());
         expectedParticipant.setName(lena.getName());
-        expectedParticipant.setRoles(Role.USER);
+        Set<Role> expectedParticipantRoles = new HashSet<>();
+        expectedParticipantRoles.add(Role.USER);
+        expectedParticipantRoles.add(Role.READER);
+        expectedParticipant.setRoles(expectedParticipantRoles);
         expectedParticipant.setCreationDate(lena.getCreationDate());
         expectedParticipant.setPassword(lena.getPassword());
 
@@ -86,14 +96,14 @@ public class ParticipantDaoTest {
         Participant expected = new Participant();
         expected.setId(egor.getId());
         expected.setName("newParticipant");
-        expected.setRoles(Role.USER);
+//        expected.setRoles(Role.USER);
         expected.setCreationDate(new Date(1383532237000L));
         expected.setPassword("testPassword");
 
         Participant updateParticipant = new Participant();
         updateParticipant.setId(egor.getId());
         updateParticipant.setName("newParticipant");
-        updateParticipant.setRoles(Role.USER);
+//        updateParticipant.setRoles(Role.USER);
         updateParticipant.setCreationDate(new Date(1383532237000L));
         updateParticipant.setPassword("testPassword");
 

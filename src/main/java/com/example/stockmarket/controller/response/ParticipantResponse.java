@@ -10,6 +10,7 @@ import java.util.Set;
 public class ParticipantResponse {
     private Long id;
     private String name;
-    private Set<Role> role;
+    private Set<Role> roles;
     private Long creationDate;
+    private boolean enabled;
 }

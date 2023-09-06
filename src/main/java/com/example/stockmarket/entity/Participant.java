@@ -14,7 +14,6 @@ public class Participant {
     @ToString.Exclude
     private String password;
     private Set<Role> roles;
-//    private Set<GrantedAuthority> roles;
     private boolean enabled;
     private Date creationDate;
 }

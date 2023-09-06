@@ -18,7 +18,6 @@ public class ParticipantMapper implements RowMapper<Participant> {
         participant.setId(rs.getLong("participant_id"));
         participant.setName(rs.getString("participant_name"));
         participant.setPassword(rs.getString("password"));
-//        participant.setRoles(Collections.singleton(Role.valueOf(rs.getString("role_name"))));
         participant.setEnabled(rs.getBoolean("enabled"));
         participant.setCreationDate(rs.getTimestamp("creation_date"));
         return participant;
