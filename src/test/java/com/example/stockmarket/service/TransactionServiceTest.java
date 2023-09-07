@@ -101,30 +101,30 @@ public class TransactionServiceTest {
     public void getBalanceByCurrency() {
         double expectedResult = 195.8322725;
         GetBalanceRequest getBalanceRequest = new GetBalanceRequest();
-        getBalanceRequest.setParticipantId(1L);
+        getBalanceRequest.setParticipantId(2L);
         getBalanceRequest.setCurrency("EUR");
 
-        createTransactionRequest(1L);
+        createTransactionRequest(2L);
 
         MakeDepositingRequest depositing = new MakeDepositingRequest();
-        depositing.setParticipantId(1L);
+        depositing.setParticipantId(2L);
         depositing.setReceivedCurrency("RUB");
         depositing.setReceivedAmount(2000.0);
 
         MakeExchangeRequest buying = new MakeExchangeRequest();
-        buying.setParticipantId(1L);
+        buying.setParticipantId(2L);
         buying.setGivenCurrency("RUB");
         buying.setReceivedCurrency("EUR");
         buying.setGivenAmount(1500.0);
 
         MakeExchangeRequest selling = new MakeExchangeRequest();
-        selling.setParticipantId(1L);
+        selling.setParticipantId(2L);
         selling.setGivenCurrency("EUR");
         selling.setReceivedCurrency("RUB");
         selling.setGivenAmount(20.0);
 
         MakeWithdrawalRequest withdrawal = new MakeWithdrawalRequest();
-        withdrawal.setParticipantId(1L);
+        withdrawal.setParticipantId(2L);
         withdrawal.setGivenCurrency("EUR");
         withdrawal.setGivenAmount(5.0);
 

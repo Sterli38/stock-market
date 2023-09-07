@@ -42,8 +42,8 @@ public class WebConfig {
     public SecurityFilterChain configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeHttpRequests(i -> {
-                    i.requestMatchers("/**").authenticated();
-//                    i.requestMatchers("/**").permitAll();
+//                    i.requestMatchers("/**").authenticated();
+                    i.requestMatchers("/**").permitAll();
                 })
                 .formLogin().disable();
 

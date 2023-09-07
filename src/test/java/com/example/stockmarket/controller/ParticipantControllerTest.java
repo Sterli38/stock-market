@@ -7,6 +7,8 @@ import com.example.stockmarket.entity.Role;
 import com.example.stockmarket.service.participantService.ParticipantService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
+import net.minidev.json.JSONArray;
+import net.minidev.json.parser.JSONParser;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -72,13 +74,17 @@ class ParticipantControllerTest {
     @Test
     void createParticipant() throws Exception {
         CreateParticipantRequest testParticipant = new CreateParticipantRequest();
-        Date date = new Date(1687532277000L);
-        testParticipant.setName("TestName");
+        testParticipant.setName("participant");
         Set<Role> testRoles = new HashSet<>();
         testRoles.add(Role.USER);
+        testRoles.add(Role.READER);
         testParticipant.setRoles(testRoles);
-        testParticipant.setCreationDate(date);
         testParticipant.setPassword("TestPassword");
+        testParticipant.setCreationDate(new Date(1687532277000L));
+        testParticipant.setEnabled(true);
+
+        JSONParser jsonParser = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE);
+        JSONArray expectedRoles = (JSONArray) jsonParser.parse(mapper.writeValueAsString(testRoles));
 
         MvcResult result = mockMvc.perform(post("/participant/create")
                         .content(mapper.writeValueAsString(testParticipant))
@@ -86,32 +92,39 @@ class ParticipantControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.name").value(testParticipant.getName()))
-                .andExpect(jsonPath("$.role").value(testParticipant.getRoles()))
+                .andExpect(jsonPath("$.roles").value(expectedRoles))
                 .andExpect(jsonPath("$.creationDate").value(testParticipant.getCreationDate()))
+                .andExpect(jsonPath("$.enabled").value(testParticipant.isEnabled()))
                 .andReturn();
 
         int id = JsonPath.read(result.getResponse().getContentAsString(), "$.id");
         testParticipant.setId(Long.valueOf(id));
 
-        mockMvc.perform(get("/participant/get")
+        mockMvc.perform(get("/participant/getById")
                         .content(mapper.writeValueAsString(testParticipant))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.name").value(testParticipant.getName()))
-                .andExpect(jsonPath("$.role").value(testParticipant.getRoles()))
-                .andExpect(jsonPath("$.creationDate").value(testParticipant.getCreationDate()));
+                .andExpect(jsonPath("$.roles").value(expectedRoles))
+                .andExpect(jsonPath("$.creationDate").value(testParticipant.getCreationDate()))
+                .andExpect(jsonPath("$.enabled").value(testParticipant.isEnabled()));
     }
 
     @Test
     void getParticipantById() throws Exception {
-        mockMvc.perform(get("/participant/get")
+
+        JSONParser jsonParser = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE);
+        JSONArray expectedRoles = (JSONArray) jsonParser.parse(mapper.writeValueAsString(egor.getRoles()));
+
+        mockMvc.perform(get("/participant/getById")
                         .content(mapper.writeValueAsString(egor))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.name").value(egor.getName()))
-                .andExpect(jsonPath("$.role").value(egor.getRoles()))
-                .andExpect(jsonPath("$.creationDate").value(egor.getCreationDate().getTime()));
+                .andExpect(jsonPath("$.roles").value(expectedRoles))
+                .andExpect(jsonPath("$.creationDate").value(egor.getCreationDate().getTime()))
+                .andExpect(jsonPath("$.enabled").value(egor.isEnabled()));
     }
 
 
@@ -120,42 +133,54 @@ class ParticipantControllerTest {
         UpdateParticipantRequest updateForParticipant = new UpdateParticipantRequest();
         updateForParticipant.setId(egor.getId());
         updateForParticipant.setName("testName");
-//        updateForParticipant.setRole(Role.USER);
+        Set<Role> testRoles = new HashSet<>();
+        testRoles.add(Role.ADMIN);
+        updateForParticipant.setRoles(testRoles);
         updateForParticipant.setCreationDate(new Date(1688059945000L));
         updateForParticipant.setPassword("testPassword");
+
+        JSONParser jsonParser = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE);
+        JSONArray expectedRoles = (JSONArray) jsonParser.parse(mapper.writeValueAsString(testRoles));
 
         mockMvc.perform(post("/participant/edit")
                         .content(mapper.writeValueAsString(updateForParticipant))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.name").value(updateForParticipant.getName()))
-//                .andExpect(jsonPath("$.role").value(updateForParticipant.getRole()))
+                .andExpect(jsonPath("$.roles").value(expectedRoles))
                 .andExpect(jsonPath("$.creationDate").value(updateForParticipant.getCreationDate()))
+                .andExpect(jsonPath("$.enabled").value(updateForParticipant.isEnabled()))
                 .andReturn();
 
-        mockMvc.perform(get("/participant/get")
+        mockMvc.perform(get("/participant/getById")
                         .content(mapper.writeValueAsString(updateForParticipant))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.name").value(updateForParticipant.getName()))
-                .andExpect(jsonPath("$.role").value(updateForParticipant.getRoles()))
-                .andExpect(jsonPath("$.creationDate").value(updateForParticipant.getCreationDate().getTime()));
+                .andExpect(jsonPath("$.roles").value(expectedRoles))
+                .andExpect(jsonPath("$.creationDate").value(updateForParticipant.getCreationDate().getTime()))
+                .andExpect(jsonPath("$.enabled").value(updateForParticipant.isEnabled()));
     }
 
 
     @Test
     void deleteParticipantById() throws Exception {
+
+        JSONParser jsonParser = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE);
+        JSONArray expectedRoles = (JSONArray) jsonParser.parse(mapper.writeValueAsString(egor.getRoles()));
+
         mockMvc.perform(delete("/participant/delete")
                         .content(mapper.writeValueAsString(egor))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.name").value(egor.getName()))
-                .andExpect(jsonPath("$.role").value(egor.getRoles()))
-                .andExpect(jsonPath("$.creationDate").value(egor.getCreationDate()));
+                .andExpect(jsonPath("$.roles").value(expectedRoles))
+                .andExpect(jsonPath("$.creationDate").value(egor.getCreationDate()))
+                .andExpect(jsonPath("$.enabled").value(egor.isEnabled()));
 
-        mockMvc.perform(get("/participant/get")
+        mockMvc.perform(get("/participant/getById")
                         .content(mapper.writeValueAsString(egor))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());

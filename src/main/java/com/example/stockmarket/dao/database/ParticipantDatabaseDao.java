@@ -14,10 +14,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
@@ -29,6 +26,7 @@ public class ParticipantDatabaseDao implements ParticipantDao {
     public Participant createParticipant(@Nullable Participant participant) {
         String addParticipantSql = "INSERT INTO participant(name, password, enabled, creation_date) values(?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
+
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(addParticipantSql, new String[]{"id"});
             ps.setString(1, participant.getName());
@@ -38,10 +36,15 @@ public class ParticipantDatabaseDao implements ParticipantDao {
             return ps;
         }, keyHolder);
         Long participantId = keyHolder.getKey().longValue();
-//        for(Role value: participant.getRoles()) {
-//            String roleSql = "INSERT INTO participant_to_role(participant_id, role_id) values(?, (SELECT role.id FROM role WHERE role.name = ?))";
-//            jdbcTemplate.update(roleSql, participantId, value.name());
-//        }
+
+        if(participant.getRoles() != null) {
+            String roleSql = "INSERT INTO participant_to_role(participant_id, role_id) values(?, (SELECT role.id FROM role WHERE role.role_name = ?))";
+            jdbcTemplate.batchUpdate(roleSql, participant.getRoles(), 100, (ps, role) -> {
+                ps.setLong(1, participantId);
+                ps.setString(2, role.name());
+            });
+        }
+
         Participant returnParticipant = getParticipantById(participantId);
         return returnParticipant;
     }
@@ -49,7 +52,6 @@ public class ParticipantDatabaseDao implements ParticipantDao {
     @Override
     @Nullable
     public Participant getParticipantById(long id) {
-//        String sql = "SELECT participant.id as participant_id, participant.name as participant_name, participant.password, participant.creation_date, participant.enabled, role.role as role_name FROM participant JOIN participant_to_role on participant.id = participant_to_role.participant_id JOIN role on role.id = participant_to_role.role_id WHERE participant.id = ?";
         String participantSql = "SELECT participant.id as participant_id, participant.name as participant_name, participant.password, participant.creation_date, participant.enabled FROM participant WHERE participant.id = ?";
         String roleSql = "SELECT role.role_name FROM role JOIN participant_to_role on role.id = participant_to_role.role_id WHERE participant_to_role.participant_id = ?";
         try {
@@ -58,14 +60,12 @@ public class ParticipantDatabaseDao implements ParticipantDao {
             Set<Role> participantRoles = new HashSet<Role>(list);
             participant.setRoles(participantRoles);
             return participant;
-//            return jdbcTemplate.queryForObject(sql, new ParticipantMapper(), id);
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
     }
 
     public Participant getParticipantByName(String name) {
-//        String sql = "SELECT participant.id as participant_id, participant.name as participant_name, participant.password, participant.creation_date, participant.enabled, role.role as role_name FROM participant JOIN participant_to_role on participant.id = participant_to_role.participant_id JOIN role on role.id = participant_to_role.role_id WHERE participant.name = ?";
         String participantSql = "SELECT participant.id as participant_id, participant.name as participant_name, participant.password, participant.creation_date, participant.enabled FROM participant WHERE participant.name = ?";
         String roleSql = "SELECT role.role_name FROM role JOIN participant_to_role on role.id = participant_to_role.role_id WHERE participant_to_role.participant_id = ?";
         try {
@@ -74,7 +74,6 @@ public class ParticipantDatabaseDao implements ParticipantDao {
             Set<Role> participantRoles = new HashSet<Role>(list);
             participant.setRoles(participantRoles);
             return participant;
-//             return jdbcTemplate.queryForObject(sql, new ParticipantMapper(), name);
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
@@ -82,15 +81,18 @@ public class ParticipantDatabaseDao implements ParticipantDao {
 
     @Override
     public Participant editParticipant(Participant participant) {
-        if(participant.getRoles() != null  ) {
-            for(Role value: participant.getRoles()) {
-                String roleSql = "UPDATE participant_to_role SET role_id = (SELECT role.id FROM role WHERE role.role_name = ?), participant_id = ?"; // Неправильно
-                jdbcTemplate.update(roleSql, value.name(), participant.getId());
-            }
+        String deleteRoles = "DELETE FROM participant_to_role WHERE participant_id = ?";
+        jdbcTemplate.update(deleteRoles, participant.getId());
+        if(participant.getRoles() != null) {
+            String roleSql = "INSERT INTO participant_to_role(participant_id, role_id) values(?, (SELECT role.id FROM role WHERE role.role_name = ?))";
+            jdbcTemplate.batchUpdate(roleSql, participant.getRoles(), 100, (ps, role) -> {
+                ps.setLong(1, participant.getId());
+                ps.setString(2, role.name());
+            });
         }
         String participantSql = "UPDATE participant SET name = ?, password = ?, enabled = ?, creation_date = ? WHERE id = ?";
 
-        jdbcTemplate.update(participantSql, participant.getName(), participant.getPassword(), participant.isEnabled(), participant.getCreationDate(),  participant.getId());
+        jdbcTemplate.update(participantSql, participant.getName(), participant.getPassword(), participant.isEnabled(), participant.getCreationDate(), participant.getId());
         return getParticipantById(participant.getId());
     }
 
@@ -99,6 +101,8 @@ public class ParticipantDatabaseDao implements ParticipantDao {
         Participant returnParticipant = getParticipantById(id);
         String roleSql = "DELETE FROM participant_to_role WHERE participant_id = ?";
         jdbcTemplate.update(roleSql, id);
+        String transactionSql = "DELETE FROM TRANSACTION WHERE participant_id = ?";
+        jdbcTemplate.update(transactionSql, id);
         String participantsql = "DELETE FROM participant WHERE id = ?";
         jdbcTemplate.update(participantsql, id);
         return returnParticipant;
