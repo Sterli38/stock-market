@@ -7,6 +7,8 @@ public interface ParticipantDao {
 
     Participant getParticipantById(long id);
 
+    Participant getParticipantByName(String name);
+
     Participant editParticipant(Participant participant);
 
     Participant deleteParticipantById(long id);

@@ -1,6 +1,7 @@
 package com.example.stockmarket.dao.database;
 
 import com.example.stockmarket.entity.Participant;
+import com.example.stockmarket.entity.Role;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,6 +11,8 @@ import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @JdbcTest
 public class ParticipantDaoTest {
@@ -25,15 +28,24 @@ public class ParticipantDaoTest {
 
         egor = new Participant();
         egor.setName("Egor");
-        egor.setCreationDate(new Date(1687791478000L));
+        Set<Role> egorRoles = new HashSet<>();
+        egorRoles.add(Role.USER);
+        egor.setRoles(egorRoles);
         egor.setPassword("testPasswordForEgor");
+        egor.setEnabled(true);
+        egor.setCreationDate(new Date(1687791478000L));
         Long egorId = dao.createParticipant(egor).getId();
         egor.setId(egorId);
 
         lena = new Participant();
         lena.setName("Lena");
-        lena.setCreationDate(new Date(1687532277000L));
+        Set<Role> lenaRoles = new HashSet<>();
+        lenaRoles.add(Role.USER);
+        lenaRoles.add(Role.READER);
+        lena.setRoles(lenaRoles);
         lena.setPassword("testPasswordForLena");
+        lena.setEnabled(false);
+        lena.setCreationDate(new Date(1687532277000L));
         Long idLena = dao.createParticipant(lena).getId();
         lena.setId(idLena);
     }
@@ -48,20 +60,26 @@ public class ParticipantDaoTest {
     void createParticipant() {
         Participant expectedParticipant = new Participant();
         expectedParticipant.setName("Test");
-        expectedParticipant.setCreationDate(new Date(1383532237000L));
+        Set<Role> expectedParticipantRoles = new HashSet<>();
+        expectedParticipantRoles.add(Role.USER);
+        expectedParticipantRoles.add(Role.READER);
+        expectedParticipant.setRoles(expectedParticipantRoles);
         expectedParticipant.setPassword("P");
+        expectedParticipant.setCreationDate(new Date(1383532237000L));
+        expectedParticipant.setEnabled(true);
 
         Participant newParticipant = new Participant();
         newParticipant.setName("Test");
-        newParticipant.setCreationDate(new Date(1383532237000L));
+        newParticipant.setRoles(expectedParticipantRoles);
         newParticipant.setPassword("P");
+        newParticipant.setCreationDate(new Date(1383532237000L));
+        newParticipant.setEnabled(true);
 
         Participant responseParticipant = dao.createParticipant(newParticipant);
 
         expectedParticipant.setId(responseParticipant.getId());
 
         Assertions.assertEquals(expectedParticipant, responseParticipant);
-
     }
 
     @Test
@@ -69,15 +87,12 @@ public class ParticipantDaoTest {
         Participant expectedParticipant = new Participant();
         expectedParticipant.setId(lena.getId());
         expectedParticipant.setName(lena.getName());
-        expectedParticipant.setCreationDate(lena.getCreationDate());
+        expectedParticipant.setRoles(lena.getRoles());
         expectedParticipant.setPassword(lena.getPassword());
+        expectedParticipant.setCreationDate(lena.getCreationDate());
+        expectedParticipant.setEnabled(lena.isEnabled());
 
         Assertions.assertEquals(expectedParticipant, dao.getParticipantById(lena.getId()));
-
-//        System.out.println(expectedParticipant.getCreationDate());
-//        System.out.println(dao.getParticipantById(lena.getId()).getCreationDate());
-//        Fri Jun 23 17:57:57 MSK 2023
-//        2023-06-23 17:57:57.0
     }
 
     @Test
@@ -85,14 +100,20 @@ public class ParticipantDaoTest {
         Participant expected = new Participant();
         expected.setId(egor.getId());
         expected.setName("newParticipant");
-        expected.setCreationDate(new Date(1383532237000L));
+        Set<Role> expectedParticipantRoles = new HashSet<>();
+        expectedParticipantRoles.add(Role.USER);
+        expected.setRoles(expectedParticipantRoles);
         expected.setPassword("testPassword");
+        expected.setCreationDate(new Date(1383532237000L));
+        expected.setEnabled(false);
 
         Participant updateParticipant = new Participant();
         updateParticipant.setId(egor.getId());
         updateParticipant.setName("newParticipant");
-        updateParticipant.setCreationDate(new Date(1383532237000L));
+        updateParticipant.setRoles(expectedParticipantRoles);
         updateParticipant.setPassword("testPassword");
+        updateParticipant.setCreationDate(new Date(1383532237000L));
+        updateParticipant.setEnabled(false);
 
         Participant actualParticipant = dao.editParticipant(updateParticipant);
 
