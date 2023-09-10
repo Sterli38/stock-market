@@ -46,7 +46,7 @@ public class TransactionDatabaseDao implements TransactionDao {
 
     @Override
     public List<Transaction> getTransactionsByCurrency(Long participantId, String currency) {
-        String sql = "SELECT transaction.id as transaction_id, transaction.date, participant.id as participant_id, participant.name, participant.creation_date, participant.password, operation_type.type, received_amount, given_amount, commission, received_currency, given_currency FROM transaction" +
+        String sql = "SELECT transaction.id as transaction_id, transaction.date, participant.id as participant_id, participant.name as participant_name, participant.creation_date, participant.password, participant.enabled, operation_type.type, received_amount, given_amount, commission, received_currency, given_currency FROM transaction" +
                 " JOIN operation_type on transaction.operation_type_id = operation_type.id" +
                 " JOIN participant on transaction.participant_id = participant.id " +
                 " WHERE participant_id = ? and (received_currency = ? or given_currency = ?)";
@@ -57,8 +57,8 @@ public class TransactionDatabaseDao implements TransactionDao {
         Map<String, Object> values = new HashMap<>();
         SqlBuilder sqlBuilder = new SqlBuilder();
         sqlBuilder
-                .select("participant.id as participant_id, participant.name, participant.creation_date, participant.password, transaction.id as transaction_id, operation_type.type, received_currency, received_amount, given_currency, given_amount, date, commission")
-                .from("transaction JOIN participant on transaction.participant_id = participant.id JOIN operation_type on operation_type.id = transaction.operation_type_id" );
+                .select("participant.id as participant_id, participant.name as participant_name, role.name as role_name, participant.creation_date, participant.password, transaction.id as transaction_id, operation_type.type, received_currency, received_amount, given_currency, given_amount, date, commission")
+                .from("transaction JOIN participant on transaction.participant_id = participant.id JOIN operation_type on operation_type.id = transaction.operation_type_id JOIN role on participant.role_id = role.id" );
         if (transactionFilter.getOperationType()!= null) {
             sqlBuilder.where("operation_type.id = (SELECT id FROM operation_type WHERE type = :operationType)");
             values.put("operationType", transactionFilter.getOperationType().name());

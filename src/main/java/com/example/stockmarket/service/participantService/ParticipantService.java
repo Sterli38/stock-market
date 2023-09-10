@@ -18,6 +18,10 @@ public class ParticipantService {
         return dao.getParticipantById(id);
     }
 
+    public Participant getParticipantByName(String name) {
+        return dao.getParticipantByName(name);
+    }
+
     public Participant editParticipant(Participant participant) {
         return dao.editParticipant(participant);
     }

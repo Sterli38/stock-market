@@ -10,6 +10,7 @@ import com.example.stockmarket.controller.response.TransactionResponse;
 import com.example.stockmarket.entity.Transaction;
 import com.example.stockmarket.exception.NoCurrencyForAmountException;
 import com.example.stockmarket.service.transactionService.TransactionService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;

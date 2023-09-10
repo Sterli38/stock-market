@@ -1,14 +1,29 @@
-DROP TABLE if EXISTS history;
+DROP TABLE If Exists participant_to_role;
+DROP TABLE if EXISTS transaction;
 DROP TABLE if EXISTS participant;
 DROP TABLE if EXISTS operation_type;
+DROP TABLE If EXISTS role;
 
+CREATE TABLE role
+(
+    id        serial primary key,
+    role_name varchar not null
+);
 
 CREATE TABLE participant
 (
     id            serial primary key,
-    name          varchar   not null,
+    name          varchar   not null unique,
+    password      varchar   not null,
     creation_date timestamp not null,
-    password      varchar   not null
+    enabled       boolean   not null
+);
+
+CREATE TABLE participant_to_role
+(
+    id             serial primary key,
+    participant_id int REFERENCES participant (id) not null,
+    role_id        int REFERENCES role (id)        not null
 );
 
 CREATE TABLE operation_type
@@ -30,40 +45,29 @@ CREATE TABLE transaction
     commission        double precision
 );
 
+INSERT INTO role(role_name)
+values ('ADMIN'),
+       ('USER'),
+       ('READER');
+
 INSERT INTO operation_type(type)
 values ('DEPOSITING'),
        ('EXCHANGE'),
        ('WITHDRAWAL');
 
 -- тестовые данные
-INSERT INTO participant(name, creation_date, password)
-values ('Egor', '2023-09-09', 'pasw123');
+INSERT INTO participant(name, password, creation_date, enabled)
+values ('Egor', 'pasw123', '2023-09-09', 'true'),
+       ('TestName', 'testPassword', '2023-09-08', 'false');
 
-INSERT INTO transaction(operation_type_id, date, received_currency, received_amount, given_currency, given_amount,  participant_id,  commission)
+INSERT INTO participant_to_role(participant_id, role_id)
+values (1, 1),
+       (1, 2),
+       (2, 3);
+
+INSERT INTO transaction(operation_type_id, date, received_currency, received_amount, given_currency, given_amount,
+                        participant_id, commission)
 values (1, '2023-09-07', 'EUR', 50.0, null, null, 1, 2.5),-- пополнение
        (2, '2023-09-07', 'EUR', 20.58, 'RUB', 1500.0, 1, 75), -- обмен
-       (2, '2023-09-07', 'RUB', 1315.636, 'EUR', 20, 1,  1), -- обмен
+       (2, '2023-09-07', 'RUB', 1315.636, 'EUR', 20, 1, 1), -- обмен
        (3, '2023-09-07', null, null, 'EUR', 5.0, 1, 0.25); -- вывод
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
