@@ -21,51 +21,52 @@ public class StockMarketDatabaseDao implements StockMarketDao {
     @Override
     public List<Profit> getProfit(StockMarketRequest stockMarketRequest) {
         Map<String, Object> values = new HashMap<>();
-        SqlBuilder sqlBuilder = new SqlBuilder();
 
-        sqlBuilder.select("given_currency as currency, SUM(commission)")
-                .from("(")
-                .select("given_currency, commission")
+        List<String> conditions = new ArrayList<>();
+        conditions.add("operation_type_id = :id");
+        conditions.add("given_currency = :currency");
+        conditions.add("date >= :after");
+        conditions.add("date <= :before");
+
+        List<String> conditionsValue = new ArrayList<>();
+        conditionsValue.add("id");
+        conditionsValue.add("currency");
+        conditionsValue.add("after");
+        conditionsValue.add("before");
+
+        List<Object> values1 = new ArrayList<>();
+        values1.add(2);
+        values1.add(stockMarketRequest.getCurrency());
+        values1.add(stockMarketRequest.getAfter());
+        values1.add(stockMarketRequest.getBefore());
+
+
+        SqlBuilder query1 = new SqlBuilder();
+        String firstSubQueryPart = query1.select("given_currency, commission")
                 .from("transaction")
-                .where("operation_type_id = 2");
-        if (stockMarketRequest.getCurrency() != null) {
-            sqlBuilder.where("given_currency = :currency");
-            values.put("currency", stockMarketRequest.getCurrency());
-        }
-        if (stockMarketRequest.getAfter() != null) {
-            sqlBuilder.where("date >= :after");
-            values.put("after", stockMarketRequest.getAfter());
-        }
-        if (stockMarketRequest.getBefore() != null) {
-            sqlBuilder.where("date <= :before");
-            values.put("before", stockMarketRequest.getBefore());
-        }
-        sqlBuilder.build();
-        sqlBuilder.condition("UNION", " ");
-        String sql1 = sqlBuilder.getSql();
+                .buildCondition(conditions, conditionsValue, values1) // собираем условия where
+                .getSql(); // первая часть подзапроса
 
-        SqlBuilder sqlBuilder1 = new SqlBuilder();
+        values = query1.getMap();
 
-        sqlBuilder1.select("concat(received_currency, given_currency), commission")
+        SqlBuilder query2 = new SqlBuilder();
+        conditions.set(0, "operation_type_id != :id");
+        conditions.set(1, "(given_currency = :currency or received_currency = :currency)");
+
+        String secondSubQueryPart = query2.select("concat(received_currency, given_currency), commission")
                 .from("transaction")
-                .where("operation_type_id != 2");
-        if (stockMarketRequest.getCurrency() != null) {
-            sqlBuilder1.where("(given_currency = :currency or received_currency = :currency)");
-            values.put("currency", stockMarketRequest.getCurrency());
-        }
-        if (stockMarketRequest.getAfter() != null) {
-            sqlBuilder1.where("date >= :after");
-            values.put("after", stockMarketRequest.getAfter());
-        }
-        if (stockMarketRequest.getBefore() != null) {
-            sqlBuilder1.where("date <= :before");
-            values.put("before", stockMarketRequest.getBefore());
-        }
-        sqlBuilder1.build();
-        sqlBuilder1.condition(") as currency GROUP BY ", "given_currency");
-        String sql2 = sqlBuilder1.getSql();
+                .buildCondition(conditions, conditionsValue, values1)
+                .getSql();// вторая часть подзапроса
 
-        String sql = sql1 + sql2;
+        SqlBuilder mainQuery = new SqlBuilder();
+        String subQuery = mainQuery.buildSubQuery(mainQuery.union(firstSubQueryPart, secondSubQueryPart)); // собираем подзапрос
+        String sql = mainQuery.select("given_currency as currency, SUM(commission)")
+                .from(subQuery)
+                .addAlias("currency")
+                .condition(" GROUP BY ", "given_currency")
+                .getSql(); // Запрос целиком
+
+
         List<Profit> profitList = namedParameterJdbcTemplate.query(sql, values, new StockMarketMapper());
         return profitList;
     }

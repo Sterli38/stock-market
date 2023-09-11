@@ -8,5 +8,4 @@ import java.util.List;
 public interface StockMarketDao {
 
     List<Profit> getProfit(StockMarketRequest stockMarketRequest);
-
 }
