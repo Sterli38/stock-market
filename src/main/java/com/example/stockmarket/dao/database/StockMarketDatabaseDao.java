@@ -60,14 +60,12 @@ public class StockMarketDatabaseDao implements StockMarketDao {
 
         SqlBuilder mainQuery = new SqlBuilder();
         String subQuery = mainQuery.buildSubQuery(mainQuery.union(firstSubQueryPart, secondSubQueryPart)); // собираем подзапрос
-        String sql = mainQuery.select("given_currency as currency, SUM(commission)")
+        String sql = mainQuery.select("given_currency as currency, SUM(commission) as sum")
                 .from(subQuery)
                 .addAlias("currency")
                 .condition(" GROUP BY ", "given_currency")
                 .getSql(); // Запрос целиком
 
-
-        List<Profit> profitList = namedParameterJdbcTemplate.query(sql, values, new StockMarketMapper());
-        return profitList;
+        return namedParameterJdbcTemplate.query(sql, values, new StockMarketMapper());
     }
 }

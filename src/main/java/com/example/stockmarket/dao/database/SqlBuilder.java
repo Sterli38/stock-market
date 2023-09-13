@@ -34,7 +34,7 @@ public class SqlBuilder {
     }
 
     public void build() { // Строим запрос
-        if (clauses.size() > 0) {
+        if (!clauses.isEmpty()) {
             sql.append(" WHERE ");
             for (int i = 0; i < clauses.size(); i++) {
                 if (i != clauses.size() - 1) {
@@ -61,7 +61,7 @@ public class SqlBuilder {
                 if (i != clauses.size() - 1) {
                     sql.append(clauses.get(i)).append(" and ");
                 } else {
-                    sql.append(clauses.get(i)).append("");
+                    sql.append(clauses.get(i));
                 }
             }
         }
@@ -77,7 +77,7 @@ public class SqlBuilder {
     }
 
     public SqlBuilder addAlias(String alias) {
-        sql.append(" as " + alias);
+        sql.append(" as ").append(alias);
         return this;
     }
 
