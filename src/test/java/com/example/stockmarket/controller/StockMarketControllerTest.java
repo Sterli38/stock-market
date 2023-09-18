@@ -1,5 +1,6 @@
 package com.example.stockmarket.controller;
 
+import com.example.stockmarket.controller.request.stockMarketRequest.StockMarketRequest;
 import com.example.stockmarket.controller.request.transactionRequest.GetBalanceRequest;
 import com.example.stockmarket.controller.request.transactionRequest.MakeDepositingRequest;
 import com.example.stockmarket.controller.request.transactionRequest.MakeExchangeRequest;
@@ -23,7 +24,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
-//@JdbcTest
 public class StockMarketControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -32,17 +32,14 @@ public class StockMarketControllerTest {
     @Autowired
     private ObjectMapper mapper;
     @Autowired
-    private StockMarketService stockMarketService;
-    @Autowired
     private TransactionService transactionService;
 
     @Test
     public void getTest() throws Exception {
         jdbcTemplate.update("TRUNCATE table transaction");
 
-        GetBalanceRequest getBalanceRequest = new GetBalanceRequest();
-        getBalanceRequest.setParticipantId(2L);
-        getBalanceRequest.setCurrency("EUR");
+        StockMarketRequest stockMarketRequest = new StockMarketRequest();
+        stockMarketRequest.setCurrency("EUR");
 
         MakeDepositingRequest depositing = new MakeDepositingRequest();
         depositing.setParticipantId(2L);
@@ -72,11 +69,11 @@ public class StockMarketControllerTest {
         transactionService.withdrawal(withdrawal);
 
         mockMvc.perform(get("/stockMarket/getProfit")
-                        .content(mapper.writeValueAsString(getBalanceRequest))
+                        .content(mapper.writeValueAsString(stockMarketRequest))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.currency").value("EUR"))
-                .andExpect(jsonPath("$.amountProfit").value(1.25));
+                .andExpect(jsonPath("$.[0].currency").value("EUR"))
+                .andExpect(jsonPath("$.[0].amountProfit").value(1.25));
 
-
+        jdbcTemplate.update("TRUNCATE table transaction");
     }
 }
