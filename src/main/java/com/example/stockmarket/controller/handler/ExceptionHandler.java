@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class ExceptionHandler {
-
     @org.springframework.web.bind.annotation.ExceptionHandler({UserException.class})
     public ResponseEntity<ErrorResponse> handleUserException(UserException exception) {
         ErrorResponse errorResponse = new ErrorResponse();

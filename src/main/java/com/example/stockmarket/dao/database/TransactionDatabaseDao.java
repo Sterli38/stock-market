@@ -1,7 +1,7 @@
 package com.example.stockmarket.dao.database;
 
 import com.example.stockmarket.dao.TransactionDao;
-import com.example.stockmarket.dao.TransactionMapper;
+import com.example.stockmarket.dao.mapper.TransactionMapper;
 import com.example.stockmarket.entity.Transaction;
 import com.example.stockmarket.entity.TransactionFilter;
 import lombok.RequiredArgsConstructor;
@@ -98,8 +98,9 @@ public class TransactionDatabaseDao implements TransactionDao {
 
         sqlBuilder.where("participant.id = :participantId");
         values.put("participantId", transactionFilter.getParticipantId());
+        sqlBuilder.build();
 
-        String sql = sqlBuilder.build();
+        String sql = sqlBuilder.getSql();
         List<Transaction> transactions = namedParameterJdbcTemplate.query(sql, values, new TransactionMapper());
         return transactions;
     }
