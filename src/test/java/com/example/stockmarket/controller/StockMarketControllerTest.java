@@ -44,24 +44,24 @@ public class StockMarketControllerTest {
         MakeDepositingRequest depositing = new MakeDepositingRequest();
         depositing.setParticipantId(2L);
         depositing.setReceivedCurrency("RUB");
-        depositing.setReceivedAmount(10000.0);
+        depositing.setReceivedAmount(10000.0);// комиссия = 0
 
         MakeExchangeRequest buying = new MakeExchangeRequest();
         buying.setParticipantId(2L);
         buying.setGivenCurrency("RUB");
         buying.setReceivedCurrency("EUR");
-        buying.setGivenAmount(5000.0);
+        buying.setGivenAmount(5000.0);// комиссия = 0
 
         MakeExchangeRequest selling = new MakeExchangeRequest();
         selling.setParticipantId(2L);
         selling.setGivenCurrency("EUR");
         selling.setReceivedCurrency("RUB");
-        selling.setGivenAmount(20.0);
+        selling.setGivenAmount(20.0);// комиссия = 1
 
         MakeWithdrawalRequest withdrawal = new MakeWithdrawalRequest();
         withdrawal.setParticipantId(2L);
         withdrawal.setGivenCurrency("EUR");
-        withdrawal.setGivenAmount(5.0);
+        withdrawal.setGivenAmount(5.0);// комиссия = 0.25
 
         transactionService.depositing(depositing);
         transactionService.exchange(buying);
