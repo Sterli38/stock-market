@@ -37,7 +37,6 @@ public class TransactionControllerTest {
         return makeDepositingRequest;
     }
 
-
     @Test
     void makeDepositingTest() throws Exception {
         MakeDepositingRequest testRequest = makeDepositingRequest(1);

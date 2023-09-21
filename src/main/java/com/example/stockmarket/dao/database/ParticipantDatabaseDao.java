@@ -1,7 +1,7 @@
 package com.example.stockmarket.dao.database;
 
 import com.example.stockmarket.dao.ParticipantDao;
-import com.example.stockmarket.dao.ParticipantMapper;
+import com.example.stockmarket.dao.mapper.ParticipantMapper;
 import com.example.stockmarket.entity.Participant;
 import com.example.stockmarket.entity.Role;
 import lombok.RequiredArgsConstructor;
