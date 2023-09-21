@@ -2,12 +2,10 @@ package com.example.stockmarket.controller.response;
 
 import com.example.stockmarket.entity.OperationType;
 import com.example.stockmarket.entity.Participant;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 import java.util.Date;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 public class TransactionResponse {
     private Long id;
