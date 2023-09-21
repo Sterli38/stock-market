@@ -9,6 +9,8 @@ import com.example.stockmarket.controller.request.participantRequest.UpdateParti
 import com.example.stockmarket.controller.response.ParticipantResponse;
 import com.example.stockmarket.entity.Participant;
 import com.example.stockmarket.service.participantService.ParticipantService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,18 +27,21 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/participant")
+@Tag(name = "Контроллер участника", description = "Функционал пользователя")
 public class ParticipantController {
     private final ParticipantService service;
     private final PasswordEncoder passwordEncoder;
     private final SecurityUtils securityUtils;
 
 
+    @Operation(summary = "Создание участника" ,description = "Позволяет участнику зарегистрироваться")
     @PostMapping("/create")
     public ParticipantResponse createParticipant(@RequestBody CreateParticipantRequest createParticipantRequest) {
         Participant participant = convertParticipantRequest(createParticipantRequest);
         return convertParticipant(service.createParticipant(participant));
     }
 
+    @Operation(summary = "Поиск участника по id",description = "Позволяет найти участника по его id")
     @GetMapping("/getById")
     public ResponseEntity<ParticipantResponse> getParticipantById(@RequestBody GetParticipantByIdRequest getParticipantByIdRequest) {
         Participant participant = service.getParticipantById(getParticipantByIdRequest.getId());
@@ -47,7 +52,7 @@ public class ParticipantController {
         }
     }
 
-
+    @Operation(summary = "Поиск участника по имени")
     @GetMapping("/getByName")
     public ResponseEntity<ParticipantResponse> getParticipantByName(@RequestBody GetParticipantByNameRequest getParticipantByNameRequest) {
         Participant participant = service.getParticipantByName(getParticipantByNameRequest.getName());
@@ -58,7 +63,7 @@ public class ParticipantController {
         }
     }
 
-
+    @Operation(summary = "Изменение данных участника",description = "Позволяет изменить данные существующего участника" )
     @PostMapping("/edit")
     public ParticipantResponse editParticipant(@RequestBody UpdateParticipantRequest updateParticipantRequest) {
 //        Participant currrentParticipant = securityUtils.getCurrentParticipant();
@@ -66,7 +71,7 @@ public class ParticipantController {
         return convertParticipant(participant);
     }
 
-
+    @Operation(summary = "Удаление участника по id")
     @DeleteMapping("/delete")
     public ParticipantResponse deleteParticipantById(@RequestBody DeleteParticipantRequest deleteParticipantRequest) {
         return convertParticipant(service.deleteParticipantById(deleteParticipantRequest.getId()));

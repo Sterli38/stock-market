@@ -10,6 +10,8 @@ import com.example.stockmarket.controller.response.TransactionResponse;
 import com.example.stockmarket.entity.Transaction;
 import com.example.stockmarket.exception.NoCurrencyForAmountException;
 import com.example.stockmarket.service.transactionService.TransactionService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
@@ -26,32 +28,38 @@ import java.util.stream.Collectors;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/transactional")
+@Tag(name = "Контроллер транзакций", description = "Позволяет производить операции с валютами на бирже")
 public class TransactionController {
     private final TransactionService service;
 
+    @Operation(summary = "Пополнение счёта", description = "Операция пополнения счёта участника в выбранной валюте")
     @PostMapping("/makeDepositing")
     public TransactionResponse makeDepositing(@RequestBody MakeDepositingRequest makeDepositingRequest) {
         Transaction transaction = service.depositing(makeDepositingRequest);
         return convertToTransactionIdResponse(transaction);
     }
 
+    @Operation(summary = "Вывод средств со счёта", description = "Операция вывода средств со счёта участника в выбранной валюте")
     @GetMapping("/withdrawal")
     public TransactionResponse makeWithdrawal(@RequestBody MakeWithdrawalRequest makeWithdrawalRequest) {
         Transaction transaction = service.withdrawal(makeWithdrawalRequest);
         return convertToTransactionIdResponse(transaction);
     }
 
+    @Operation(summary = "Обмен", description = "Операция обмена валюты на валюту")
     @PostMapping("/exchange")
     public TransactionResponse exchange(@RequestBody MakeExchangeRequest makeExchangeRequest) {
         Transaction transaction = service.exchange(makeExchangeRequest);
         return convertToTransactionIdResponse(transaction);
     }
 
+    @Operation(summary = "Получение баланса по валюте")
     @GetMapping("/getBalanceByCurrency")
     public BalanceByCurrencyResponse getBalanceByCurrency(@RequestBody GetBalanceRequest getBalanceRequest) {
         return convertToBalanceResponse(service.getBalanceByCurrency(getBalanceRequest.getParticipantId(), getBalanceRequest.getCurrency()));
     }
 
+    @Operation(summary = "Пополнение транзакций", description = "Получение транзакций пользователя")
     @GetMapping("/getTransactions")
     public List<TransactionResponse> getTransactionsByFilter(@RequestBody GetTransactionsRequest getTransactionsRequest) {
         if (isOperationNotApplicableForHistory(getTransactionsRequest.getReceivedMaxAmount(), getTransactionsRequest.getReceivedMinAmount(), getTransactionsRequest.getReceivedCurrencies(), getTransactionsRequest.getGivenMaxAmount(), getTransactionsRequest.getGivenMinAmount(), getTransactionsRequest.getGivenCurrencies())) {
