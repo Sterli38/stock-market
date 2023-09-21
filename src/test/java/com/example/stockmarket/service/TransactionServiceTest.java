@@ -90,7 +90,7 @@ public class TransactionServiceTest {
         expectedTransaction.setParticipant(participant);
         expectedTransaction.setGivenCurrency("EUR");
         expectedTransaction.setReceivedCurrency("RUB");
-        expectedTransaction.setCommission(1.0);
+        expectedTransaction.setCommission(1);
         Transaction actualTransaction = service.exchange(request);
         expectedTransaction.setId(actualTransaction.getId());
         expectedTransaction.setDate(actualTransaction.getDate());
