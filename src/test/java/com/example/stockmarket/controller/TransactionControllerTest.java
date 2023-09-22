@@ -153,7 +153,7 @@ public class TransactionControllerTest {
         mockMvc.perform(get("/transactional/getBalanceByCurrency")
                         .content(mapper.writeValueAsString(getBalanceRequest))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("currencyBalance").value(195.8322725));
+                .andExpect(jsonPath("currency_balance").value(195.8322725));
     }
 
     @Test
@@ -166,6 +166,6 @@ public class TransactionControllerTest {
         mockMvc.perform(get("/transactional/getBalanceByCurrency")
                         .content(mapper.writeValueAsString(getBalanceRequest))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("currencyBalance").value(0));
+                .andExpect(jsonPath("currency_balance").value(0));
     }
 }
