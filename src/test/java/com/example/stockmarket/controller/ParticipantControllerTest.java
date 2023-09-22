@@ -38,7 +38,6 @@ class ParticipantControllerTest {
     private MockMvc mockMvc;
     @Autowired
     private ObjectMapper mapper;
-
     private Participant egor;
     private Participant lena;
 
@@ -93,7 +92,7 @@ class ParticipantControllerTest {
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.name").value(testParticipant.getName()))
                 .andExpect(jsonPath("$.roles").value(expectedRoles))
-                .andExpect(jsonPath("$.creationDate").value(testParticipant.getCreationDate()))
+                .andExpect(jsonPath("$.creation_date").value(testParticipant.getCreationDate()))
                 .andExpect(jsonPath("$.enabled").value(testParticipant.isEnabled()))
                 .andReturn();
 
@@ -106,7 +105,7 @@ class ParticipantControllerTest {
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.name").value(testParticipant.getName()))
                 .andExpect(jsonPath("$.roles").value(expectedRoles))
-                .andExpect(jsonPath("$.creationDate").value(testParticipant.getCreationDate()))
+                .andExpect(jsonPath("$.creation_date").value(testParticipant.getCreationDate()))
                 .andExpect(jsonPath("$.enabled").value(testParticipant.isEnabled()));
     }
 
@@ -123,7 +122,7 @@ class ParticipantControllerTest {
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.name").value(egor.getName()))
                 .andExpect(jsonPath("$.roles").value(expectedRoles))
-                .andExpect(jsonPath("$.creationDate").value(egor.getCreationDate().getTime()))
+                .andExpect(jsonPath("$.creation_date").value(egor.getCreationDate().getTime()))
                 .andExpect(jsonPath("$.enabled").value(egor.isEnabled()));
     }
 
@@ -148,7 +147,7 @@ class ParticipantControllerTest {
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.name").value(updateForParticipant.getName()))
                 .andExpect(jsonPath("$.roles").value(expectedRoles))
-                .andExpect(jsonPath("$.creationDate").value(updateForParticipant.getCreationDate()))
+                .andExpect(jsonPath("$.creation_date").value(updateForParticipant.getCreationDate()))
                 .andExpect(jsonPath("$.enabled").value(updateForParticipant.isEnabled()))
                 .andReturn();
 
@@ -159,7 +158,7 @@ class ParticipantControllerTest {
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.name").value(updateForParticipant.getName()))
                 .andExpect(jsonPath("$.roles").value(expectedRoles))
-                .andExpect(jsonPath("$.creationDate").value(updateForParticipant.getCreationDate().getTime()))
+                .andExpect(jsonPath("$.creation_date").value(updateForParticipant.getCreationDate().getTime()))
                 .andExpect(jsonPath("$.enabled").value(updateForParticipant.isEnabled()));
     }
 
@@ -177,7 +176,7 @@ class ParticipantControllerTest {
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.name").value(egor.getName()))
                 .andExpect(jsonPath("$.roles").value(expectedRoles))
-                .andExpect(jsonPath("$.creationDate").value(egor.getCreationDate()))
+                .andExpect(jsonPath("$.creation_date").value(egor.getCreationDate()))
                 .andExpect(jsonPath("$.enabled").value(egor.isEnabled()));
 
         mockMvc.perform(get("/participant/getById")
