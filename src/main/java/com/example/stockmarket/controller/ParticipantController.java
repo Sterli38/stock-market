@@ -34,14 +34,14 @@ public class ParticipantController {
     private final SecurityUtils securityUtils;
 
 
-    @Operation(summary = "Создание участника" ,description = "Позволяет участнику зарегистрироваться")
+    @Operation(summary = "Создание участника", description = "Позволяет участнику зарегистрироваться")
     @PostMapping("/create")
     public ParticipantResponse createParticipant(@RequestBody CreateParticipantRequest createParticipantRequest) {
         Participant participant = convertParticipantRequest(createParticipantRequest);
         return convertParticipant(service.createParticipant(participant));
     }
 
-    @Operation(summary = "Поиск участника по id",description = "Позволяет найти участника по его id")
+    @Operation(summary = "Поиск участника по id", description = "Позволяет найти участника по его id")
     @GetMapping("/getById")
     public ResponseEntity<ParticipantResponse> getParticipantById(@RequestBody GetParticipantByIdRequest getParticipantByIdRequest) {
         Participant participant = service.getParticipantById(getParticipantByIdRequest.getId());
@@ -63,7 +63,7 @@ public class ParticipantController {
         }
     }
 
-    @Operation(summary = "Изменение данных участника",description = "Позволяет изменить данные существующего участника" )
+    @Operation(summary = "Изменение данных участника", description = "Позволяет изменить данные существующего участника" )
     @PostMapping("/edit")
     public ParticipantResponse editParticipant(@RequestBody UpdateParticipantRequest updateParticipantRequest) {
 //        Participant currrentParticipant = securityUtils.getCurrentParticipant();
