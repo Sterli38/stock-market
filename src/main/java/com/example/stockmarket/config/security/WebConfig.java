@@ -49,6 +49,7 @@ public class WebConfig {
                             .anyRequest().authenticated();
 
                 });
+
         return http.build();
     }
 }
