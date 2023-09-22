@@ -30,7 +30,6 @@ public class ParticipantController {
     private final PasswordEncoder passwordEncoder;
     private final SecurityUtils securityUtils;
 
-
     @PostMapping("/create")
     public ParticipantResponse createParticipant(@RequestBody CreateParticipantRequest createParticipantRequest) {
         Participant participant = convertParticipantRequest(createParticipantRequest);
@@ -47,17 +46,15 @@ public class ParticipantController {
         }
     }
 
-
     @GetMapping("/getByName")
     public ResponseEntity<ParticipantResponse> getParticipantByName(@RequestBody GetParticipantByNameRequest getParticipantByNameRequest) {
         Participant participant = service.getParticipantByName(getParticipantByNameRequest.getName());
-        if(participant != null) {
+        if (participant != null) {
             return ResponseEntity.ok(convertParticipant(participant));
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-
 
     @PostMapping("/edit")
     public ParticipantResponse editParticipant(@RequestBody UpdateParticipantRequest updateParticipantRequest) {
@@ -65,7 +62,6 @@ public class ParticipantController {
         Participant participant = service.editParticipant(convertParticipantRequest(updateParticipantRequest));
         return convertParticipant(participant);
     }
-
 
     @DeleteMapping("/delete")
     public ParticipantResponse deleteParticipantById(@RequestBody DeleteParticipantRequest deleteParticipantRequest) {

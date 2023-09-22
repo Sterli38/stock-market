@@ -16,5 +16,5 @@ public class TransactionResponse {
     private String givenCurrency;
     private Double givenAmount;
     private Participant participant;
-    private double commission;
+    private Double commission;
 }

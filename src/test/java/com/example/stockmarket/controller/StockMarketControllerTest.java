@@ -72,7 +72,7 @@ public class StockMarketControllerTest {
                         .content(mapper.writeValueAsString(stockMarketRequest))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.[0].currency").value("EUR"))
-                .andExpect(jsonPath("$.[0].amountProfit").value(1.25));
+                .andExpect(jsonPath("$.[0].amount_profit").value(1.25));
 
         jdbcTemplate.update("TRUNCATE table transaction");
     }
