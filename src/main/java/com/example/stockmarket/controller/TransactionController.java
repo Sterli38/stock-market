@@ -11,6 +11,8 @@ import com.example.stockmarket.entity.Transaction;
 import com.example.stockmarket.exception.NoCurrencyForAmountException;
 import com.example.stockmarket.service.transactionService.TransactionService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,11 +30,16 @@ import java.util.stream.Collectors;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/transactional")
-@Tag(name = "Контроллер транзакций", description = "Позволяет производить операции с валютами на бирже")
+@Tag(name = "Функционал счёта пользователя на бирже", description = "Позволяет производить операции с валютами на бирже")
 public class TransactionController {
     private final TransactionService service;
 
     @Operation(summary = "Пополнение счёта", description = "Операция пополнения счёта участника в выбранной валюте")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "404", description = "Participant not found"),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
     @PostMapping("/makeDepositing")
     public TransactionResponse makeDepositing(@RequestBody MakeDepositingRequest makeDepositingRequest) {
         Transaction transaction = service.depositing(makeDepositingRequest);
@@ -40,13 +47,24 @@ public class TransactionController {
     }
 
     @Operation(summary = "Вывод средств со счёта", description = "Операция вывода средств со счёта участника в выбранной валюте")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "404", description = "Participant not found"),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
     @GetMapping("/withdrawal")
     public TransactionResponse makeWithdrawal(@RequestBody MakeWithdrawalRequest makeWithdrawalRequest) {
         Transaction transaction = service.withdrawal(makeWithdrawalRequest);
         return convertToTransactionIdResponse(transaction);
     }
 
-    @Operation(summary = "Обмен", description = "Операция обмена валюты на валюту")
+    @Operation(summary = "Обмен валют", description = "Операция обмена валюты на валюту")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "404", description = "Participant not found"),
+            @ApiResponse(responseCode = "400", description = "not enough currency in : EUR"),
+            @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера, попробуйте позже")
+    })
     @PostMapping("/exchange")
     public TransactionResponse exchange(@RequestBody MakeExchangeRequest makeExchangeRequest) {
         Transaction transaction = service.exchange(makeExchangeRequest);
@@ -54,12 +72,22 @@ public class TransactionController {
     }
 
     @Operation(summary = "Получение баланса по валюте")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "404", description = "Participant not found"),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
     @GetMapping("/getBalanceByCurrency")
     public BalanceByCurrencyResponse getBalanceByCurrency(@RequestBody GetBalanceRequest getBalanceRequest) {
         return convertToBalanceResponse(service.getBalanceByCurrency(getBalanceRequest.getParticipantId(), getBalanceRequest.getCurrency()));
     }
 
-    @Operation(summary = "Пополнение транзакций", description = "Получение транзакций пользователя")
+    @Operation(summary = "Получение транзакций", description = "Получение транзакций пользователя по заданному фильтру")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "404", description = "Participant not found"),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
     @GetMapping("/getTransactions")
     public List<TransactionResponse> getTransactionsByFilter(@RequestBody GetTransactionsRequest getTransactionsRequest) {
         if (isOperationNotApplicableForHistory(getTransactionsRequest.getReceivedMaxAmount(), getTransactionsRequest.getReceivedMinAmount(), getTransactionsRequest.getReceivedCurrencies(), getTransactionsRequest.getGivenMaxAmount(), getTransactionsRequest.getGivenMinAmount(), getTransactionsRequest.getGivenCurrencies())) {

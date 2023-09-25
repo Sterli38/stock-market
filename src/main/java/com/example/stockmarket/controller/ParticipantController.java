@@ -6,10 +6,16 @@ import com.example.stockmarket.controller.request.participantRequest.DeleteParti
 import com.example.stockmarket.controller.request.participantRequest.GetParticipantByIdRequest;
 import com.example.stockmarket.controller.request.participantRequest.GetParticipantByNameRequest;
 import com.example.stockmarket.controller.request.participantRequest.UpdateParticipantRequest;
+import com.example.stockmarket.controller.response.ErrorResponse;
 import com.example.stockmarket.controller.response.ParticipantResponse;
 import com.example.stockmarket.entity.Participant;
 import com.example.stockmarket.service.participantService.ParticipantService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,13 +33,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/participant")
-@Tag(name = "Контроллер участника", description = "Функционал пользователя")
+@Tag(name = "Функционал участника", description = "Работа с пользователем")
 public class ParticipantController {
     private final ParticipantService service;
     private final PasswordEncoder passwordEncoder;
     private final SecurityUtils securityUtils;
 
     @Operation(summary = "Создание участника", description = "Позволяет участнику зарегистрироваться")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
     @PostMapping("/create")
     public ParticipantResponse createParticipant(@RequestBody CreateParticipantRequest createParticipantRequest) {
         Participant participant = convertParticipantRequest(createParticipantRequest);
@@ -41,6 +51,10 @@ public class ParticipantController {
     }
 
     @Operation(summary = "Поиск участника по id", description = "Позволяет найти участника по его id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "404", description = "Participant not found")
+    })
     @GetMapping("/getById")
     public ResponseEntity<ParticipantResponse> getParticipantById(@RequestBody GetParticipantByIdRequest getParticipantByIdRequest) {
         Participant participant = service.getParticipantById(getParticipantByIdRequest.getId());
@@ -52,6 +66,10 @@ public class ParticipantController {
     }
 
     @Operation(summary = "Поиск участника по имени")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "404", description = "Participant not found")
+    })
     @GetMapping("/getByName")
     public ResponseEntity<ParticipantResponse> getParticipantByName(@RequestBody GetParticipantByNameRequest getParticipantByNameRequest) {
         Participant participant = service.getParticipantByName(getParticipantByNameRequest.getName());
@@ -62,7 +80,12 @@ public class ParticipantController {
         }
     }
 
-    @Operation(summary = "Изменение данных участника", description = "Позволяет изменить данные существующего участника" )
+    @Operation(summary = "Изменение данных участника", description = "Позволяет изменить данные существующего участника")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "404", description = "Participant not found"),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
     @PostMapping("/edit")
     public ParticipantResponse editParticipant(@RequestBody UpdateParticipantRequest updateParticipantRequest) {
 //        Participant currrentParticipant = securityUtils.getCurrentParticipant();
@@ -70,7 +93,11 @@ public class ParticipantController {
         return convertParticipant(participant);
     }
 
-    @Operation(summary = "Удаление участника по id")
+    @Operation(summary = "Деактивация участника по id")
+    @ApiResponses(value = {
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "404", description = "Participant not found")
+            })
     @DeleteMapping("/delete")
     public ParticipantResponse deleteParticipantById(@RequestBody DeleteParticipantRequest deleteParticipantRequest) {
         return convertParticipant(service.deleteParticipantById(deleteParticipantRequest.getId()));

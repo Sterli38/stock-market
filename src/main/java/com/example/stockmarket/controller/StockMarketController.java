@@ -1,10 +1,15 @@
 package com.example.stockmarket.controller;
 
 import com.example.stockmarket.controller.request.stockMarketRequest.StockMarketRequest;
+import com.example.stockmarket.controller.response.ErrorResponse;
 import com.example.stockmarket.controller.response.StockMarketResponse;
 import com.example.stockmarket.entity.Profit;
 import com.example.stockmarket.service.stockMarketService.StockMarketService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,11 +22,17 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/stockMarket")
-@Tag(name = "Контроллер биржы", description = "Позволяет получить заработок биржы с комиссии")
+@Tag(name = "Функционал биржы", description = "Позволяет получить заработок биржы с комиссии")
 public class StockMarketController {
     private final StockMarketService stockMarketService;
 
     @Operation(summary = "Получение прибыли", description = "Получение прибыли биржы с операций на которые накладывается комиссия")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "Bad request - currency not found",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+                    })
+    })
     @GetMapping("/getProfit")
     public List<StockMarketResponse> get(@RequestBody StockMarketRequest stockMarketRequest) {
         return stockMarketService.getProfit(stockMarketRequest).stream()
