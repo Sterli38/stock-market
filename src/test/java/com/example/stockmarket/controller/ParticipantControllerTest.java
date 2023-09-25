@@ -188,7 +188,7 @@ class ParticipantControllerTest {
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.name").value(egor.getName()))
                 .andExpect(jsonPath("$.roles").value(expectedRoles))
-                .andExpect(jsonPath("$.creationDate").value(egor.getCreationDate()))
+                .andExpect(jsonPath("$.creation_date").value(egor.getCreationDate()))
                 .andExpect(jsonPath("$.enabled").value(false));
     }
 }
