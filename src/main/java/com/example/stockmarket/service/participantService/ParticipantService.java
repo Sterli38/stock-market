@@ -26,7 +26,11 @@ public class ParticipantService {
         return dao.editParticipant(participant);
     }
 
-    public Participant deleteParticipantById(Long id) {
+    public Participant deactivationParticipantById(Long id) {
+        return dao.deactivationParticipantById(id);
+    }
+
+    public Participant deleteParticipantById(long id) {
         return dao.deleteParticipantById(id);
     }
 }

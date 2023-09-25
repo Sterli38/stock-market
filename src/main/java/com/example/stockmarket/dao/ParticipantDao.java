@@ -11,5 +11,7 @@ public interface ParticipantDao {
 
     Participant editParticipant(Participant participant);
 
+    Participant deactivationParticipantById(long id);
+
     Participant deleteParticipantById(long id);
 }

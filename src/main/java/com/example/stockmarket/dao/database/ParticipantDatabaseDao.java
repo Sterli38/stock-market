@@ -97,6 +97,15 @@ public class ParticipantDatabaseDao implements ParticipantDao {
     }
 
     @Override
+    public Participant deactivationParticipantById(long id) {
+//        Participant returnParticipant = getParticipantById(id);
+        String sql = "UPDATE participant SET enabled = false WHERE id = ?";
+        jdbcTemplate.update(sql, id);
+        Participant returnParticipant = getParticipantById(id);
+        return returnParticipant;
+    }
+
+    @Override
     public Participant deleteParticipantById(long id) {
         Participant returnParticipant = getParticipantById(id);
         String roleSql = "DELETE FROM participant_to_role WHERE participant_id = ?";

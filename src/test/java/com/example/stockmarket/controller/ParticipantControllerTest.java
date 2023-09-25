@@ -165,12 +165,14 @@ class ParticipantControllerTest {
 
 
     @Test
-    void deleteParticipantById() throws Exception {
+    void deactivationParticipantById() throws Exception {
 
         JSONParser jsonParser = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE);
         JSONArray expectedRoles = (JSONArray) jsonParser.parse(mapper.writeValueAsString(egor.getRoles()));
 
-        mockMvc.perform(delete("/participant/delete")
+        egor.setEnabled(true);
+
+        mockMvc.perform(delete("/participant/deactivation")
                         .content(mapper.writeValueAsString(egor))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -178,11 +180,16 @@ class ParticipantControllerTest {
                 .andExpect(jsonPath("$.name").value(egor.getName()))
                 .andExpect(jsonPath("$.roles").value(expectedRoles))
                 .andExpect(jsonPath("$.creationDate").value(egor.getCreationDate()))
-                .andExpect(jsonPath("$.enabled").value(egor.isEnabled()));
+                .andExpect(jsonPath("$.enabled").value(false));
 
         mockMvc.perform(get("/participant/getById")
                         .content(mapper.writeValueAsString(egor))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.name").value(egor.getName()))
+                .andExpect(jsonPath("$.roles").value(expectedRoles))
+                .andExpect(jsonPath("$.creationDate").value(egor.getCreationDate()))
+                .andExpect(jsonPath("$.enabled").value(false));
     }
 }
