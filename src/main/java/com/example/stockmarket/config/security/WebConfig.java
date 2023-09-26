@@ -1,5 +1,6 @@
 package com.example.stockmarket.config.security;
 
+import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -42,10 +43,12 @@ public class WebConfig {
     public SecurityFilterChain configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeHttpRequests(i -> {
-//                    i.requestMatchers("/**").authenticated();
-                    i.requestMatchers("/**").permitAll();
-                })
-                .formLogin().disable();
+                    i.dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR).permitAll()
+                            .requestMatchers("/participant/edit").permitAll()
+                            .requestMatchers("/login").permitAll()
+                            .anyRequest().authenticated();
+
+                });
 
         return http.build();
     }

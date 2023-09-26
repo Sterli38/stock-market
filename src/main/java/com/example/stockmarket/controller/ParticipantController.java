@@ -63,11 +63,6 @@ public class ParticipantController {
         return convertParticipant(participant);
     }
 
-    @DeleteMapping("/delete")
-    public ParticipantResponse deleteParticipantById(@RequestBody DeleteParticipantRequest deleteParticipantRequest) {
-        return convertParticipant(service.deleteParticipantById(deleteParticipantRequest.getId()));
-    }
-
     private Participant convertParticipantRequest(CreateParticipantRequest participantRequest) {
         Participant participant = new Participant();
         participant.setId(participantRequest.getId());
