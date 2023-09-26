@@ -44,7 +44,7 @@ public class WebConfig {
         http.csrf().disable()
                 .authorizeHttpRequests(i -> {
                     i.dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR).permitAll()
-                            .requestMatchers("/participant/create").permitAll()
+                            .requestMatchers("/participant/edit").permitAll()
                             .requestMatchers("/login").permitAll()
                             .anyRequest().authenticated();
 

@@ -52,8 +52,8 @@ public class ParticipantDaoTest {
 
     @AfterEach
     void after() {
-        dao.deactivationParticipantById(egor.getId());
-        dao.deactivationParticipantById(lena.getId());
+        dao.deleteParticipantById(egor.getId());
+        dao.deleteParticipantById(lena.getId());
     }
 
     @Test
@@ -118,21 +118,5 @@ public class ParticipantDaoTest {
         Participant actualParticipant = dao.editParticipant(updateParticipant);
 
         Assertions.assertEquals(expected, actualParticipant);
-    }
-
-    @Test
-    void deleteParticipantById() {
-        Participant testParticipant = new Participant();
-        testParticipant.setId(lena.getId());
-        testParticipant.setName(lena.getName());
-        testParticipant.setPassword(lena.getPassword());
-        testParticipant.setCreationDate(lena.getCreationDate());
-        testParticipant.setRoles(lena.getRoles());
-        testParticipant.setEnabled(lena.isEnabled());
-        lena.setEnabled(true);
-
-        dao.deactivationParticipantById(testParticipant.getId());
-
-        Assertions.assertEquals(testParticipant, dao.getParticipantById(testParticipant.getId()));
     }
 }
