@@ -80,12 +80,6 @@ public class ParticipantController {
         }
     }
 
-    @Operation(summary = "Изменение данных участника", description = "Позволяет изменить данные существующего участника")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "404", description = "Participant not found"),
-            @ApiResponse(responseCode = "400", description = "Bad request")
-    })
     @PostMapping("/edit")
     public ParticipantResponse editParticipant(@RequestBody UpdateParticipantRequest updateParticipantRequest) {
 //        Participant currrentParticipant = securityUtils.getCurrentParticipant();
@@ -93,11 +87,6 @@ public class ParticipantController {
         return convertParticipant(participant);
     }
 
-    @Operation(summary = "Деактивация участника по id")
-    @ApiResponses(value = {
-                    @ApiResponse(responseCode = "200", description = "OK"),
-                    @ApiResponse(responseCode = "404", description = "Participant not found")
-            })
     @DeleteMapping("/delete")
     public ParticipantResponse deleteParticipantById(@RequestBody DeleteParticipantRequest deleteParticipantRequest) {
         return convertParticipant(service.deleteParticipantById(deleteParticipantRequest.getId()));
