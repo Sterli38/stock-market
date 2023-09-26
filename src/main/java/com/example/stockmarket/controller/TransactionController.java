@@ -36,9 +36,9 @@ public class TransactionController {
 
     @Operation(summary = "Пополнение счёта", description = "Операция пополнения счёта участника в выбранной валюте")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "404", description = "Participant not found"),
-            @ApiResponse(responseCode = "400", description = "Bad request")
+            @ApiResponse(responseCode = "200", description = "Счёт пополнен"),
+            @ApiResponse(responseCode = "404", description = "Участник не найден"),
+            @ApiResponse(responseCode = "400", description = "Валидация запроса не пройдена")
     })
     @PostMapping("/makeDepositing")
     public TransactionResponse makeDepositing(@RequestBody MakeDepositingRequest makeDepositingRequest) {
@@ -48,9 +48,9 @@ public class TransactionController {
 
     @Operation(summary = "Вывод средств со счёта", description = "Операция вывода средств со счёта участника в выбранной валюте")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "404", description = "Participant not found"),
-            @ApiResponse(responseCode = "400", description = "Bad request")
+            @ApiResponse(responseCode = "200", description = "Вывод успешно выполнен"),
+            @ApiResponse(responseCode = "404", description = "Участник не найден"),
+            @ApiResponse(responseCode = "400", description = "Валидация запроса не пройдена")
     })
     @GetMapping("/withdrawal")
     public TransactionResponse makeWithdrawal(@RequestBody MakeWithdrawalRequest makeWithdrawalRequest) {
@@ -60,10 +60,9 @@ public class TransactionController {
 
     @Operation(summary = "Обмен валют", description = "Операция обмена валюты на валюту")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "404", description = "Participant not found"),
-            @ApiResponse(responseCode = "400", description = "not enough currency in : EUR"),
-            @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера, попробуйте позже")
+            @ApiResponse(responseCode = "200", description = "Операция обмена была выполнена"),
+            @ApiResponse(responseCode = "404", description = "Участник не найден"),
+            @ApiResponse(responseCode = "400", description = "Валидация запроса не пройдена")
     })
     @PostMapping("/exchange")
     public TransactionResponse exchange(@RequestBody MakeExchangeRequest makeExchangeRequest) {
@@ -73,9 +72,9 @@ public class TransactionController {
 
     @Operation(summary = "Получение баланса по валюте")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "404", description = "Participant not found"),
-            @ApiResponse(responseCode = "400", description = "Bad request")
+            @ApiResponse(responseCode = "200", description = "Баланс получен"),
+            @ApiResponse(responseCode = "404", description = "Участник не найден"),
+            @ApiResponse(responseCode = "400", description = "Валидация запроса не пройдена")
     })
     @GetMapping("/getBalanceByCurrency")
     public BalanceByCurrencyResponse getBalanceByCurrency(@RequestBody GetBalanceRequest getBalanceRequest) {
@@ -84,9 +83,9 @@ public class TransactionController {
 
     @Operation(summary = "Получение транзакций", description = "Получение транзакций пользователя по заданному фильтру")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "404", description = "Participant not found"),
-            @ApiResponse(responseCode = "400", description = "Bad request")
+            @ApiResponse(responseCode = "200", description = "Транзакции получены"),
+            @ApiResponse(responseCode = "404", description = "Участник не найден"),
+            @ApiResponse(responseCode = "400", description = "Валидация запроса не пройдена")
     })
     @GetMapping("/getTransactions")
     public List<TransactionResponse> getTransactionsByFilter(@RequestBody GetTransactionsRequest getTransactionsRequest) {

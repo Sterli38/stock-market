@@ -22,14 +22,14 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/stockMarket")
-@Tag(name = "Функционал биржы", description = "Позволяет получить заработок биржы с комиссии")
+@Tag(name = "Функционал биржи", description = "Позволяет получить заработок биржи с комиссии")
 public class StockMarketController {
     private final StockMarketService stockMarketService;
 
-    @Operation(summary = "Получение прибыли", description = "Получение прибыли биржы с операций на которые накладывается комиссия")
+    @Operation(summary = "Получение прибыли", description = "Получение прибыли биржи с операций на которые накладывается комиссия")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "400", description = "Bad request - currency not found",
+            @ApiResponse(responseCode = "200", description = "Прибыль рассчитана"),
+            @ApiResponse(responseCode = "400", description = "Валидация запроса не пройдена",
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
                     })
     })

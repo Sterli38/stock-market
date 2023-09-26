@@ -28,6 +28,6 @@ public class TransactionResponse {
     private Double givenAmount;
     @Schema(description = "Участник который проводил транзакцию")
     private Participant participant;
-    @Schema(description = "Комиссия биржы")
+    @Schema(description = "Комиссия биржи")
     private Double commission;
 }

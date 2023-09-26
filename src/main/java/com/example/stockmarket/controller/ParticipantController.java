@@ -33,16 +33,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/participant")
-@Tag(name = "Функционал участника", description = "Работа с пользователем")
+@Tag(name = "Функционал участника")
 public class ParticipantController {
     private final ParticipantService service;
     private final PasswordEncoder passwordEncoder;
     private final SecurityUtils securityUtils;
 
-    @Operation(summary = "Создание участника", description = "Позволяет участнику зарегистрироваться")
+    @Operation(summary = "Создание участника")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "400", description = "Bad request")
+            @ApiResponse(responseCode = "200", description = "Участник создан"),
+            @ApiResponse(responseCode = "400", description = "Участник не создан. Ошибка валидации")
     })
     @PostMapping("/create")
     public ParticipantResponse createParticipant(@RequestBody CreateParticipantRequest createParticipantRequest) {
@@ -50,10 +50,10 @@ public class ParticipantController {
         return convertParticipant(service.createParticipant(participant));
     }
 
-    @Operation(summary = "Поиск участника по id", description = "Позволяет найти участника по его id")
+    @Operation(summary = "Поиск участника по id")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "404", description = "Participant not found")
+            @ApiResponse(responseCode = "200", description = "Участник найден"),
+            @ApiResponse(responseCode = "404", description = "Участник не найден")
     })
     @GetMapping("/getById")
     public ResponseEntity<ParticipantResponse> getParticipantById(@RequestBody GetParticipantByIdRequest getParticipantByIdRequest) {
@@ -67,8 +67,8 @@ public class ParticipantController {
 
     @Operation(summary = "Поиск участника по имени")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "404", description = "Participant not found")
+            @ApiResponse(responseCode = "200", description = "Участник найден"),
+            @ApiResponse(responseCode = "404", description = "Участник не найден")
     })
     @GetMapping("/getByName")
     public ResponseEntity<ParticipantResponse> getParticipantByName(@RequestBody GetParticipantByNameRequest getParticipantByNameRequest) {
@@ -80,16 +80,17 @@ public class ParticipantController {
         }
     }
 
+    @Operation(summary = "Изменение данных участника", description = "Позволяет изменить данные существующего участника")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Участник изменён"),
+            @ApiResponse(responseCode = "404", description = "Участник не найден"),
+            @ApiResponse(responseCode = "400", description = "Участник не изменён. Ошибка валидации")
+    })
     @PostMapping("/edit")
     public ParticipantResponse editParticipant(@RequestBody UpdateParticipantRequest updateParticipantRequest) {
 //        Participant currrentParticipant = securityUtils.getCurrentParticipant();
         Participant participant = service.editParticipant(convertParticipantRequest(updateParticipantRequest));
         return convertParticipant(participant);
-    }
-
-    @DeleteMapping("/delete")
-    public ParticipantResponse deleteParticipantById(@RequestBody DeleteParticipantRequest deleteParticipantRequest) {
-        return convertParticipant(service.deleteParticipantById(deleteParticipantRequest.getId()));
     }
 
     private Participant convertParticipantRequest(CreateParticipantRequest participantRequest) {
