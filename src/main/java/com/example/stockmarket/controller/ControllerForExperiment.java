@@ -1,13 +1,12 @@
 package com.example.stockmarket.controller;
 
 import com.example.stockmarket.entity.Participant;
-import com.example.stockmarket.entity.User;
 import com.example.stockmarket.service.participantService.ParticipantService;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
@@ -16,6 +15,8 @@ import java.util.concurrent.ThreadLocalRandom;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/experiment")
+@Hidden
+@Tag(name = "Тестовый контроллер", description = "Тестовый контроллер")
 public class ControllerForExperiment {
     private final ParticipantService service;
 

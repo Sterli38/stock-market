@@ -2,6 +2,7 @@ package com.example.stockmarket.config.security;
 
 import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -39,15 +40,28 @@ public class WebConfig {
         return new BCryptPasswordEncoder();
     }
 
+    @ConditionalOnProperty(name = "security.enabled", havingValue = "true")
     @Bean
-    public SecurityFilterChain configure(HttpSecurity http) throws Exception {
+    public SecurityFilterChain configureWithSecurity(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeHttpRequests(i -> {
                     i.dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR).permitAll()
                             .requestMatchers("/participant/edit").permitAll()
                             .requestMatchers("/login").permitAll()
+                            .requestMatchers("/swagger-u/**").permitAll()
                             .anyRequest().authenticated();
+                });
 
+        return http.build();
+    }
+
+    @ConditionalOnProperty(name = "security.enabled", havingValue = "false")
+    @Bean
+    public SecurityFilterChain configureWithoutSecurity(HttpSecurity http) throws Exception {
+        http.csrf().disable()
+                .authorizeHttpRequests(i -> {
+                    i.dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR).permitAll()
+                            .requestMatchers("/**").permitAll();
                 });
 
         return http.build();

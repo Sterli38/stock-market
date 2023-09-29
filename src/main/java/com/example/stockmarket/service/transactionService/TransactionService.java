@@ -77,7 +77,7 @@ public class TransactionService {
     public Transaction exchange(MakeExchangeRequest makeExchangeRequest) {
         String pair = makeExchangeRequest.getGivenCurrency() + makeExchangeRequest.getReceivedCurrency();
         if (!webCurrencyService.isValid(pair)) {
-            log.warn("Пользователь {} ввёл неккоректную пару валют: {}", makeExchangeRequest.getParticipantId(), pair);
+            log.warn("Пользователь {} ввёл некорректную пару валют: {}", makeExchangeRequest.getParticipantId(), pair);
             throw new CurrencyPairIsNotValidException(pair);
         }
         if (!isOperationApplicable(makeExchangeRequest.getGivenAmount(), makeExchangeRequest.getGivenCurrency(), makeExchangeRequest.getParticipantId())) {
