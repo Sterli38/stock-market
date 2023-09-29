@@ -6,10 +6,7 @@ import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class ParticipantMapper implements RowMapper<Participant> {
     @Override
@@ -23,7 +20,7 @@ public class ParticipantMapper implements RowMapper<Participant> {
         participant.setEnabled(rs.getBoolean("enabled"));
         String a = rs.getString("role_name");
         String[] array = a.split(",");
-        Set<Role> mySet = new HashSet<>();
+        Set<Role> mySet = new LinkedHashSet<>();
         for(int i = 0; i < array.length; i++) {
             mySet.add(Role.valueOf(array[i]));
         }
