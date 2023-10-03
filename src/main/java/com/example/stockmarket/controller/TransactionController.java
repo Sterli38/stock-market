@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,6 +34,7 @@ public interface TransactionController {
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     @PostMapping("/makeDepositing")
     TransactionResponse makeDepositing(@RequestBody MakeDepositingRequest makeDepositingRequest);
 
@@ -48,6 +50,7 @@ public interface TransactionController {
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     @GetMapping("/withdrawal")
     TransactionResponse makeWithdrawal(@RequestBody MakeWithdrawalRequest makeWithdrawalRequest);
 
@@ -63,6 +66,7 @@ public interface TransactionController {
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     @PostMapping("/exchange")
     TransactionResponse exchange(@RequestBody MakeExchangeRequest makeExchangeRequest);
 
@@ -78,6 +82,7 @@ public interface TransactionController {
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     @GetMapping("/getBalanceByCurrency")
     BalanceByCurrencyResponse getBalanceByCurrency(@RequestBody GetBalanceRequest getBalanceRequest);
 
@@ -93,6 +98,7 @@ public interface TransactionController {
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     @GetMapping("/getTransactions")
     List<TransactionResponse> getTransactionsByFilter(@RequestBody GetTransactionsRequest getTransactionsRequest);
 }

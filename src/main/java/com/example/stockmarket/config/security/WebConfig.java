@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,11 +19,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
-@EnableGlobalMethodSecurity(
-        prePostEnabled = true,
-        securedEnabled = true,
-        jsr250Enabled = true)
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(
+        prePostEnabled = true)
 @RequiredArgsConstructor
 public class WebConfig {
     private final UserDetailsServiceImpl userDetailsService;
@@ -46,11 +45,15 @@ public class WebConfig {
         http.csrf().disable()
                 .authorizeHttpRequests(i -> {
                     i.dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR).permitAll()
-                            .requestMatchers("/participant/edit").permitAll()
-                            .requestMatchers("/login").permitAll()
+                            .requestMatchers("/transactional/**").hasAnyAuthority("ADMIN","USER","READER")
+                            .requestMatchers("/participant/**").hasAnyAuthority("ADMIN","USER","READER")
+                            .requestMatchers("/stockMarket/**").hasAnyAuthority("ADMIN","USER","READER")
+                            .requestMatchers("/login").anonymous()
                             .requestMatchers("/swagger-u/**").permitAll()
                             .anyRequest().authenticated();
-                });
+                })
+                .httpBasic(Customizer.withDefaults())
+                .formLogin(Customizer.withDefaults());
 
         return http.build();
     }

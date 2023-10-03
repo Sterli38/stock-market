@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,6 +32,7 @@ public interface ParticipantController {
                     })
 
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     @PostMapping("/create")
     ParticipantResponse createParticipant(@RequestBody CreateParticipantRequest createParticipantRequest);
 
@@ -43,6 +45,7 @@ public interface ParticipantController {
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/getById")
     ResponseEntity<ParticipantResponse> getParticipantById(@RequestBody GetParticipantByIdRequest getParticipantByIdRequest);
 
@@ -55,6 +58,7 @@ public interface ParticipantController {
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/getByName")
     ResponseEntity<ParticipantResponse> getParticipantByName(@RequestBody GetParticipantByNameRequest getParticipantByNameRequest);
 
@@ -70,6 +74,7 @@ public interface ParticipantController {
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     @PostMapping("/edit")
     ParticipantResponse editParticipant(@RequestBody UpdateParticipantRequest updateParticipantRequest);
 }
