@@ -3,6 +3,7 @@ package com.example.stockmarket.dao.database;
 import com.example.stockmarket.dao.TransactionDao;
 import com.example.stockmarket.dao.mapper.ParticipantMapper;
 import com.example.stockmarket.dao.mapper.TransactionMapper;
+import com.example.stockmarket.entity.OperationType;
 import com.example.stockmarket.entity.Participant;
 import com.example.stockmarket.entity.Role;
 import com.example.stockmarket.entity.Transaction;
@@ -69,6 +70,22 @@ public class TransactionDatabaseDao implements TransactionDao {
         if (transactionFilter.getOperationType() != null) {
             sqlBuilder.where("operation_type.id = (SELECT id FROM operation_type WHERE type = :operationType)");
             values.put("operationType", transactionFilter.getOperationType().name());
+        } else {
+            if (transactionFilter.getReceivedCurrencies() != null && transactionFilter.getGivenCurrencies() != null) {
+                if (transactionFilter.getReceivedCurrencies().equals(transactionFilter.getGivenCurrencies())) {
+                    sqlBuilder.where("(received_currency = :currency or given_currency = :currency)");
+                    values.put("currency", transactionFilter.getReceivedCurrencies());
+                }else {
+                    if (transactionFilter.getReceivedCurrencies() != null) {
+                        sqlBuilder.where("received_currency IN (:receivedCurrency)");
+                        values.put("receivedCurrency", transactionFilter.getReceivedCurrencies());
+                    }
+                    if (transactionFilter.getGivenCurrencies() != null) {
+                        sqlBuilder.where("given_currency IN (:givenCurrency)");
+                        values.put("givenCurrency", transactionFilter.getGivenCurrencies());
+                    }
+                }
+            }
         }
         if (transactionFilter.getAfter() != null) {
             sqlBuilder.where("date >= :after");
@@ -78,10 +95,10 @@ public class TransactionDatabaseDao implements TransactionDao {
             sqlBuilder.where("date <= :before");
             values.put("before", transactionFilter.getBefore());
         }
-        if (transactionFilter.getReceivedCurrencies() != null) {
-            sqlBuilder.where("received_currency IN (:receivedCurrency)");
-            values.put("receivedCurrency", transactionFilter.getReceivedCurrencies());
-        }
+//        if (transactionFilter.getReceivedCurrencies() != null) {
+//            sqlBuilder.where("received_currency IN (:receivedCurrency)");
+//            values.put("receivedCurrency", transactionFilter.getReceivedCurrencies());
+//        }
         if (transactionFilter.getReceivedMinAmount() != null) {
             sqlBuilder.where("received_amount >= :receivedMinAmount");
             values.put("receivedMinAmount", transactionFilter.getReceivedMinAmount());
@@ -90,10 +107,10 @@ public class TransactionDatabaseDao implements TransactionDao {
             sqlBuilder.where("received_amount <= :receivedMaxAmount");
             values.put("receivedMaxAmount", transactionFilter.getReceivedMaxAmount());
         }
-        if (transactionFilter.getGivenCurrencies() != null) {
-            sqlBuilder.where("given_currency IN (:givenCurrency)");
-            values.put("givenCurrency", transactionFilter.getGivenCurrencies());
-        }
+//        if (transactionFilter.getGivenCurrencies() != null) {
+//            sqlBuilder.where("given_currency IN (:givenCurrency)");
+//            values.put("givenCurrency", transactionFilter.getGivenCurrencies());
+//        }
         if (transactionFilter.getGivenMinAmount() != null) {
             sqlBuilder.where("given_amount >= :givenMinAmount");
             values.put("givenMinAmount", transactionFilter.getGivenMinAmount());
