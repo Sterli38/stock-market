@@ -45,9 +45,9 @@ public class WebConfig {
         http.csrf().disable()
                 .authorizeHttpRequests(i -> {
                     i.dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR).permitAll()
-                            .requestMatchers("/transactional/**").hasAnyAuthority("ADMIN","USER","READER")
-                            .requestMatchers("/participant/**").hasAnyAuthority("ADMIN","USER","READER")
-                            .requestMatchers("/stockMarket/**").hasAnyAuthority("ADMIN","USER","READER")
+                            .requestMatchers("/transactional/**").authenticated()
+                            .requestMatchers("/participant/**").authenticated()
+                            .requestMatchers("/stockMarket/**").authenticated()
                             .requestMatchers("/login").anonymous()
                             .requestMatchers("/swagger-u/**").permitAll()
                             .anyRequest().authenticated();

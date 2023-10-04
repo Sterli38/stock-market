@@ -34,7 +34,6 @@ public interface TransactionController {
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     @PostMapping("/makeDepositing")
     TransactionResponse makeDepositing(@RequestBody MakeDepositingRequest makeDepositingRequest);
 
@@ -50,7 +49,6 @@ public interface TransactionController {
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     @GetMapping("/withdrawal")
     TransactionResponse makeWithdrawal(@RequestBody MakeWithdrawalRequest makeWithdrawalRequest);
 
@@ -66,7 +64,6 @@ public interface TransactionController {
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     @PostMapping("/exchange")
     TransactionResponse exchange(@RequestBody MakeExchangeRequest makeExchangeRequest);
 
@@ -82,7 +79,6 @@ public interface TransactionController {
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     @GetMapping("/getBalanceByCurrency")
     BalanceByCurrencyResponse getBalanceByCurrency(@RequestBody GetBalanceRequest getBalanceRequest);
 
@@ -98,7 +94,6 @@ public interface TransactionController {
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     @GetMapping("/getTransactions")
     List<TransactionResponse> getTransactionsByFilter(@RequestBody GetTransactionsRequest getTransactionsRequest);
 }
