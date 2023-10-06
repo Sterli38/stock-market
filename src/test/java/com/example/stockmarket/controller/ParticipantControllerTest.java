@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -31,6 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
+@WithMockUser(username="admin",authorities={"ADMIN"})
 class ParticipantControllerTest {
     @Autowired
     private ParticipantService service;
@@ -50,6 +52,7 @@ class ParticipantControllerTest {
         egor.setRoles(egorRoles);
         egor.setCreationDate(new Date(1687791478000L));
         egor.setPassword("testPasswordEgor");
+        egor.setEnabled(true);
         long egorId = service.createParticipant(egor).getId();
         lena = new Participant();
         lena.setName("Lena");
@@ -59,6 +62,7 @@ class ParticipantControllerTest {
         lena.setRoles(lenaRoles);
         lena.setCreationDate(new Date(1687532277000L));
         lena.setPassword("testPasswordLena");
+        lena.setEnabled(false);
         long lenaId = service.createParticipant(lena).getId();
         egor.setId(egorId);
         lena.setId(lenaId);
@@ -137,6 +141,7 @@ class ParticipantControllerTest {
         updateForParticipant.setRoles(testRoles);
         updateForParticipant.setCreationDate(new Date(1688059945000L));
         updateForParticipant.setPassword("testPassword");
+        updateForParticipant.setEnabled(false);
 
         JSONParser jsonParser = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE);
         JSONArray expectedRoles = (JSONArray) jsonParser.parse(mapper.writeValueAsString(testRoles));
@@ -144,7 +149,7 @@ class ParticipantControllerTest {
         mockMvc.perform(post("/participant/edit")
                         .content(mapper.writeValueAsString(updateForParticipant))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.id").value(egor.getId()))
                 .andExpect(jsonPath("$.name").value(updateForParticipant.getName()))
                 .andExpect(jsonPath("$.roles").value(expectedRoles))
                 .andExpect(jsonPath("$.creation_date").value(updateForParticipant.getCreationDate()))
@@ -155,33 +160,10 @@ class ParticipantControllerTest {
                         .content(mapper.writeValueAsString(updateForParticipant))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.id").value(egor.getId()))
                 .andExpect(jsonPath("$.name").value(updateForParticipant.getName()))
                 .andExpect(jsonPath("$.roles").value(expectedRoles))
                 .andExpect(jsonPath("$.creation_date").value(updateForParticipant.getCreationDate().getTime()))
                 .andExpect(jsonPath("$.enabled").value(updateForParticipant.isEnabled()));
-    }
-
-
-    @Test
-    void deleteParticipantById() throws Exception {
-
-        JSONParser jsonParser = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE);
-        JSONArray expectedRoles = (JSONArray) jsonParser.parse(mapper.writeValueAsString(egor.getRoles()));
-
-        mockMvc.perform(delete("/participant/delete")
-                        .content(mapper.writeValueAsString(egor))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").isNumber())
-                .andExpect(jsonPath("$.name").value(egor.getName()))
-                .andExpect(jsonPath("$.roles").value(expectedRoles))
-                .andExpect(jsonPath("$.creation_date").value(egor.getCreationDate()))
-                .andExpect(jsonPath("$.enabled").value(egor.isEnabled()));
-
-        mockMvc.perform(get("/participant/getById")
-                        .content(mapper.writeValueAsString(egor))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
     }
 }

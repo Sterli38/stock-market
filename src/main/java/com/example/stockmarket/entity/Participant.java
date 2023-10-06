@@ -2,7 +2,6 @@ package com.example.stockmarket.entity;
 
 import lombok.Data;
 import lombok.ToString;
-import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Date;
 import java.util.Set;

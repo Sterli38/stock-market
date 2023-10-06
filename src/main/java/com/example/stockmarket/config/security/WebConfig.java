@@ -1,11 +1,14 @@
 package com.example.stockmarket.config.security;
 
+import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -16,11 +19,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
-@EnableGlobalMethodSecurity(
-        prePostEnabled = true,
-        securedEnabled = true,
-        jsr250Enabled = true)
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(
+        prePostEnabled = true)
 @RequiredArgsConstructor
 public class WebConfig {
     private final UserDetailsServiceImpl userDetailsService;
@@ -38,14 +39,33 @@ public class WebConfig {
         return new BCryptPasswordEncoder();
     }
 
+    @ConditionalOnProperty(name = "security.enabled", havingValue = "true")
     @Bean
-    public SecurityFilterChain configure(HttpSecurity http) throws Exception {
+    public SecurityFilterChain configureWithSecurity(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeHttpRequests(i -> {
-//                    i.requestMatchers("/**").authenticated();
-                    i.requestMatchers("/**").permitAll();
+                    i.dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR).permitAll()
+                            .requestMatchers("/transactional/**").authenticated()
+                            .requestMatchers("/participant/**").authenticated()
+                            .requestMatchers("/stockMarket/**").authenticated()
+                            .requestMatchers("/login").anonymous()
+                            .requestMatchers("/swagger-u/**").permitAll()
+                            .anyRequest().authenticated();
                 })
-                .formLogin().disable();
+                .httpBasic(Customizer.withDefaults())
+                .formLogin(Customizer.withDefaults());
+
+        return http.build();
+    }
+
+    @ConditionalOnProperty(name = "security.enabled", havingValue = "false")
+    @Bean
+    public SecurityFilterChain configureWithoutSecurity(HttpSecurity http) throws Exception {
+        http.csrf().disable()
+                .authorizeHttpRequests(i -> {
+                    i.dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR).permitAll()
+                            .requestMatchers("/**").permitAll();
+                });
 
         return http.build();
     }

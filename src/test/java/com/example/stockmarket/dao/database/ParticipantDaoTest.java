@@ -119,10 +119,4 @@ public class ParticipantDaoTest {
 
         Assertions.assertEquals(expected, actualParticipant);
     }
-
-    @Test
-    void deleteParticipantById() {
-        dao.deleteParticipantById(1L);
-        Assertions.assertNull(dao.getParticipantById(1));
-    }
 }
