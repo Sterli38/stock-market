@@ -4,6 +4,7 @@ import com.example.stockmarket.controller.request.transactionRequest.*;
 import com.example.stockmarket.entity.OperationType;
 import com.example.stockmarket.entity.Participant;
 import com.example.stockmarket.entity.Role;
+import com.example.stockmarket.entity.Transaction;
 import com.example.stockmarket.service.participantService.ParticipantService;
 import com.example.stockmarket.service.transactionService.TransactionService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -182,7 +183,7 @@ public class TransactionControllerTest {
     }
 
     @Test
-    void getTransactionsByFilterTest() throws Exception {
+    void TestForReceivingAllTransactionsInOneCurrency() throws Exception {
         Participant participant = new Participant();
         participant.setName("ParticipantForGetTransactionsByTest");
         participant.setPassword("TestPassword");
@@ -194,39 +195,182 @@ public class TransactionControllerTest {
         participant.setCreationDate(new Date(1696232828000L));
         Long participantId = participantService.createParticipant(participant).getId();
 
-        MakeDepositingRequest depositing = new MakeDepositingRequest();
-        depositing.setParticipantId(participantId);
-        depositing.setReceivedCurrency("EUR");
-        depositing.setReceivedAmount(20.0);
-        transactionService.depositing(depositing);
+        MakeDepositingRequest depositingRequest = new MakeDepositingRequest();
+        depositingRequest.setParticipantId(participantId);
+        depositingRequest.setReceivedCurrency("EUR");
+        depositingRequest.setReceivedAmount(20.0);
+        Transaction depositing = transactionService.depositing(depositingRequest);
 
-        MakeExchangeRequest exchange = new MakeExchangeRequest();
-        exchange.setGivenCurrency("EUR");
-        exchange.setGivenAmount(5.0);
-        exchange.setReceivedCurrency("RUB");
-        exchange.setParticipantId(participantId);
-        transactionService.exchange(exchange);
+
+        MakeExchangeRequest exchangeRequest = new MakeExchangeRequest();
+        exchangeRequest.setGivenCurrency("EUR");
+        exchangeRequest.setGivenAmount(5.0);
+        exchangeRequest.setReceivedCurrency("RUB");
+        exchangeRequest.setParticipantId(participantId);
+        Transaction exchange = transactionService.exchange(exchangeRequest);
 
         MakeWithdrawalRequest withdrawalRequest = new MakeWithdrawalRequest();
         withdrawalRequest.setParticipantId(participantId);
         withdrawalRequest.setGivenCurrency("EUR");
         withdrawalRequest.setGivenAmount(10.0);
-        transactionService.withdrawal(withdrawalRequest);
+        Transaction withdrawal = transactionService.withdrawal(withdrawalRequest);
 
         GetTransactionsRequest getTransactionsRequest = new GetTransactionsRequest();
         getTransactionsRequest.setParticipantId(participantId);
         List<String> receivedCurrencies = new ArrayList<>();
         receivedCurrencies.add("EUR");
         getTransactionsRequest.setReceivedCurrencies(receivedCurrencies);
-//        List<String> givenCurrencies = new ArrayList<>();
-//        givenCurrencies.add("EUR");
-//        getTransactionsRequest.setGivenCurrencies(givenCurrencies);
+        List<String> givenCurrencies = new ArrayList<>();
+        givenCurrencies.add("EUR");
+        getTransactionsRequest.setGivenCurrencies(givenCurrencies);
 
         mockMvc.perform(get("/transactional/getTransactions")
                 .content(mapper.writeValueAsString(getTransactionsRequest))
                 .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("[0].id").value(depositing.getId()))
+                .andExpect(jsonPath("[0].operation_type").value(OperationType.DEPOSITING.toString()))
+//                .andExpect(jsonPath("[0].date").value(depositing.getDate()))
+                .andExpect(jsonPath("[0].received_currency").value("EUR"))
+                .andExpect(jsonPath("[0].received_amount").value(20))
+                .andExpect(jsonPath("[0].given_amount").value(0.0))
+                .andExpect(jsonPath("[0].participant.id").value(participantId))
                 .andExpect(jsonPath("[0].participant.name").value("ParticipantForGetTransactionsByTest"))
-                .andDo(print());
+                .andExpect(jsonPath("[0].participant.password").value("TestPassword"))
+                .andExpect(jsonPath("[0].participant.roles[0]").value("READER"))
+                .andExpect(jsonPath("[0].participant.roles[1]").value("USER"))
+                .andExpect(jsonPath("[0].participant.enabled").value(true))
+                .andExpect(jsonPath("[0].participant.creation_date").value(1696232828000L))
 
+                .andExpect(jsonPath("[1].id").value(exchange.getId()))
+                .andExpect(jsonPath("[1].operation_type").value(OperationType.EXCHANGE.toString()))
+//                .andExpect(jsonPath("[0].date").value(exchange.getDate()))
+                .andExpect(jsonPath("[1].received_currency").value("RUB"))
+                .andExpect(jsonPath("[1].given_currency").value("EUR"))
+//                .andExpect(jsonPath("[1].received_amount").value(20))
+                .andExpect(jsonPath("[1].given_amount").value(5.0))
+                .andExpect(jsonPath("[1].participant.id").value(participantId))
+                .andExpect(jsonPath("[1].participant.name").value("ParticipantForGetTransactionsByTest"))
+                .andExpect(jsonPath("[1].participant.password").value("TestPassword"))
+                .andExpect(jsonPath("[1].participant.roles[0]").value("READER"))
+                .andExpect(jsonPath("[1].participant.roles[1]").value("USER"))
+                .andExpect(jsonPath("[1].participant.enabled").value(true))
+                .andExpect(jsonPath("[1].participant.creation_date").value(1696232828000L))
+
+                .andExpect(jsonPath("[2].id").value(withdrawal.getId()))
+                .andExpect(jsonPath("[2].operation_type").value(OperationType.WITHDRAWAL.toString()))
+//                .andExpect(jsonPath("[2].date").value(withdrawal.getDate()))
+                .andExpect(jsonPath("[2].received_amount").value(0.0))
+                .andExpect(jsonPath("[2].given_currency").value("EUR"))
+                .andExpect(jsonPath("[2].given_amount").value(10.0))
+                .andExpect(jsonPath("[2].participant.id").value(participantId))
+                .andExpect(jsonPath("[2].participant.name").value("ParticipantForGetTransactionsByTest"))
+                .andExpect(jsonPath("[2].participant.password").value("TestPassword"))
+                .andExpect(jsonPath("[2].participant.roles[0]").value("READER"))
+                .andExpect(jsonPath("[2].participant.roles[1]").value("USER"))
+                .andExpect(jsonPath("[2].participant.enabled").value(true))
+                .andExpect(jsonPath("[2].participant.creation_date").value(1696232828000L))
+                .andDo(print());
+    }
+
+    @Test
+    void TestForReceivingExchangeTransaction() throws Exception {
+        Participant participant = new Participant();
+        participant.setName("ParticipantForGetTransactionsByTest2");
+        participant.setPassword("TestPassword2");
+        participant.setEnabled(true);
+        Set<Role> participantRoles = new HashSet<>();
+        participantRoles.add(Role.USER);
+        participant.setRoles(participantRoles);
+        participant.setCreationDate(new Date(1696232828000L));
+        Long participantId = participantService.createParticipant(participant).getId();
+
+        MakeDepositingRequest depositing = new MakeDepositingRequest();
+        depositing.setParticipantId(participantId);
+        depositing.setReceivedCurrency("RUB");
+        depositing.setReceivedAmount(5000.0);
+        transactionService.depositing(depositing);
+
+        MakeExchangeRequest exchangeRequest = new MakeExchangeRequest();
+        exchangeRequest.setGivenCurrency("RUB");
+        exchangeRequest.setGivenAmount(5000.0);
+        exchangeRequest.setReceivedCurrency("EUR");
+        exchangeRequest.setParticipantId(participantId);
+        Transaction exchange = transactionService.exchange(exchangeRequest);
+
+        GetTransactionsRequest getTransactionsRequest = new GetTransactionsRequest();
+        getTransactionsRequest.setParticipantId(participantId);
+        List<String> receivedCurrencies = new ArrayList<>();
+        receivedCurrencies.add("RUB");
+        getTransactionsRequest.setReceivedCurrencies(receivedCurrencies);
+        getTransactionsRequest.setOperationType(OperationType.EXCHANGE.toString());
+
+        mockMvc.perform(get("/transactional/getTransactions")
+                        .content(mapper.writeValueAsString(getTransactionsRequest))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("[0].id").value(exchange.getId()))
+                .andExpect(jsonPath("[0].operation_type").value(OperationType.EXCHANGE.toString()))
+                .andExpect(jsonPath("[0].date").value(exchange.getDate()))
+                .andExpect(jsonPath("[0].given_currency").value("RUB"))
+                .andExpect(jsonPath("[0].received_amount").value(exchange.getReceivedAmount()))
+                .andExpect(jsonPath("[0].given_amount").value(5000.0))
+                .andExpect(jsonPath("[0].received_currency").value("EUR"))
+                .andExpect(jsonPath("[0].participant.id").value(participantId))
+                .andExpect(jsonPath("[0].participant.name").value("ParticipantForGetTransactionsByTest2"))
+                .andExpect(jsonPath("[0].participant.password").value("TestPassword2"))
+                .andExpect(jsonPath("[0].participant.roles[0]").value("USER"))
+                .andExpect(jsonPath("[0].participant.enabled").value(true))
+                .andExpect(jsonPath("[0].participant.creation_date").value(1696232828000L))
+                .andDo(print());
+    }
+
+    @Test
+    void TestForReceivingTransactionsByDate() throws Exception {
+        Participant participant = new Participant();
+        participant.setName("ParticipantForGetTransactionsByTest3");
+        participant.setPassword("TestPassword3");
+        participant.setEnabled(true);
+        Set<Role> participantRoles = new HashSet<>();
+        participantRoles.add(Role.USER);
+        participant.setRoles(participantRoles);
+        participant.setCreationDate(new Date(1696232828000L));
+        Long participantId = participantService.createParticipant(participant).getId();
+
+        MakeDepositingRequest depositingRequest = new MakeDepositingRequest();
+        depositingRequest.setParticipantId(participantId);
+        depositingRequest.setReceivedCurrency("RUB");
+        depositingRequest.setReceivedAmount(5000.0);
+        Transaction expectedTransaction = transactionService.depositing(depositingRequest);
+        expectedTransaction.setDate(new Date(1633779211000L));
+
+        MakeDepositingRequest depositingRequest1 = new MakeDepositingRequest();
+        depositingRequest1.setParticipantId(participantId);
+        depositingRequest1.setReceivedCurrency("RUB");
+        depositingRequest1.setReceivedAmount(5000.0);
+        Transaction notExpectedTransaction = transactionService.depositing(depositingRequest1);
+        notExpectedTransaction.setDate(new Date(1665315211000L));
+
+        GetTransactionsRequest getTransactionsRequest = new GetTransactionsRequest();
+        getTransactionsRequest.setParticipantId(participantId);
+        getTransactionsRequest.setAfter(new Date(1633779212000L));
+
+        mockMvc.perform(get("/transactional/getTransactions")
+                        .content(mapper.writeValueAsString(getTransactionsRequest))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("[0].id").value(expectedTransaction.getId()))
+                .andExpect(jsonPath("[0].operation_type").value(OperationType.DEPOSITING.toString()))
+                .andExpect(jsonPath("[0].date").value(expectedTransaction.getDate()))
+                .andExpect(jsonPath("[0].received_amount").value(5000.0))
+                .andExpect(jsonPath("[0].given_amount").value(0.0))
+                .andExpect(jsonPath("[0].received_currency").value("RUB"))
+                .andExpect(jsonPath("[0].participant.id").value(participantId))
+                .andExpect(jsonPath("[0].participant.name").value("ParticipantForGetTransactionsByTest2"))
+                .andExpect(jsonPath("[0].participant.password").value("TestPassword2"))
+                .andExpect(jsonPath("[0].participant.roles[0]").value("USER"))
+                .andExpect(jsonPath("[0].participant.enabled").value(true))
+                .andExpect(jsonPath("[0].participant.creation_date").value(1696232828000L))
+                .andDo(print());
     }
 }
