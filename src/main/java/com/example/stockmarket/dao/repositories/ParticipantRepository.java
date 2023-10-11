@@ -7,14 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ParticipantRepository extends JpaRepository<Participant, Long> {
 
-    Participant createParticipant(Participant createParticipant);
-
-    Participant getParticipantById(long id);
-
-    Participant getParticipantByName(String name);
-
-    Participant editParticipant(Participant editParticipant);
-
-    Participant deleteParticipantById(long id);
+    Participant findByName(String name);
 
 }

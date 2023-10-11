@@ -57,7 +57,7 @@ public interface ParticipantController {
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
-    @PreAuthorize("hasAuthority('ADMIN')")
+//    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/getByName")
     ResponseEntity<ParticipantResponse> getParticipantByName(@RequestBody GetParticipantByNameRequest getParticipantByNameRequest);
 
