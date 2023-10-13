@@ -26,10 +26,15 @@ public class ParticipantDaoTest {
     void setup() {
         dao = new ParticipantDatabaseDao(jdbcTemplate);
 
+        Role roleUser = new Role();
+        roleUser.setRoleName("USER");
+        Role roleReader = new Role();
+        roleReader.setRoleName("READER");
+
         egor = new Participant();
         egor.setName("Egor");
         Set<Role> egorRoles = new HashSet<>();
-        egorRoles.add(Role.USER);
+        egorRoles.add(roleUser);
         egor.setRoles(egorRoles);
         egor.setPassword("testPasswordForEgor");
         egor.setEnabled(true);
@@ -40,8 +45,8 @@ public class ParticipantDaoTest {
         lena = new Participant();
         lena.setName("Lena");
         Set<Role> lenaRoles = new HashSet<>();
-        lenaRoles.add(Role.USER);
-        lenaRoles.add(Role.READER);
+        lenaRoles.add(roleUser);
+        lenaRoles.add(roleReader);
         lena.setRoles(lenaRoles);
         lena.setPassword("testPasswordForLena");
         lena.setEnabled(false);
@@ -61,8 +66,12 @@ public class ParticipantDaoTest {
         Participant expectedParticipant = new Participant();
         expectedParticipant.setName("Test");
         Set<Role> expectedParticipantRoles = new HashSet<>();
-        expectedParticipantRoles.add(Role.USER);
-        expectedParticipantRoles.add(Role.READER);
+        Role roleUser = new Role();
+        roleUser.setRoleName("USER");
+        Role roleReader = new Role();
+        roleReader.setRoleName("READER");
+        expectedParticipantRoles.add(roleUser);
+        expectedParticipantRoles.add(roleReader);
         expectedParticipant.setRoles(expectedParticipantRoles);
         expectedParticipant.setPassword("P");
         expectedParticipant.setCreationDate(new Date(1383532237000L));
@@ -101,7 +110,9 @@ public class ParticipantDaoTest {
         expected.setId(egor.getId());
         expected.setName("newParticipant");
         Set<Role> expectedParticipantRoles = new HashSet<>();
-        expectedParticipantRoles.add(Role.USER);
+        Role roleUser = new Role();
+        roleUser.setRoleName("USER");
+        expectedParticipantRoles.add(roleUser);
         expected.setRoles(expectedParticipantRoles);
         expected.setPassword("testPassword");
         expected.setCreationDate(new Date(1383532237000L));

@@ -23,7 +23,9 @@ public class SecurityUtils {
 
     public boolean isOperationAvailableForCurrentParticipant(ParticipantRequest participantRequest) {
         Participant currentParticipant = getCurrentParticipant();
-        if(currentParticipant.getRoles().contains(Role.ADMIN)) {
+        Role adminRole = new Role();
+        adminRole.setRoleName("ADMIN");
+        if(currentParticipant.getRoles().contains(adminRole.getRoleName())) {
             return true;
         }
         return currentParticipant.getId() == participantRequest.getId();

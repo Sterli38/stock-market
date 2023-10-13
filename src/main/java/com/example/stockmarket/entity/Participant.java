@@ -1,5 +1,6 @@
 package com.example.stockmarket.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -29,9 +30,7 @@ public class Participant {
     private String name;
     @ToString.Exclude
     private String password;
-    @Enumerated(EnumType.STRING)
-    @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
-    @CollectionTable(name = "role", joinColumns = @JoinColumn(name = "role_name"))
+    @OneToMany(cascade = CascadeType.ALL)
     private Set<Role> roles;
     private boolean enabled;
     private Date creationDate;

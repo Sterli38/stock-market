@@ -45,10 +45,14 @@ class ParticipantControllerTest {
 
     @BeforeEach
     void setup() {
+        Role roleUser = new Role();
+        roleUser.setRoleName("USER");
+        Role roleReader = new Role();
+        roleReader.setRoleName("READER");
         egor = new Participant();
         egor.setName("Egor");
         Set<Role> egorRoles = new HashSet<>();
-        egorRoles.add(Role.USER);
+        egorRoles.add(roleUser);
         egor.setRoles(egorRoles);
         egor.setCreationDate(new Date(1687791478000L));
         egor.setPassword("testPasswordEgor");
@@ -57,8 +61,8 @@ class ParticipantControllerTest {
         lena = new Participant();
         lena.setName("Lena");
         Set<Role> lenaRoles = new HashSet<>();
-        lenaRoles.add(Role.USER);
-        lenaRoles.add(Role.READER);
+        lenaRoles.add(roleUser);
+        lenaRoles.add(roleReader);
         lena.setRoles(lenaRoles);
         lena.setCreationDate(new Date(1687532277000L));
         lena.setPassword("testPasswordLena");
@@ -79,8 +83,12 @@ class ParticipantControllerTest {
         CreateParticipantRequest testParticipant = new CreateParticipantRequest();
         testParticipant.setName("participant");
         Set<Role> testRoles = new HashSet<>();
-        testRoles.add(Role.USER);
-        testRoles.add(Role.READER);
+        Role roleUser = new Role();
+        roleUser.setRoleName("USER");
+        Role roleReader = new Role();
+        roleReader.setRoleName("READER");
+        testRoles.add(roleUser);
+        testRoles.add(roleReader);
         testParticipant.setRoles(testRoles);
         testParticipant.setPassword("TestPassword");
         testParticipant.setCreationDate(new Date(1687532277000L));
@@ -137,7 +145,9 @@ class ParticipantControllerTest {
         updateForParticipant.setId(egor.getId());
         updateForParticipant.setName("testName");
         Set<Role> testRoles = new HashSet<>();
-        testRoles.add(Role.ADMIN);
+        Role roleAdmin = new Role();
+        roleAdmin.setRoleName("ADMIN");
+        testRoles.add(roleAdmin);
         updateForParticipant.setRoles(testRoles);
         updateForParticipant.setCreationDate(new Date(1688059945000L));
         updateForParticipant.setPassword("testPassword");

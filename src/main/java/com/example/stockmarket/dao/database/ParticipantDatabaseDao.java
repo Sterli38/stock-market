@@ -41,7 +41,7 @@ public class ParticipantDatabaseDao implements ParticipantDao {
             String roleSql = "INSERT INTO participant_to_role(participant_id, role_id) values(?, (SELECT role.id FROM role WHERE role.role_name = ?))";
             jdbcTemplate.batchUpdate(roleSql, participant.getRoles(), 100, (ps, role) -> {
                 ps.setLong(1, participantId);
-                ps.setString(2, role.name());
+                ps.setString(2, role.getRoleName());
             });
         }
 
@@ -87,7 +87,7 @@ public class ParticipantDatabaseDao implements ParticipantDao {
             String roleSql = "INSERT INTO participant_to_role(participant_id, role_id) values(?, (SELECT role.id FROM role WHERE role.role_name = ?))";
             jdbcTemplate.batchUpdate(roleSql, participant.getRoles(), 100, (ps, role) -> {
                 ps.setLong(1, participant.getId());
-                ps.setString(2, role.name());
+                ps.setString(2, role.getRoleName());
             });
         }
         String participantSql = "UPDATE participant SET name = ?, password = ?, enabled = ?, creation_date = ? WHERE id = ?";
