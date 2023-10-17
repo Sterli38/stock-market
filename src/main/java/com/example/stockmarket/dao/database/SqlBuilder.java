@@ -11,22 +11,23 @@ import java.util.Map;
 public class SqlBuilder {
     private final StringBuilder sql = new StringBuilder(); // sql запрос
     private final List<String> clauses = new ArrayList<>(); // Список из строк с условиями
+    private final Map<String, String> conditionsClauses = new HashMap<>();
     private final Map<String, Object> valuesSql = new HashMap<>();
     private SqlState state = SqlState.NONE;
-    public final Map<SqlState, List<SqlState>> map;
+    public final Map<SqlState, List<SqlState>> stateMap;
 
     {
-        map = new HashMap<>() {{
+        stateMap = new HashMap<>() {{
             put(SqlState.NONE, Collections.singletonList(SqlState.SELECT));
             put(SqlState.SELECT, Collections.singletonList(SqlState.FROM));
-            put(SqlState.FROM, List.of(SqlState.JOIN, SqlState.WHERE));
+            put(SqlState.FROM, List.of(SqlState.JOIN, SqlState.WHERE, SqlState.GROUP_BY));
             put(SqlState.JOIN, Collections.singletonList(SqlState.ON));
             put(SqlState.ON, List.of(SqlState.JOIN, SqlState.WHERE, SqlState.GROUP_BY));
             put(SqlState.WHERE, List.of(SqlState.GROUP_BY, SqlState.WHERE));
         }};
     }
 
-    public SqlBuilder select2(String rows) {
+    public SqlBuilder select(String rows) {
         if (!isTransitionCorrect(state, SqlState.SELECT)) {
             throw new IllegalArgumentException("Неверный порядок запроса");
         }
@@ -35,7 +36,7 @@ public class SqlBuilder {
         return this;
     }
 
-    public SqlBuilder from2(String table) {
+    public SqlBuilder from(String table) {
         if (!isTransitionCorrect(state, SqlState.FROM)) {
             throw new IllegalArgumentException("Неверный порядок запроса");
         }
@@ -44,7 +45,7 @@ public class SqlBuilder {
         return this;
     }
 
-    public SqlBuilder where2(String clause) {
+    public SqlBuilder where(String clause) {
         if (!isTransitionCorrect(state, SqlState.WHERE)) {
             throw new IllegalArgumentException("Неверный порядок запроса");
         }
@@ -75,81 +76,45 @@ public class SqlBuilder {
         if (!isTransitionCorrect(state, SqlState.GROUP_BY)) {
             throw new IllegalArgumentException("Неверный порядок запроса");
         }
-        sql.append(" GROUP BY ").append(condition);
+        conditionsClauses.put(" GROUP BY ", condition);
         state = SqlState.GROUP_BY;
         return this;
-
     }
 
-    private boolean isTransitionCorrect(SqlState from, SqlState to) {
-        List<SqlState> possibleTransitions = map.get(from);
-        if (possibleTransitions != null) {
-            return possibleTransitions.contains(to);
-        }
-        return false;
-    }
-
-    public SqlBuilder select(String rows) { // Что выбрать
-        sql.append("SELECT ");
-        sql.append(rows);
-        return this;
-    }
-
-    public SqlBuilder from(String tables) { // Откуда выбираем
-        sql.append(" FROM ");
-        sql.append(tables);
-        return this;
-    }
-
-    public SqlBuilder where(String clause) { // Добавление условия выборки
-        clauses.add(clause);
-        return this;
-    }
-
-    public SqlBuilder condition(String condition, String clause) {
-        sql.append(condition);
-        sql.append(clause);
-        return this;
-    }
-
-    public void build() { // Строим запрос
-        if (clauses.isEmpty()) {
-            return;
-        }
-        sql.append(" WHERE ");
-        for (int i = 0; i < clauses.size(); i++) {
-            if (i != clauses.size() - 1) {
-                sql.append(clauses.get(i)).append(" and ");
-            } else {
-                sql.append(clauses.get(i)).append(" ");
-            }
-        }
-    }
-
-    public SqlBuilder buildCondition(List<String> conditions, List<String> conditionsValue, List<Object> values) {
-        if (!values.isEmpty()) {
-            for (int i = 0; i < values.size(); i++) {
-                if (values.get(i) != null) {
-                    this.where(conditions.get(i));
-                    valuesSql.put(conditionsValue.get(i), values.get(i));
-                }
-            }
-        }
+    public String build() { // Строим запрос
         if (!clauses.isEmpty()) {
             sql.append(" WHERE ");
             for (int i = 0; i < clauses.size(); i++) {
                 if (i != clauses.size() - 1) {
                     sql.append(clauses.get(i)).append(" and ");
                 } else {
-                    sql.append(clauses.get(i));
+                    sql.append(clauses.get(i)).append(" ");
                 }
             }
         }
-        return this;
+
+        if(!conditionsClauses.isEmpty()) {
+            if(conditionsClauses.containsKey(" GROUP BY ")) {
+             String groupByClauses = conditionsClauses.get(" GROUP BY ");
+             sql.append(" GROUP BY ")
+                     .append(groupByClauses);
+            }
+
+        }
+
+        return sql.toString();
     }
 
-    public String union(String sql1, String sql2) {
-        return sql1 + (" UNION ") + sql2;
+    private boolean isTransitionCorrect(SqlState from, SqlState to) {
+        List<SqlState> possibleTransitions = stateMap.get(from);
+        if (possibleTransitions != null) {
+            return possibleTransitions.contains(to);
+        }
+        return false;
+    }
+
+    public String unionAll(String sql1, String sql2) {
+        return sql1 + (" UNION ALL ") + sql2;
     }
 
     public String buildSubQuery(String subQuery) {
@@ -163,9 +128,5 @@ public class SqlBuilder {
 
     public Map<String, Object> getMap() {
         return valuesSql;
-    }
-
-    public String getSql() {
-        return sql.toString();
     }
 }
