@@ -88,7 +88,7 @@ public class SqlBuilder {
                 if (i != clauses.size() - 1) {
                     sql.append(clauses.get(i)).append(" and ");
                 } else {
-                    sql.append(clauses.get(i)).append(" ");
+                    sql.append(clauses.get(i));
                 }
             }
         }
