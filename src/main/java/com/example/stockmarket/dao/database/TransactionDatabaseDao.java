@@ -46,61 +46,77 @@ public class TransactionDatabaseDao implements TransactionDao {
 
     @Override
     public List<Transaction> getTransactionsByCurrency(Long participantId, String currency) {
-        String sql = "SELECT transaction.id as transaction_id, transaction.date, participant.id as participant_id, participant.name as participant_name, participant.creation_date, participant.password, participant.enabled, operation_type.type, received_amount, given_amount, commission, received_currency, given_currency FROM transaction" +
-                " JOIN operation_type on transaction.operation_type_id = operation_type.id" +
-                " JOIN participant on transaction.participant_id = participant.id " +
-                " WHERE participant_id = ? and (received_currency = ? or given_currency = ?)";
+        String sql = "SELECT participant.id as participant_id, participant.name as participant_name, participant.creation_date, participant.password, participant.enabled, string_agg(role.role_name, ',' ORDER BY role.role_name) as role_name, transaction.id as transaction_id, operation_type.type, received_currency, received_amount, given_currency, given_amount, date, commission " +
+                "FROM transaction " +
+                "JOIN participant on transaction.participant_id = participant.id " +
+                "JOIN operation_type on operation_type.id = transaction.operation_type_id " +
+                "JOIN participant_to_role on participant_to_role.participant_id = participant.id " +
+                "JOIN role on participant_to_role.role_id = role.id " +
+                "WHERE participant.id = ? and (received_currency = ? or given_currency = ?) " +
+                "GROUP BY participant.id, participant.name, participant.creation_date, participant.password, participant.enabled, transaction.id, operation_type.type, received_currency, received_amount, given_currency, given_amount, date, commission";
         return jdbcTemplate.query(sql, new TransactionMapper(), participantId, currency, currency);
     }
 
     public List<Transaction> getTransactionsByFilter(TransactionFilter transactionFilter) {
         Map<String, Object> values = new HashMap<>();
         SqlBuilder sqlBuilder = new SqlBuilder();
-        sqlBuilder
-                .select("participant.id as participant_id, participant.name as participant_name, role.name as role_name, participant.creation_date, participant.password, transaction.id as transaction_id, operation_type.type, received_currency, received_amount, given_currency, given_amount, date, commission")
-                .from("transaction JOIN participant on transaction.participant_id = participant.id JOIN operation_type on operation_type.id = transaction.operation_type_id JOIN role on participant.role_id = role.id" );
-        if (transactionFilter.getOperationType()!= null) {
+
+        sqlBuilder.select("participant.id as participant_id, participant.name as participant_name, participant.creation_date, participant.password, participant.enabled, string_agg(role.role_name, ',' ORDER BY role.role_name) as role_name, transaction.id as transaction_id, operation_type.type, received_currency, received_amount, given_currency, given_amount, date, commission")
+                .from("transaction")
+                .join("participant").on("transaction.participant_id = participant.id")
+                .join("operation_type").on("operation_type.id = transaction.operation_type_id")
+                .join("participant_to_role").on("participant_to_role.participant_id = participant.id")
+                .join("role").on("participant_to_role.role_id = role.id");
+
+        if ((transactionFilter.getReceivedCurrencies() != null && transactionFilter.getGivenCurrencies() != null) && transactionFilter.getReceivedCurrencies().equals(transactionFilter.getGivenCurrencies())) {
+            sqlBuilder.where("(received_currency IN (:currency) or given_currency IN (:currency))");
+            values.put("currency", transactionFilter.getReceivedCurrencies());
+        } else {
+            if (transactionFilter.getReceivedCurrencies() != null) {
+                sqlBuilder.where("received_currency IN (:receivedCurrency)");
+                values.put("receivedCurrency", transactionFilter.getReceivedCurrencies());
+            }
+            if (transactionFilter.getGivenCurrencies() != null) {
+                sqlBuilder.where("given_currency IN (:givenCurrency)");
+                values.put("givenCurrency", transactionFilter.getGivenCurrencies());
+            }
+        }
+        if ((transactionFilter.getOperationType() != null)) {
             sqlBuilder.where("operation_type.id = (SELECT id FROM operation_type WHERE type = :operationType)");
             values.put("operationType", transactionFilter.getOperationType().name());
         }
-        if(transactionFilter.getAfter() != null) {
+        if (transactionFilter.getAfter() != null) {
             sqlBuilder.where("date >= :after");
             values.put("after", transactionFilter.getAfter());
         }
-        if(transactionFilter.getBefore() != null) {
+        if (transactionFilter.getBefore() != null) {
             sqlBuilder.where("date <= :before");
             values.put("before", transactionFilter.getBefore());
         }
-        if(transactionFilter.getReceivedCurrencies() != null) {
-            sqlBuilder.where("received_currency IN (:receivedCurrency)");
-            values.put("receivedCurrency", transactionFilter.getReceivedCurrencies());
-        }
-        if(transactionFilter.getReceivedMinAmount()!= null) {
+        if (transactionFilter.getReceivedMinAmount() != null) {
             sqlBuilder.where("received_amount >= :receivedMinAmount");
             values.put("receivedMinAmount", transactionFilter.getReceivedMinAmount());
         }
-        if(transactionFilter.getReceivedMaxAmount() != null) {
+        if (transactionFilter.getReceivedMaxAmount() != null) {
             sqlBuilder.where("received_amount <= :receivedMaxAmount");
             values.put("receivedMaxAmount", transactionFilter.getReceivedMaxAmount());
         }
-        if(transactionFilter.getGivenCurrencies() != null) {
-            sqlBuilder.where("given_currency IN (:givenCurrency)");
-            values.put("givenCurrency", transactionFilter.getGivenCurrencies());
-        }
-        if(transactionFilter.getGivenMinAmount()!= null) {
+        if (transactionFilter.getGivenMinAmount() != null) {
             sqlBuilder.where("given_amount >= :givenMinAmount");
             values.put("givenMinAmount", transactionFilter.getGivenMinAmount());
         }
-        if(transactionFilter.getGivenMaxAmount()!= null) {
+        if (transactionFilter.getGivenMaxAmount() != null) {
             sqlBuilder.where("given_amount <= :givenMaxAmount");
             values.put("givenMaxAmount", transactionFilter.getGivenMaxAmount());
         }
 
         sqlBuilder.where("participant.id = :participantId");
         values.put("participantId", transactionFilter.getParticipantId());
-        sqlBuilder.build();
 
-        String sql = sqlBuilder.getSql();
+        sqlBuilder.groupBy("participant.id, participant.name, participant.creation_date, participant.password, participant.enabled, transaction.id, operation_type.type, received_currency, received_amount, given_currency, given_amount, date, commission");
+
+        String sql = sqlBuilder.build();
+
         List<Transaction> transactions = namedParameterJdbcTemplate.query(sql, values, new TransactionMapper());
         return transactions;
     }

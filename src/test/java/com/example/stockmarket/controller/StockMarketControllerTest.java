@@ -1,18 +1,13 @@
 package com.example.stockmarket.controller;
 
 import com.example.stockmarket.controller.request.stockMarketRequest.StockMarketRequest;
-import com.example.stockmarket.controller.request.transactionRequest.GetBalanceRequest;
 import com.example.stockmarket.controller.request.transactionRequest.MakeDepositingRequest;
 import com.example.stockmarket.controller.request.transactionRequest.MakeExchangeRequest;
 import com.example.stockmarket.controller.request.transactionRequest.MakeWithdrawalRequest;
-import com.example.stockmarket.service.stockMarketService.StockMarketService;
 import com.example.stockmarket.service.transactionService.TransactionService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -37,7 +32,7 @@ public class StockMarketControllerTest {
     private TransactionService transactionService;
 
     @Test
-    public void getTest() throws Exception {
+    public void getProfitTest() throws Exception {
         jdbcTemplate.update("TRUNCATE table transaction");
 
         StockMarketRequest stockMarketRequest = new StockMarketRequest();
