@@ -10,6 +10,7 @@ import com.example.stockmarket.entity.OperationType;
 import com.example.stockmarket.entity.Participant;
 import com.example.stockmarket.entity.Transaction;
 import com.example.stockmarket.entity.TransactionFilter;
+import com.example.stockmarket.exception.CurrencyIsNotValidException;
 import com.example.stockmarket.exception.CurrencyPairIsNotValidException;
 import com.example.stockmarket.exception.NoCurrencyForAmountException;
 import com.example.stockmarket.exception.NotEnoughCurrencyException;
@@ -76,7 +77,7 @@ public class TransactionService {
 
     public Transaction exchange(MakeExchangeRequest makeExchangeRequest) {
         String pair = makeExchangeRequest.getGivenCurrency() + makeExchangeRequest.getReceivedCurrency();
-        if (!webCurrencyService.isValid(pair)) {
+        if (!webCurrencyService.isValidCurrencyPair(pair)) {
             log.warn("Пользователь {} ввёл некорректную пару валют: {}", makeExchangeRequest.getParticipantId(), pair);
             throw new CurrencyPairIsNotValidException(pair);
         }
@@ -107,6 +108,10 @@ public class TransactionService {
     }
 
     public double getBalanceByCurrency(Long participantId, String currency) {
+        if(!webCurrencyService.isValidCurrency(currency)) {
+            log.info("Пользователь ввёл некорректную валюту: {}", currency);
+            throw new CurrencyIsNotValidException(currency);
+        }
         List<Transaction> transactions = dao.getTransactionsByCurrency(participantId, currency);
 
         List<Transaction> depositing = new ArrayList<>();

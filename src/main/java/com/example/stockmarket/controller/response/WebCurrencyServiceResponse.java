@@ -7,5 +7,4 @@ import java.util.Map;
 public class WebCurrencyServiceResponse {
     private String status;
     private String message;
-    private Map<String, String> data;
 }

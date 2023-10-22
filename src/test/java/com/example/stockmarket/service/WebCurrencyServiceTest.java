@@ -1,14 +1,13 @@
 package com.example.stockmarket.service;
 
 import com.example.stockmarket.config.ApplicationProperties;
-import com.example.stockmarket.controller.response.WebCurrencyServiceResponse;
+import com.example.stockmarket.controller.response.WebCurrencyServiceResponseForMap;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,7 +28,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class WebCurrencyServiceTest {
     @Autowired
-    ApplicationProperties properties;
+    ApplicationProperties applicationProperties;
     @Mock
     private RestTemplate restTemplate;
     @Autowired
@@ -48,13 +47,13 @@ class WebCurrencyServiceTest {
     }
 
     @Test
-    public void isValidTest() {
-        String pair = "USDRUB";
-        String url = properties.getCurrencyServiceUrl() + "/api/?get=rates&pairs={pair}&key={key}";
+    public void isValidCurrencyPairTest() {
+        String currencyPair = "USDRUB";
+        String url = applicationProperties.getCurrencyServiceUrl() + "/api/?get=rates&pairs={pair}&key={key}";
 
         Map<String, String> response = new HashMap<>();
-        response.put(pair, "64.1824");
-        WebCurrencyServiceResponse webCurrencyServiceResponse = new WebCurrencyServiceResponse();
+        response.put(currencyPair, "64.1824");
+        WebCurrencyServiceResponseForMap webCurrencyServiceResponse = new WebCurrencyServiceResponseForMap();
         webCurrencyServiceResponse.setStatus("200");
         webCurrencyServiceResponse.setMessage("rates");
         webCurrencyServiceResponse.setData(response);
@@ -62,27 +61,27 @@ class WebCurrencyServiceTest {
         when(restTemplate.getForObject(eq(url), any(), anyString(), anyString()))
                 .thenReturn(webCurrencyServiceResponse);
 
-        boolean result = webCurrencyService.isValid(pair);
+        boolean result = webCurrencyService.isValidCurrencyPair(currencyPair);
 
         assertTrue(result);
     }
 
     @Test
     public void convertTest() {
-        String pair = "USDRUB";
+        String currencyPair = "USDRUB";
         double amount = 100;
-        String url = properties.getCurrencyServiceUrl() + "/api/?get=rates&pairs={pair}&key={key}";
+        String url = applicationProperties.getCurrencyServiceUrl() + "/api/?get=rates&pairs={pair}&key={key}";
 
         Map<String, String> response = new HashMap<>();
-        response.put(pair, "64.1824");
-        WebCurrencyServiceResponse webCurrencyServiceResponse = new WebCurrencyServiceResponse();
+        response.put(currencyPair, "64.1824");
+        WebCurrencyServiceResponseForMap webCurrencyServiceResponse = new WebCurrencyServiceResponseForMap();
         webCurrencyServiceResponse.setStatus("200");
         webCurrencyServiceResponse.setMessage("rates");
         webCurrencyServiceResponse.setData(response);
 
         double expectResult = Double.parseDouble(new ArrayList<>(webCurrencyServiceResponse.getData().values()).get(0)) * amount;
 
-        when(restTemplate.getForObject(url, WebCurrencyServiceResponse.class, pair, properties.getCurrencyServiceKey()))
+        when(restTemplate.getForObject(url, WebCurrencyServiceResponseForMap.class, currencyPair, applicationProperties.getCurrencyServiceKey()))
                 .thenReturn(webCurrencyServiceResponse);
 
         Assertions.assertEquals(expectResult, webCurrencyService.convert("USD", 100, "RUB"));
