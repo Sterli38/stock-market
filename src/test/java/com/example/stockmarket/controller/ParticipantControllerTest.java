@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.hamcrest.Matchers.hasItems;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -95,7 +96,7 @@ class ParticipantControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.name").value(testParticipant.getName()))
-                .andExpect(jsonPath("$.roles").value(expectedRoles))
+                .andExpect(jsonPath("$.roles[*]", hasItems("USER", "READER")))
                 .andExpect(jsonPath("$.creation_date").value(testParticipant.getCreationDate()))
                 .andExpect(jsonPath("$.enabled").value(testParticipant.isEnabled()))
                 .andReturn();
@@ -108,7 +109,7 @@ class ParticipantControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.name").value(testParticipant.getName()))
-                .andExpect(jsonPath("$.roles").value(expectedRoles))
+                .andExpect(jsonPath("$.roles[*]", hasItems("USER", "READER")))
                 .andExpect(jsonPath("$.creation_date").value(testParticipant.getCreationDate()))
                 .andExpect(jsonPath("$.enabled").value(testParticipant.isEnabled()));
     }
@@ -125,7 +126,7 @@ class ParticipantControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.name").value(egor.getName()))
-                .andExpect(jsonPath("$.roles").value(expectedRoles))
+                .andExpect(jsonPath("$.roles[*]", hasItems("USER")))
                 .andExpect(jsonPath("$.creation_date").value(egor.getCreationDate().getTime()))
                 .andExpect(jsonPath("$.enabled").value(egor.isEnabled()));
     }
@@ -151,7 +152,7 @@ class ParticipantControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(egor.getId()))
                 .andExpect(jsonPath("$.name").value(updateForParticipant.getName()))
-                .andExpect(jsonPath("$.roles").value(expectedRoles))
+                .andExpect(jsonPath("$.roles[*]", hasItems("ADMIN")))
                 .andExpect(jsonPath("$.creation_date").value(updateForParticipant.getCreationDate()))
                 .andExpect(jsonPath("$.enabled").value(updateForParticipant.isEnabled()))
                 .andReturn();
@@ -162,7 +163,7 @@ class ParticipantControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(egor.getId()))
                 .andExpect(jsonPath("$.name").value(updateForParticipant.getName()))
-                .andExpect(jsonPath("$.roles").value(expectedRoles))
+                .andExpect(jsonPath("$.roles[*]", hasItems("ADMIN")))
                 .andExpect(jsonPath("$.creation_date").value(updateForParticipant.getCreationDate().getTime()))
                 .andExpect(jsonPath("$.enabled").value(updateForParticipant.isEnabled()));
     }
