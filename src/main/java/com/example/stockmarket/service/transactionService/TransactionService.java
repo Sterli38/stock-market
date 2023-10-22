@@ -42,7 +42,7 @@ public class TransactionService {
     }
 
     public Transaction depositing(MakeDepositingRequest makeDepositingRequest) {
-        if(!isParticipantFound(makeDepositingRequest.getParticipantId())) {
+        if (!isParticipantFound(makeDepositingRequest.getParticipantId())) {
             log.info("Невозможно произвести пополнение: участник с id " + makeDepositingRequest.getParticipantId() + " не найден");
             throw new ParticipantNotFoundException(makeDepositingRequest.getParticipantId());
         }
@@ -61,7 +61,7 @@ public class TransactionService {
     }
 
     public Transaction withdrawal(MakeWithdrawalRequest makeWithdrawalRequest) {
-        if(!isParticipantFound(makeWithdrawalRequest.getParticipantId())) {
+        if (!isParticipantFound(makeWithdrawalRequest.getParticipantId())) {
             log.info("Невозможно произвести вывод средств со счёта: участник с id " + makeWithdrawalRequest.getParticipantId() + " не найден");
             throw new ParticipantNotFoundException(makeWithdrawalRequest.getParticipantId());
         }
@@ -85,7 +85,7 @@ public class TransactionService {
     }
 
     public Transaction exchange(MakeExchangeRequest makeExchangeRequest) {
-        if(!isParticipantFound(makeExchangeRequest.getParticipantId())) {
+        if (!isParticipantFound(makeExchangeRequest.getParticipantId())) {
             log.info("Невозможно произвести операцию обмена: участник с id " + makeExchangeRequest.getParticipantId() + " не найден");
             throw new ParticipantNotFoundException(makeExchangeRequest.getParticipantId());
         }
@@ -121,7 +121,7 @@ public class TransactionService {
     }
 
     public double getBalanceByCurrency(Long participantId, String currency) {
-        if(!isParticipantFound(participantId)) {
+        if (!isParticipantFound(participantId)) {
             log.info("Невозможно произвести операцию показа баланса по валюте: участник с id " + participantId + " не найден");
             throw new ParticipantNotFoundException(participantId);
         }
@@ -175,7 +175,7 @@ public class TransactionService {
     }
 
     public List<Transaction> getTransactionsByFilter(GetTransactionsRequest getTransactionsRequest) {
-        if(!isParticipantFound(getTransactionsRequest.getParticipantId())) {
+        if (!isParticipantFound(getTransactionsRequest.getParticipantId())) {
             log.info("Невозможно произвести операцию показа транзакций: участник с id " + getTransactionsRequest.getParticipantId() + " не найден");
             throw new ParticipantNotFoundException(getTransactionsRequest.getParticipantId());
         }
