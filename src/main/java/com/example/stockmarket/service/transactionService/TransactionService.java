@@ -5,14 +5,15 @@ import com.example.stockmarket.controller.request.transactionRequest.GetTransact
 import com.example.stockmarket.controller.request.transactionRequest.MakeDepositingRequest;
 import com.example.stockmarket.controller.request.transactionRequest.MakeExchangeRequest;
 import com.example.stockmarket.controller.request.transactionRequest.MakeWithdrawalRequest;
+import com.example.stockmarket.dao.ParticipantDao;
 import com.example.stockmarket.dao.TransactionDao;
 import com.example.stockmarket.entity.OperationType;
 import com.example.stockmarket.entity.Participant;
 import com.example.stockmarket.entity.Transaction;
 import com.example.stockmarket.entity.TransactionFilter;
 import com.example.stockmarket.exception.CurrencyPairIsNotValidException;
-import com.example.stockmarket.exception.NoCurrencyForAmountException;
 import com.example.stockmarket.exception.NotEnoughCurrencyException;
+import com.example.stockmarket.exception.ParticipantNotFoundException;
 import com.example.stockmarket.service.WebCurrencyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,20 +27,25 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class TransactionService {
-    private final TransactionDao dao;
+    private final ParticipantDao participantDao;
+    private final TransactionDao transactionDao;
     private final WebCurrencyService webCurrencyService;
     private final StockMarketSettings stockMarketSettings;
 
     @Override
     public String toString() {
         return "TransactionService{" +
-                "dao=" + dao +
+                "dao=" + transactionDao +
                 ", webCurrencyService=" + webCurrencyService +
                 ", stockMarketSettings=" + stockMarketSettings +
                 '}';
     }
 
     public Transaction depositing(MakeDepositingRequest makeDepositingRequest) {
+        if(!isParticipantFound(makeDepositingRequest.getParticipantId())) {
+            log.info("Невозможно произвести пополнение: участник с id " + makeDepositingRequest.getParticipantId() + " не найден");
+            throw new ParticipantNotFoundException(makeDepositingRequest.getParticipantId());
+        }
         Transaction transaction = new Transaction();
         Participant participant = new Participant();
         participant.setId(makeDepositingRequest.getParticipantId());
@@ -50,11 +56,15 @@ public class TransactionService {
         transaction.setReceivedAmount(makeDepositingRequest.getReceivedAmount());
         transaction.setCommission(calculateCommission(transaction.getReceivedAmount(), transaction.getReceivedCurrency()));
         log.info("Внесение средств: {}", transaction);
-        Transaction saveTransaction = dao.saveTransaction(transaction);
+        Transaction saveTransaction = transactionDao.saveTransaction(transaction);
         return saveTransaction;
     }
 
     public Transaction withdrawal(MakeWithdrawalRequest makeWithdrawalRequest) {
+        if(!isParticipantFound(makeWithdrawalRequest.getParticipantId())) {
+            log.info("Невозможно произвести вывод средств со счёта: участник с id " + makeWithdrawalRequest.getParticipantId() + " не найден");
+            throw new ParticipantNotFoundException(makeWithdrawalRequest.getParticipantId());
+        }
         if (!isOperationApplicable(makeWithdrawalRequest.getGivenAmount(), makeWithdrawalRequest.getGivenCurrency(), makeWithdrawalRequest.getParticipantId())) {
             log.info("Невозможно вывести: {} в количестве {} у пользователя: {} недостаточно средств", makeWithdrawalRequest.getGivenCurrency(), makeWithdrawalRequest.getGivenCurrency(), makeWithdrawalRequest.getParticipantId());
             throw new NotEnoughCurrencyException(makeWithdrawalRequest.getGivenCurrency());
@@ -70,11 +80,15 @@ public class TransactionService {
         transaction.setGivenAmount(makeWithdrawalRequest.getGivenAmount());
         transaction.setCommission(calculateCommission(makeWithdrawalRequest.getGivenAmount(), makeWithdrawalRequest.getGivenCurrency()));
         log.info("Сохранение транзакции: {}", transaction);
-        Transaction saveTransaction = dao.saveTransaction(transaction);
+        Transaction saveTransaction = transactionDao.saveTransaction(transaction);
         return saveTransaction;
     }
 
     public Transaction exchange(MakeExchangeRequest makeExchangeRequest) {
+        if(!isParticipantFound(makeExchangeRequest.getParticipantId())) {
+            log.info("Невозможно произвести операцию обмена: участник с id " + makeExchangeRequest.getParticipantId() + " не найден");
+            throw new ParticipantNotFoundException(makeExchangeRequest.getParticipantId());
+        }
         String pair = makeExchangeRequest.getGivenCurrency() + makeExchangeRequest.getReceivedCurrency();
         if (!webCurrencyService.isValid(pair)) {
             log.warn("Пользователь {} ввёл некорректную пару валют: {}", makeExchangeRequest.getParticipantId(), pair);
@@ -102,12 +116,16 @@ public class TransactionService {
         transaction.setReceivedAmount(receivedAmount);
 
         log.info("Сохранение транзакции: {}", transaction);
-        Transaction saveTransaction = dao.saveTransaction(transaction);
+        Transaction saveTransaction = transactionDao.saveTransaction(transaction);
         return saveTransaction;
     }
 
     public double getBalanceByCurrency(Long participantId, String currency) {
-        List<Transaction> transactions = dao.getTransactionsByCurrency(participantId, currency);
+        if(!isParticipantFound(participantId)) {
+            log.info("Невозможно произвести операцию показа баланса по валюте: участник с id " + participantId + " не найден");
+            throw new ParticipantNotFoundException(participantId);
+        }
+        List<Transaction> transactions = transactionDao.getTransactionsByCurrency(participantId, currency);
 
         List<Transaction> depositing = new ArrayList<>();
         List<Transaction> replenishment = new ArrayList<>();
@@ -157,6 +175,10 @@ public class TransactionService {
     }
 
     public List<Transaction> getTransactionsByFilter(GetTransactionsRequest getTransactionsRequest) {
+        if(!isParticipantFound(getTransactionsRequest.getParticipantId())) {
+            log.info("Невозможно произвести операцию показа транзакций: участник с id " + getTransactionsRequest.getParticipantId() + " не найден");
+            throw new ParticipantNotFoundException(getTransactionsRequest.getParticipantId());
+        }
         TransactionFilter transactionFilter = new TransactionFilter();
         transactionFilter.setParticipantId(getTransactionsRequest.getParticipantId());
         if (getTransactionsRequest.getOperationType() != null) {
@@ -171,7 +193,7 @@ public class TransactionService {
         transactionFilter.setAfter(getTransactionsRequest.getAfter());
         transactionFilter.setBefore(getTransactionsRequest.getBefore());
 
-        return dao.getTransactionsByFilter(transactionFilter);
+        return transactionDao.getTransactionsByFilter(transactionFilter);
     }
 
     private double calculateCommission(double amount, String currency) {
@@ -201,5 +223,15 @@ public class TransactionService {
     private boolean isOperationApplicable(double amount, String currency, long participantId) {
         double balance = getBalanceByCurrency(participantId, currency);
         return balance >= amount;
+    }
+
+    /**
+     * Проверка, что участник с переданным id существует
+     *
+     * @return
+     */
+    private boolean isParticipantFound(Long participantId) {
+        Participant returnParticipant = participantDao.getParticipantById(participantId);
+        return returnParticipant != null;
     }
 }
