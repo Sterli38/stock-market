@@ -27,7 +27,6 @@ public class WebCurrencyService implements CurrencyService {
             webCurrencyServiceResponse = restTemplate.getForObject(url, WebCurrencyServiceResponse.class, currencyPair, applicationProperties.getCurrencyServiceKey());
         } catch (RestClientException exception)  {
             log.error("Error while sending request to WebCurrencyService", exception);
-            throw new ExternalServiceException(exception);
         }
         if (webCurrencyServiceResponse == null) {
             throw new RuntimeException("answer from Currency service was not received");
