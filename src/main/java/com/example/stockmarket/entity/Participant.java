@@ -13,6 +13,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinColumns;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
@@ -30,7 +32,12 @@ public class Participant {
     private String name;
     @ToString.Exclude
     private String password;
-    @OneToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "participant_to_role",
+            joinColumns = {@JoinColumn(name = "participant_id")},
+            inverseJoinColumns = { @JoinColumn(name = "role_id")}
+    )
     private Set<Role> roles;
     private boolean enabled;
     private Date creationDate;

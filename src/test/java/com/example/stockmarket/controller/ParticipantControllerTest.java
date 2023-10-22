@@ -35,7 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WithMockUser(username="admin",authorities={"ADMIN"})
 class ParticipantControllerTest {
     @Autowired
-    private ParticipantService service;
+    private ParticipantService participantService;
     @Autowired
     private MockMvc mockMvc;
     @Autowired
@@ -57,7 +57,7 @@ class ParticipantControllerTest {
         egor.setCreationDate(new Date(1687791478000L));
         egor.setPassword("testPasswordEgor");
         egor.setEnabled(true);
-        long egorId = service.createParticipant(egor).getId();
+        long egorId = participantService.createParticipant(egor).getId();
         lena = new Participant();
         lena.setName("Lena");
         Set<Role> lenaRoles = new HashSet<>();
@@ -67,15 +67,15 @@ class ParticipantControllerTest {
         lena.setCreationDate(new Date(1687532277000L));
         lena.setPassword("testPasswordLena");
         lena.setEnabled(false);
-        long lenaId = service.createParticipant(lena).getId();
+        long lenaId = participantService.createParticipant(lena).getId();
         egor.setId(egorId);
         lena.setId(lenaId);
     }
 
     @AfterEach
     void after() {
-        service.deleteParticipantById(egor.getId());
-        service.deleteParticipantById(lena.getId());
+        participantService.deleteParticipantById(egor.getId());
+        participantService.deleteParticipantById(lena.getId());
     }
 
     @Test

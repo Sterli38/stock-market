@@ -2,6 +2,7 @@ package com.example.stockmarket.dao.database;
 
 import com.example.stockmarket.dao.ParticipantDao;
 import com.example.stockmarket.dao.mapper.ParticipantMapper;
+import com.example.stockmarket.dao.mapper.RoleMapper;
 import com.example.stockmarket.entity.Participant;
 import com.example.stockmarket.entity.Role;
 import lombok.RequiredArgsConstructor;
@@ -53,10 +54,10 @@ public class ParticipantDatabaseDao implements ParticipantDao {
     @Nullable
     public Participant getParticipantById(long id) {
         String participantSql = "SELECT participant.id as participant_id, participant.name as participant_name, participant.password, participant.creation_date, participant.enabled FROM participant WHERE participant.id = ?";
-        String roleSql = "SELECT role.role_name FROM role JOIN participant_to_role on role.id = participant_to_role.role_id WHERE participant_to_role.participant_id = ?";
+        String roleSql = "SELECT role.id, role.role_name FROM role JOIN participant_to_role on role.id = participant_to_role.role_id WHERE participant_to_role.participant_id = ?";
         try {
             Participant participant = jdbcTemplate.queryForObject(participantSql, new ParticipantMapper(), id);
-            List<Role> list = jdbcTemplate.queryForList(roleSql, Role.class, id);
+            List<Role> list = jdbcTemplate.query(roleSql, new RoleMapper(), id);
             Set<Role> participantRoles = new HashSet<Role>(list);
             participant.setRoles(participantRoles);
             return participant;
@@ -67,10 +68,10 @@ public class ParticipantDatabaseDao implements ParticipantDao {
 
     public Participant getParticipantByName(String name) {
         String participantSql = "SELECT participant.id as participant_id, participant.name as participant_name, participant.password, participant.creation_date, participant.enabled FROM participant WHERE participant.name = ?";
-        String roleSql = "SELECT role.role_name FROM role JOIN participant_to_role on role.id = participant_to_role.role_id WHERE participant_to_role.participant_id = ?";
+        String roleSql = "SELECT role.id, role.role_name FROM role JOIN participant_to_role on role.id = participant_to_role.role_id WHERE participant_to_role.participant_id = ?";
         try {
             Participant participant = jdbcTemplate.queryForObject(participantSql, new ParticipantMapper(), name);
-            List<Role> list = jdbcTemplate.queryForList(roleSql, Role.class, participant.getId());
+            List<Role> list = jdbcTemplate.query(roleSql, new RoleMapper(), participant.getId());
             Set<Role> participantRoles = new HashSet<Role>(list);
             participant.setRoles(participantRoles);
             return participant;
