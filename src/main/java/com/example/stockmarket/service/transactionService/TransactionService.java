@@ -10,8 +10,8 @@ import com.example.stockmarket.entity.OperationType;
 import com.example.stockmarket.entity.Participant;
 import com.example.stockmarket.entity.Transaction;
 import com.example.stockmarket.entity.TransactionFilter;
+import com.example.stockmarket.exception.CurrencyIsNotValidException;
 import com.example.stockmarket.exception.CurrencyPairIsNotValidException;
-import com.example.stockmarket.exception.NoCurrencyForAmountException;
 import com.example.stockmarket.exception.NotEnoughCurrencyException;
 import com.example.stockmarket.service.WebCurrencyService;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +40,11 @@ public class TransactionService {
     }
 
     public Transaction depositing(MakeDepositingRequest makeDepositingRequest) {
+        if(!webCurrencyService.isValidCurrency(makeDepositingRequest.getReceivedCurrency())) {
+            log.info("Валюта: {} не найдена ", makeDepositingRequest.getReceivedCurrency());
+            throw new CurrencyIsNotValidException(makeDepositingRequest.getReceivedCurrency());
+        }
+        log.trace("Пользователь ввёл корректную валюту для пополнения: {}", makeDepositingRequest.getReceivedCurrency());
         Transaction transaction = new Transaction();
         Participant participant = new Participant();
         participant.setId(makeDepositingRequest.getParticipantId());
@@ -55,10 +60,15 @@ public class TransactionService {
     }
 
     public Transaction withdrawal(MakeWithdrawalRequest makeWithdrawalRequest) {
+        if(!webCurrencyService.isValidCurrency(makeWithdrawalRequest.getGivenCurrency())) {
+            log.info("Валюта: {} не найдена ", makeWithdrawalRequest.getGivenCurrency());
+            throw new CurrencyIsNotValidException(makeWithdrawalRequest.getGivenCurrency());
+        }
         if (!isOperationApplicable(makeWithdrawalRequest.getGivenAmount(), makeWithdrawalRequest.getGivenCurrency(), makeWithdrawalRequest.getParticipantId())) {
             log.info("Невозможно вывести: {} в количестве {} у пользователя: {} недостаточно средств", makeWithdrawalRequest.getGivenCurrency(), makeWithdrawalRequest.getGivenCurrency(), makeWithdrawalRequest.getParticipantId());
             throw new NotEnoughCurrencyException(makeWithdrawalRequest.getGivenCurrency());
         }
+        log.trace("Пользователь ввёл корректную валюту для вывода: {}", makeWithdrawalRequest.getGivenCurrency());
         log.trace("У пользователя: {} хватает средств для проведения операции вывода", makeWithdrawalRequest.getParticipantId());
         Transaction transaction = new Transaction();
         Participant participant = new Participant();
@@ -76,7 +86,7 @@ public class TransactionService {
 
     public Transaction exchange(MakeExchangeRequest makeExchangeRequest) {
         String pair = makeExchangeRequest.getGivenCurrency() + makeExchangeRequest.getReceivedCurrency();
-        if (!webCurrencyService.isValid(pair)) {
+        if (!webCurrencyService.isValidCurrencyPair(pair)) {
             log.warn("Пользователь {} ввёл некорректную пару валют: {}", makeExchangeRequest.getParticipantId(), pair);
             throw new CurrencyPairIsNotValidException(pair);
         }
