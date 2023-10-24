@@ -18,7 +18,7 @@ public class TransactionMapper implements RowMapper<Transaction> {
 
         transaction.setId(rs.getLong("transaction_id"));
         transaction.setOperationType(OperationType.valueOf(rs.getString("type")));
-        transaction.setDate(rs.getDate("date"));
+        transaction.setDate(rs.getTimestamp("date"));
         transaction.setReceivedCurrency(rs.getString("received_currency"));
         transaction.setReceivedAmount(rs.getDouble("received_amount"));
         transaction.setGivenCurrency(rs.getString("given_currency"));

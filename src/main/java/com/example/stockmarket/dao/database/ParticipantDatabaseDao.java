@@ -38,7 +38,7 @@ public class ParticipantDatabaseDao implements ParticipantDao {
         }, keyHolder);
         Long participantId = keyHolder.getKey().longValue();
 
-        if(participant.getRoles() != null) {
+        if (participant.getRoles() != null) {
             String roleSql = "INSERT INTO participant_to_role(participant_id, role_id) values(?, (SELECT role.id FROM role WHERE role.role_name = ?))";
             jdbcTemplate.batchUpdate(roleSql, participant.getRoles(), 100, (ps, role) -> {
                 ps.setLong(1, participantId);
@@ -84,7 +84,7 @@ public class ParticipantDatabaseDao implements ParticipantDao {
     public Participant editParticipant(Participant participant) {
         String deleteRoles = "DELETE FROM participant_to_role WHERE participant_id = ?";
         jdbcTemplate.update(deleteRoles, participant.getId());
-        if(participant.getRoles() != null) {
+        if (participant.getRoles() != null) {
             String roleSql = "INSERT INTO participant_to_role(participant_id, role_id) values(?, (SELECT role.id FROM role WHERE role.role_name = ?))";
             jdbcTemplate.batchUpdate(roleSql, participant.getRoles(), 100, (ps, role) -> {
                 ps.setLong(1, participant.getId());
