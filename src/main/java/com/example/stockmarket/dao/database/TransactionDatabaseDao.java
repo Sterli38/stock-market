@@ -61,7 +61,7 @@ public class TransactionDatabaseDao implements TransactionDao {
         Map<String, Object> values = new HashMap<>();
         SqlBuilder sqlBuilder = new SqlBuilder();
 
-        sqlBuilder.select("participant.id as participant_id, participant.name as participant_name, participant.creation_date, participant.password, participant.enabled, string_agg(role.role_name, ',' ORDER BY role.role_name) as role_name, transaction.id as transaction_id, operation_type.type, received_currency, received_amount, given_currency, given_amount, date, commission")
+        sqlBuilder.select("participant.id as participant_id, participant.name as participant_name, participant.creation_date, participant.password, participant.enabled, array_agg(role.id ) as role_id, string_agg(role.role_name, ',' ORDER BY role.role_name) as role_name, transaction.id as transaction_id, operation_type.type, received_currency, received_amount, given_currency, given_amount, date, commission")
                 .from("transaction")
                 .join("participant").on("transaction.participant_id = participant.id")
                 .join("operation_type").on("operation_type.id = transaction.operation_type_id")

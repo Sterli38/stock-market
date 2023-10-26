@@ -11,7 +11,6 @@ import com.example.stockmarket.entity.Participant;
 import com.example.stockmarket.entity.Transaction;
 import com.example.stockmarket.entity.TransactionFilter;
 import com.example.stockmarket.exception.CurrencyPairIsNotValidException;
-import com.example.stockmarket.exception.NoCurrencyForAmountException;
 import com.example.stockmarket.exception.NotEnoughCurrencyException;
 import com.example.stockmarket.service.WebCurrencyService;
 import lombok.RequiredArgsConstructor;
@@ -26,14 +25,14 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class TransactionService {
-    private final TransactionDao dao;
+    private final TransactionDao transactionDao;
     private final WebCurrencyService webCurrencyService;
     private final StockMarketSettings stockMarketSettings;
 
     @Override
     public String toString() {
         return "TransactionService{" +
-                "dao=" + dao +
+                "dao=" + transactionDao +
                 ", webCurrencyService=" + webCurrencyService +
                 ", stockMarketSettings=" + stockMarketSettings +
                 '}';
@@ -50,7 +49,7 @@ public class TransactionService {
         transaction.setReceivedAmount(makeDepositingRequest.getReceivedAmount());
         transaction.setCommission(calculateCommission(transaction.getReceivedAmount(), transaction.getReceivedCurrency()));
         log.info("Внесение средств: {}", transaction);
-        Transaction saveTransaction = dao.saveTransaction(transaction);
+        Transaction saveTransaction = transactionDao.saveTransaction(transaction);
         return saveTransaction;
     }
 
@@ -70,7 +69,7 @@ public class TransactionService {
         transaction.setGivenAmount(makeWithdrawalRequest.getGivenAmount());
         transaction.setCommission(calculateCommission(makeWithdrawalRequest.getGivenAmount(), makeWithdrawalRequest.getGivenCurrency()));
         log.info("Сохранение транзакции: {}", transaction);
-        Transaction saveTransaction = dao.saveTransaction(transaction);
+        Transaction saveTransaction = transactionDao.saveTransaction(transaction);
         return saveTransaction;
     }
 
@@ -102,12 +101,12 @@ public class TransactionService {
         transaction.setReceivedAmount(receivedAmount);
 
         log.info("Сохранение транзакции: {}", transaction);
-        Transaction saveTransaction = dao.saveTransaction(transaction);
+        Transaction saveTransaction = transactionDao.saveTransaction(transaction);
         return saveTransaction;
     }
 
     public double getBalanceByCurrency(Long participantId, String currency) {
-        List<Transaction> transactions = dao.getTransactionsByCurrency(participantId, currency);
+        List<Transaction> transactions = transactionDao.getTransactionsByCurrency(participantId, currency);
 
         List<Transaction> depositing = new ArrayList<>();
         List<Transaction> replenishment = new ArrayList<>();
@@ -171,7 +170,7 @@ public class TransactionService {
         transactionFilter.setAfter(getTransactionsRequest.getAfter());
         transactionFilter.setBefore(getTransactionsRequest.getBefore());
 
-        return dao.getTransactionsByFilter(transactionFilter);
+        return transactionDao.getTransactionsByFilter(transactionFilter);
     }
 
     private double calculateCommission(double amount, String currency) {

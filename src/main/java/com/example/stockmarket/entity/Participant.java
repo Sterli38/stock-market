@@ -32,7 +32,7 @@ public class Participant {
     private String name;
     @ToString.Exclude
     private String password;
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.MERGE)
     @JoinTable(
             name = "participant_to_role",
             joinColumns = {@JoinColumn(name = "participant_id")},

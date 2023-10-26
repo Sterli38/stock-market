@@ -85,7 +85,9 @@ class ParticipantControllerTest {
         Set<Role> testRoles = new HashSet<>();
         Role roleUser = new Role();
         roleUser.setRoleName("USER");
+        roleUser.setId(2L);
         Role roleReader = new Role();
+        roleReader.setId(3L);
         roleReader.setRoleName("READER");
         testRoles.add(roleUser);
         testRoles.add(roleReader);
@@ -146,6 +148,7 @@ class ParticipantControllerTest {
         updateForParticipant.setName("testName");
         Set<Role> testRoles = new HashSet<>();
         Role roleAdmin = new Role();
+        roleAdmin.setId(1L);
         roleAdmin.setRoleName("ADMIN");
         testRoles.add(roleAdmin);
         updateForParticipant.setRoles(testRoles);

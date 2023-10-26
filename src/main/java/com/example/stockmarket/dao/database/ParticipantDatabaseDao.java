@@ -54,7 +54,7 @@ public class ParticipantDatabaseDao implements ParticipantDao {
     @Nullable
     public Participant getParticipantById(long id) {
         String participantSql = "SELECT participant.id as participant_id, participant.name as participant_name, participant.password, participant.creation_date, participant.enabled FROM participant WHERE participant.id = ?";
-        String roleSql = "SELECT role.id, role.role_name FROM role JOIN participant_to_role on role.id = participant_to_role.role_id WHERE participant_to_role.participant_id = ?";
+        String roleSql = "SELECT role.id as role_id, role.role_name FROM role JOIN participant_to_role on role.id = participant_to_role.role_id WHERE participant_to_role.participant_id = ?";
         try {
             Participant participant = jdbcTemplate.queryForObject(participantSql, new ParticipantMapper(), id);
             List<Role> list = jdbcTemplate.query(roleSql, new RoleMapper(), id);
