@@ -2,8 +2,6 @@ package com.example.stockmarket.service;
 
 import com.example.stockmarket.config.ApplicationProperties;
 import com.example.stockmarket.controller.response.WebCurrencyServiceResponse;
-import com.example.stockmarket.controller.response.WebCurrencyServiceResponseForList;
-import com.example.stockmarket.controller.response.WebCurrencyServiceResponseForMap;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -58,7 +56,7 @@ class WebCurrencyServiceTest {
 
         Map<String, String> response = new HashMap<>();
         response.put(currencyPair, "64.1824");
-        WebCurrencyServiceResponseForMap webCurrencyServiceResponse = new WebCurrencyServiceResponseForMap();
+        WebCurrencyServiceResponse webCurrencyServiceResponse = new WebCurrencyServiceResponse();
         webCurrencyServiceResponse.setStatus("200");
         webCurrencyServiceResponse.setMessage("rates");
         webCurrencyServiceResponse.setData(response);
@@ -81,7 +79,7 @@ class WebCurrencyServiceTest {
         response.add("BCHBCH");
         response.add("BCHEUR");
 
-        WebCurrencyServiceResponseForList webCurrencyServiceResponse = new WebCurrencyServiceResponseForList();
+        WebCurrencyServiceResponse webCurrencyServiceResponse = new WebCurrencyServiceResponse();
         webCurrencyServiceResponse.setStatus("200");
         webCurrencyServiceResponse.setMessage("rates");
         webCurrencyServiceResponse.setData(response);
@@ -95,7 +93,7 @@ class WebCurrencyServiceTest {
     }
 
     @Test
-    public void BadIsValidCurrencyTest() {
+    public void IsNotValidCurrencyTest() {
         String currency = "BCG";
         String url = applicationProperties.getCurrencyServiceUrl() + "/api/?get=currency_list&key={key}";
 
@@ -104,7 +102,7 @@ class WebCurrencyServiceTest {
         response.add("BCHBCH");
         response.add("BCHEUR");
 
-        WebCurrencyServiceResponseForList webCurrencyServiceResponse = new WebCurrencyServiceResponseForList();
+        WebCurrencyServiceResponse webCurrencyServiceResponse = new WebCurrencyServiceResponse();
         webCurrencyServiceResponse.setStatus("200");
         webCurrencyServiceResponse.setMessage("rates");
         webCurrencyServiceResponse.setData(response);
@@ -125,14 +123,14 @@ class WebCurrencyServiceTest {
 
         Map<String, String> response = new HashMap<>();
         response.put(currencyPair, "64.1824");
-        WebCurrencyServiceResponseForMap webCurrencyServiceResponse = new WebCurrencyServiceResponseForMap();
+        WebCurrencyServiceResponse webCurrencyServiceResponse = new WebCurrencyServiceResponse();
         webCurrencyServiceResponse.setStatus("200");
         webCurrencyServiceResponse.setMessage("rates");
         webCurrencyServiceResponse.setData(response);
 
-        double expectResult = Double.parseDouble(new ArrayList<>(webCurrencyServiceResponse.getData().values()).get(0)) * amount;
+        double expectResult = Double.parseDouble(new ArrayList<>(webCurrencyServiceResponse.getDataAsMap().values()).get(0)) * amount;
 
-        when(restTemplate.getForObject(url, WebCurrencyServiceResponseForMap.class, currencyPair, applicationProperties.getCurrencyServiceKey()))
+        when(restTemplate.getForObject(url, WebCurrencyServiceResponse.class, currencyPair, applicationProperties.getCurrencyServiceKey()))
                 .thenReturn(webCurrencyServiceResponse);
 
         Assertions.assertEquals(expectResult, webCurrencyService.convert("USD", 100, "RUB"));
