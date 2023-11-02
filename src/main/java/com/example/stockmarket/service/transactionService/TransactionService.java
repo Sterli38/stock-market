@@ -160,7 +160,7 @@ public class TransactionService {
         TransactionFilter transactionFilter = new TransactionFilter();
         transactionFilter.setParticipantId(getTransactionsRequest.getParticipantId());
         if (getTransactionsRequest.getOperationType() != null) {
-            transactionFilter.setOperationType(OperationType.valueOf(getTransactionsRequest.getOperationType()));
+            transactionFilter.setOperationType(getTransactionsRequest.getOperationType());
         }
         transactionFilter.setReceivedCurrencies(getTransactionsRequest.getReceivedCurrencies());
         transactionFilter.setReceivedMinAmount(getTransactionsRequest.getReceivedMinAmount());
