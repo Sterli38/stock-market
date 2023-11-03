@@ -179,7 +179,7 @@ public class TransactionControllerTest {
         mockMvc.perform(get("/transactional/getBalanceByCurrency")
                         .content(mapper.writeValueAsString(getBalanceRequest))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("currency_balance").value(0));
+                .andExpect(jsonPath("message").value("Currency EURO is not valid"));
     }
 
     @Test

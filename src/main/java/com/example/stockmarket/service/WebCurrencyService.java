@@ -3,7 +3,6 @@ package com.example.stockmarket.service;
 import com.example.stockmarket.config.ApplicationProperties;
 import com.example.stockmarket.controller.response.WebCurrencyServiceResponse;
 import com.example.stockmarket.exception.ExternalServiceException;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

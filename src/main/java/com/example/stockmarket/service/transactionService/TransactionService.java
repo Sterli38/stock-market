@@ -123,6 +123,10 @@ public class TransactionService {
     }
 
     public double getBalanceByCurrency(Long participantId, String currency) {
+        if(!webCurrencyService.isValidCurrency(currency)) {
+            log.info("Пользователь ввёл некорректную валюту: {}", currency);
+            throw new CurrencyIsNotValidException(currency);
+        }
         if (!isParticipantExists(participantId)) {
             log.info("Невозможно произвести операцию показа баланса по валюте: участник с id [{}] не найден", participantId );
             throw new ParticipantNotFoundException(participantId);
