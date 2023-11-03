@@ -299,7 +299,7 @@ public class TransactionControllerTest {
 
         GetTransactionsRequest getTransactionsRequest = new GetTransactionsRequest();
         getTransactionsRequest.setParticipantId(participantId);
-        getTransactionsRequest.setOperationType(OperationType.EXCHANGE.toString());
+        getTransactionsRequest.setOperationType(OperationType.EXCHANGE);
 
         mockMvc.perform(get("/transactional/getTransactions")
                         .content(mapper.writeValueAsString(getTransactionsRequest))

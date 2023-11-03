@@ -2,8 +2,6 @@ package com.example.stockmarket.service;
 
 import com.example.stockmarket.config.ApplicationProperties;
 import com.example.stockmarket.controller.response.WebCurrencyServiceResponse;
-import com.example.stockmarket.controller.response.WebCurrencyServiceResponseForList;
-import com.example.stockmarket.controller.response.WebCurrencyServiceResponseForMap;
 import com.example.stockmarket.exception.ExternalServiceException;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +25,7 @@ public class WebCurrencyService implements CurrencyService {
         String url = applicationProperties.getCurrencyServiceUrl() + "/api/?get=rates&pairs={pair}&key={key}";
         WebCurrencyServiceResponse webCurrencyServiceResponse;
         try {
-            webCurrencyServiceResponse = restTemplate.getForObject(url, WebCurrencyServiceResponseForMap.class, currencyPair, applicationProperties.getCurrencyServiceKey());
+            webCurrencyServiceResponse = restTemplate.getForObject(url, WebCurrencyServiceResponse.class, currencyPair, applicationProperties.getCurrencyServiceKey());
         } catch (RestClientException exception) {
             log.error("Error while sending request to WebCurrencyService", exception);
             throw new ExternalServiceException(exception);
@@ -35,19 +33,15 @@ public class WebCurrencyService implements CurrencyService {
         if (webCurrencyServiceResponse == null) {
             throw new RuntimeException("answer from Currency service was not received");
         }
-        if ("500".equals(webCurrencyServiceResponse.getStatus())) {
-            return false;
-        } else {
-            return "200".equals(webCurrencyServiceResponse.getStatus());
-        }
+        return "200".equals(webCurrencyServiceResponse.getStatus());
     }
 
     @Override
     public boolean isValidCurrency(String currency) {
         String url = applicationProperties.getCurrencyServiceUrl() + "/api/?get=currency_list&key={key}";
-        WebCurrencyServiceResponseForList webCurrencyServiceResponse;
+        WebCurrencyServiceResponse webCurrencyServiceResponse;
         try {
-            webCurrencyServiceResponse = restTemplate.getForObject(url, WebCurrencyServiceResponseForList.class, applicationProperties.getCurrencyServiceKey());
+            webCurrencyServiceResponse = restTemplate.getForObject(url, WebCurrencyServiceResponse.class, applicationProperties.getCurrencyServiceKey());
         } catch (RestClientException exception) {
             log.error("Error while sending request to WebCurrencyService", exception);
             throw new ExternalServiceException(exception);
@@ -56,8 +50,11 @@ public class WebCurrencyService implements CurrencyService {
             throw new RuntimeException("answer from Currency service was not received");
         }
 
-        List<String> list = webCurrencyServiceResponse.getData();
+        List<String> list = webCurrencyServiceResponse.getDataAsList();
 
+        if (currency.length() != 3) {
+            return false;
+        }
         for (String value : list) {
             if (value.contains(currency)) {
                 return true;
@@ -67,12 +64,11 @@ public class WebCurrencyService implements CurrencyService {
     }
 
     @Override
-    @NotNull
     public double convert(String from, double amount, String in) {
         String currencyPair = from + in;
         String url = applicationProperties.getCurrencyServiceUrl() + "/api/?get=rates&pairs={pair}&key={key}";
-        WebCurrencyServiceResponseForMap webCurrencyServiceResponse = restTemplate.getForObject(url, WebCurrencyServiceResponseForMap.class, currencyPair, applicationProperties.getCurrencyServiceKey());
-        String rate = new ArrayList<>(webCurrencyServiceResponse.getData().values()).get(0);
+        WebCurrencyServiceResponse webCurrencyServiceResponse = restTemplate.getForObject(url, WebCurrencyServiceResponse.class, currencyPair, applicationProperties.getCurrencyServiceKey());
+        String rate = new ArrayList<>(webCurrencyServiceResponse.getDataAsMap().values()).get(0);
         return Double.parseDouble(rate) * amount;
     }
 }

@@ -1,5 +1,6 @@
 package com.example.stockmarket.controller.request.transactionRequest;
 
+import com.example.stockmarket.entity.OperationType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -14,7 +15,7 @@ public class GetTransactionsRequest {
     @NotNull
     private Long participantId;
     @Schema(description = "Тип операции")
-    private String operationType;
+    private OperationType operationType;
     @Schema(description = "Начало временного отрезка когда производилась транзакция")
     private Date after;
     @Schema(description = "Конец временного отрезка")
