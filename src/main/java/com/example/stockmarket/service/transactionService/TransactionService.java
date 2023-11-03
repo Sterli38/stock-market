@@ -1,7 +1,7 @@
 package com.example.stockmarket.service.transactionService;
 
 import com.example.stockmarket.config.StockMarketSettings;
-import com.example.stockmarket.controller.request.transactionRequest.GetTransactionsRequest;
+import com.example.stockmarket.controller.request.transactionRequest.GetTransactionsRequest
 import com.example.stockmarket.controller.request.transactionRequest.MakeDepositingRequest;
 import com.example.stockmarket.controller.request.transactionRequest.MakeExchangeRequest;
 import com.example.stockmarket.controller.request.transactionRequest.MakeWithdrawalRequest;
@@ -127,7 +127,6 @@ public class TransactionService {
             log.info("Пользователь ввёл некорректную валюту: {}", currency);
             throw new CurrencyIsNotValidException(currency);
         }
-        List<Transaction> transactions = dao.getTransactionsByCurrency(participantId, currency);
         if (!isParticipantExists(participantId)) {
             log.info("Невозможно произвести операцию показа баланса по валюте: участник с id [{}] не найден", participantId );
             throw new ParticipantNotFoundException(participantId);
