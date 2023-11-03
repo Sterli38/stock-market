@@ -17,8 +17,10 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
@@ -29,7 +31,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class WebCurrencyServiceTest {
     @Autowired
-    ApplicationProperties properties;
+    ApplicationProperties applicationProperties;
     @Mock
     private RestTemplate restTemplate;
     @Autowired
@@ -48,12 +50,12 @@ class WebCurrencyServiceTest {
     }
 
     @Test
-    public void isValidTest() {
-        String pair = "USDRUB";
-        String url = properties.getCurrencyServiceUrl() + "/api/?get=rates&pairs={pair}&key={key}";
+    public void isValidCurrencyPairTest() {
+        String currencyPair = "USDRUB";
+        String url = applicationProperties.getCurrencyServiceUrl() + "/api/?get=rates&pairs={pair}&key={key}";
 
         Map<String, String> response = new HashMap<>();
-        response.put(pair, "64.1824");
+        response.put(currencyPair, "64.1824");
         WebCurrencyServiceResponse webCurrencyServiceResponse = new WebCurrencyServiceResponse();
         webCurrencyServiceResponse.setStatus("200");
         webCurrencyServiceResponse.setMessage("rates");
@@ -62,27 +64,73 @@ class WebCurrencyServiceTest {
         when(restTemplate.getForObject(eq(url), any(), anyString(), anyString()))
                 .thenReturn(webCurrencyServiceResponse);
 
-        boolean result = webCurrencyService.isValid(pair);
+        boolean result = webCurrencyService.isValidCurrencyPair(currencyPair);
 
         assertTrue(result);
     }
 
     @Test
-    public void convertTest() {
-        String pair = "USDRUB";
-        double amount = 100;
-        String url = properties.getCurrencyServiceUrl() + "/api/?get=rates&pairs={pair}&key={key}";
+    public void IsValidCurrencyTest() {
+        String currency = "EUR";
+        String url = applicationProperties.getCurrencyServiceUrl() + "/api/?get=currency_list&key={key}";
 
-        Map<String, String> response = new HashMap<>();
-        response.put(pair, "64.1824");
+        List<String> response = new ArrayList<>();
+        response.add("BCHUSD");
+        response.add("BCHBCH");
+        response.add("BCHEUR");
+
         WebCurrencyServiceResponse webCurrencyServiceResponse = new WebCurrencyServiceResponse();
         webCurrencyServiceResponse.setStatus("200");
         webCurrencyServiceResponse.setMessage("rates");
         webCurrencyServiceResponse.setData(response);
 
-        double expectResult = Double.parseDouble(new ArrayList<>(webCurrencyServiceResponse.getData().values()).get(0)) * amount;
+        when(restTemplate.getForObject(eq(url), any(), anyString()))
+                .thenReturn(webCurrencyServiceResponse);
 
-        when(restTemplate.getForObject(url, WebCurrencyServiceResponse.class, pair, properties.getCurrencyServiceKey()))
+        boolean result = webCurrencyService.isValidCurrency(currency);
+
+        assertTrue(result);
+    }
+
+    @Test
+    public void IsNotValidCurrencyTest() {
+        String currency = "BCG";
+        String url = applicationProperties.getCurrencyServiceUrl() + "/api/?get=currency_list&key={key}";
+
+        List<String> response = new ArrayList<>();
+        response.add("BCHUSD");
+        response.add("BCHBCH");
+        response.add("BCHEUR");
+
+        WebCurrencyServiceResponse webCurrencyServiceResponse = new WebCurrencyServiceResponse();
+        webCurrencyServiceResponse.setStatus("200");
+        webCurrencyServiceResponse.setMessage("rates");
+        webCurrencyServiceResponse.setData(response);
+
+        when(restTemplate.getForObject(eq(url), any(), anyString()))
+                .thenReturn(webCurrencyServiceResponse);
+
+        boolean result = webCurrencyService.isValidCurrency(currency);
+
+        assertFalse(result);
+    }
+
+    @Test
+    public void convertTest() {
+        String currencyPair = "USDRUB";
+        double amount = 100;
+        String url = applicationProperties.getCurrencyServiceUrl() + "/api/?get=rates&pairs={pair}&key={key}";
+
+        Map<String, String> response = new HashMap<>();
+        response.put(currencyPair, "64.1824");
+        WebCurrencyServiceResponse webCurrencyServiceResponse = new WebCurrencyServiceResponse();
+        webCurrencyServiceResponse.setStatus("200");
+        webCurrencyServiceResponse.setMessage("rates");
+        webCurrencyServiceResponse.setData(response);
+
+        double expectResult = Double.parseDouble(new ArrayList<>(webCurrencyServiceResponse.getDataAsMap().values()).get(0)) * amount;
+
+        when(restTemplate.getForObject(url, WebCurrencyServiceResponse.class, currencyPair, applicationProperties.getCurrencyServiceKey()))
                 .thenReturn(webCurrencyServiceResponse);
 
         Assertions.assertEquals(expectResult, webCurrencyService.convert("USD", 100, "RUB"));
