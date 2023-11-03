@@ -36,6 +36,7 @@ public class WebCurrencyService implements CurrencyService {
         return "200".equals(webCurrencyServiceResponse.getStatus());
     }
 
+    @Override
     public boolean isValidCurrency(String currency) {
         String url = applicationProperties.getCurrencyServiceUrl() + "/api/?get=currency_list&key={key}";
         WebCurrencyServiceResponse webCurrencyServiceResponse;
@@ -51,18 +52,18 @@ public class WebCurrencyService implements CurrencyService {
 
         List<String> list = webCurrencyServiceResponse.getDataAsList();
 
-        if(currency.length() == 3) {
-            for (String value : list) {
-                if (value.contains(currency)) {
-                    return true;
-                }
+        if (currency.length() != 3) {
+            return false;
+        }
+        for (String value : list) {
+            if (value.contains(currency)) {
+                return true;
             }
         }
         return false;
     }
 
     @Override
-    @NotNull
     public double convert(String from, double amount, String in) {
         String currencyPair = from + in;
         String url = applicationProperties.getCurrencyServiceUrl() + "/api/?get=rates&pairs={pair}&key={key}";
