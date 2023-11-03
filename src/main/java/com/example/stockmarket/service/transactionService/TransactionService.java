@@ -11,6 +11,7 @@ import com.example.stockmarket.entity.OperationType;
 import com.example.stockmarket.entity.Participant;
 import com.example.stockmarket.entity.Transaction;
 import com.example.stockmarket.entity.TransactionFilter;
+import com.example.stockmarket.exception.CurrencyIsNotValidException;
 import com.example.stockmarket.exception.CurrencyPairIsNotValidException;
 import com.example.stockmarket.exception.NotEnoughCurrencyException;
 import com.example.stockmarket.exception.ParticipantNotFoundException;
@@ -52,7 +53,7 @@ public class TransactionService {
         transaction.setReceivedAmount(makeDepositingRequest.getReceivedAmount());
         transaction.setCommission(calculateCommission(transaction.getReceivedAmount(), transaction.getReceivedCurrency()));
         log.info("Внесение средств: [{}]", transaction);
-        Transaction saveTransaction = dao.saveTransaction(transaction);
+        Transaction saveTransaction = transactionDao.saveTransaction(transaction);
         return saveTransaction;
     }
 
@@ -81,7 +82,7 @@ public class TransactionService {
         transaction.setGivenAmount(makeWithdrawalRequest.getGivenAmount());
         transaction.setCommission(calculateCommission(makeWithdrawalRequest.getGivenAmount(), makeWithdrawalRequest.getGivenCurrency()));
         log.info("Сохранение транзакции: [{}]", transaction);
-        Transaction saveTransaction = dao.saveTransaction(transaction);
+        Transaction saveTransaction = transactionDao.saveTransaction(transaction);
         return saveTransaction;
     }
 
