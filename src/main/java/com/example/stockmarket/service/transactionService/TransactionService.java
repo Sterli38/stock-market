@@ -1,7 +1,7 @@
 package com.example.stockmarket.service.transactionService;
 
 import com.example.stockmarket.config.StockMarketSettings;
-import com.example.stockmarket.controller.request.transactionRequest.GetTransactionsRequest
+import com.example.stockmarket.controller.request.transactionRequest.GetTransactionsRequest;
 import com.example.stockmarket.controller.request.transactionRequest.MakeDepositingRequest;
 import com.example.stockmarket.controller.request.transactionRequest.MakeExchangeRequest;
 import com.example.stockmarket.controller.request.transactionRequest.MakeWithdrawalRequest;
