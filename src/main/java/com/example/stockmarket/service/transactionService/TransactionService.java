@@ -5,14 +5,15 @@ import com.example.stockmarket.controller.request.transactionRequest.GetTransact
 import com.example.stockmarket.controller.request.transactionRequest.MakeDepositingRequest;
 import com.example.stockmarket.controller.request.transactionRequest.MakeExchangeRequest;
 import com.example.stockmarket.controller.request.transactionRequest.MakeWithdrawalRequest;
+import com.example.stockmarket.dao.ParticipantDao;
 import com.example.stockmarket.dao.TransactionDao;
 import com.example.stockmarket.entity.OperationType;
 import com.example.stockmarket.entity.Participant;
 import com.example.stockmarket.entity.Transaction;
 import com.example.stockmarket.entity.TransactionFilter;
-import com.example.stockmarket.exception.CurrencyIsNotValidException;
 import com.example.stockmarket.exception.CurrencyPairIsNotValidException;
 import com.example.stockmarket.exception.NotEnoughCurrencyException;
+import com.example.stockmarket.exception.ParticipantNotFoundException;
 import com.example.stockmarket.service.WebCurrencyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,20 +27,16 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class TransactionService {
-    private final TransactionDao dao;
+    private final ParticipantDao participantDao;
+    private final TransactionDao transactionDao;
     private final WebCurrencyService webCurrencyService;
     private final StockMarketSettings stockMarketSettings;
 
-    @Override
-    public String toString() {
-        return "TransactionService{" +
-                "dao=" + dao +
-                ", webCurrencyService=" + webCurrencyService +
-                ", stockMarketSettings=" + stockMarketSettings +
-                '}';
-    }
-
     public Transaction depositing(MakeDepositingRequest makeDepositingRequest) {
+        if (!isParticipantExists(makeDepositingRequest.getParticipantId())) {
+            log.info("Невозможно произвести пополнение: участник с id [{}] не найден", makeDepositingRequest.getParticipantId());
+            throw new ParticipantNotFoundException(makeDepositingRequest.getParticipantId());
+        }
         if(!webCurrencyService.isValidCurrency(makeDepositingRequest.getReceivedCurrency())) {
             log.info("Валюта: [{}] не найдена в запросе участника [{}] ", makeDepositingRequest.getReceivedCurrency(), makeDepositingRequest.getParticipantId());
             throw new CurrencyIsNotValidException(makeDepositingRequest.getReceivedCurrency());
@@ -60,6 +57,10 @@ public class TransactionService {
     }
 
     public Transaction withdrawal(MakeWithdrawalRequest makeWithdrawalRequest) {
+        if (!isParticipantExists(makeWithdrawalRequest.getParticipantId())) {
+            log.info("Невозможно произвести вывод средств со счёта: участник с id [{}] не найден", makeWithdrawalRequest.getParticipantId());
+            throw new ParticipantNotFoundException(makeWithdrawalRequest.getParticipantId());
+        }
         if(!webCurrencyService.isValidCurrency(makeWithdrawalRequest.getGivenCurrency())) {
             log.info("Валюта: [{}] не найдена в запросе участника [{}]", makeWithdrawalRequest.getGivenCurrency(), makeWithdrawalRequest.getParticipantId());
             throw new CurrencyIsNotValidException(makeWithdrawalRequest.getGivenCurrency());
@@ -85,6 +86,10 @@ public class TransactionService {
     }
 
     public Transaction exchange(MakeExchangeRequest makeExchangeRequest) {
+        if (!isParticipantExists(makeExchangeRequest.getParticipantId())) {
+            log.info("Невозможно произвести операцию обмена: участник с id [{}] не найден", makeExchangeRequest.getParticipantId());
+            throw new ParticipantNotFoundException(makeExchangeRequest.getParticipantId());
+        }
         String pair = makeExchangeRequest.getGivenCurrency() + makeExchangeRequest.getReceivedCurrency();
         if (!webCurrencyService.isValidCurrencyPair(pair)) {
             log.warn("Пользователь [{}] ввёл некорректную пару валют: [{}]", makeExchangeRequest.getParticipantId(), pair);
@@ -112,12 +117,16 @@ public class TransactionService {
         transaction.setReceivedAmount(receivedAmount);
 
         log.info("Сохранение транзакции: [{}]", transaction);
-        Transaction saveTransaction = dao.saveTransaction(transaction);
+        Transaction saveTransaction = transactionDao.saveTransaction(transaction);
         return saveTransaction;
     }
 
     public double getBalanceByCurrency(Long participantId, String currency) {
-        List<Transaction> transactions = dao.getTransactionsByCurrency(participantId, currency);
+        if (!isParticipantExists(participantId)) {
+            log.info("Невозможно произвести операцию показа баланса по валюте: участник с id [{}] не найден", participantId );
+            throw new ParticipantNotFoundException(participantId);
+        }
+        List<Transaction> transactions = transactionDao.getTransactionsByCurrency(participantId, currency);
 
         List<Transaction> depositing = new ArrayList<>();
         List<Transaction> replenishment = new ArrayList<>();
@@ -167,10 +176,14 @@ public class TransactionService {
     }
 
     public List<Transaction> getTransactionsByFilter(GetTransactionsRequest getTransactionsRequest) {
+        if (!isParticipantExists(getTransactionsRequest.getParticipantId())) {
+            log.info("Невозможно произвести операцию показа транзакций: участник с id [{}] не найден", getTransactionsRequest.getParticipantId());
+            throw new ParticipantNotFoundException(getTransactionsRequest.getParticipantId());
+        }
         TransactionFilter transactionFilter = new TransactionFilter();
         transactionFilter.setParticipantId(getTransactionsRequest.getParticipantId());
         if (getTransactionsRequest.getOperationType() != null) {
-            transactionFilter.setOperationType(OperationType.valueOf(getTransactionsRequest.getOperationType()));
+            transactionFilter.setOperationType(getTransactionsRequest.getOperationType());
         }
         transactionFilter.setReceivedCurrencies(getTransactionsRequest.getReceivedCurrencies());
         transactionFilter.setReceivedMinAmount(getTransactionsRequest.getReceivedMinAmount());
@@ -181,7 +194,7 @@ public class TransactionService {
         transactionFilter.setAfter(getTransactionsRequest.getAfter());
         transactionFilter.setBefore(getTransactionsRequest.getBefore());
 
-        return dao.getTransactionsByFilter(transactionFilter);
+        return transactionDao.getTransactionsByFilter(transactionFilter);
     }
 
     private double calculateCommission(double amount, String currency) {
@@ -211,5 +224,14 @@ public class TransactionService {
     private boolean isOperationApplicable(double amount, String currency, long participantId) {
         double balance = getBalanceByCurrency(participantId, currency);
         return balance >= amount;
+    }
+
+    /**
+     * Проверка, что участник с переданным id существует
+     *
+     * @return
+     */
+    private boolean isParticipantExists(Long participantId) {
+        return participantDao.getParticipantById(participantId) != null;
     }
 }
