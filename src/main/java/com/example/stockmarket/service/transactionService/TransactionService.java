@@ -11,6 +11,7 @@ import com.example.stockmarket.entity.OperationType;
 import com.example.stockmarket.entity.Participant;
 import com.example.stockmarket.entity.Transaction;
 import com.example.stockmarket.entity.TransactionFilter;
+import com.example.stockmarket.exception.CurrencyIsNotValidException;
 import com.example.stockmarket.exception.CurrencyPairIsNotValidException;
 import com.example.stockmarket.exception.NotEnoughCurrencyException;
 import com.example.stockmarket.exception.ParticipantNotFoundException;
@@ -37,6 +38,11 @@ public class TransactionService {
             log.info("Невозможно произвести пополнение: участник с id [{}] не найден", makeDepositingRequest.getParticipantId());
             throw new ParticipantNotFoundException(makeDepositingRequest.getParticipantId());
         }
+        if(!webCurrencyService.isValidCurrency(makeDepositingRequest.getReceivedCurrency())) {
+            log.info("Валюта: [{}] не найдена в запросе участника [{}] ", makeDepositingRequest.getReceivedCurrency(), makeDepositingRequest.getParticipantId());
+            throw new CurrencyIsNotValidException(makeDepositingRequest.getReceivedCurrency());
+        }
+        log.trace("Пользователь ввёл корректную валюту для пополнения: [{}]", makeDepositingRequest.getReceivedCurrency());
         Transaction transaction = new Transaction();
         Participant participant = new Participant();
         participant.setId(makeDepositingRequest.getParticipantId());
@@ -46,7 +52,7 @@ public class TransactionService {
         transaction.setReceivedCurrency(makeDepositingRequest.getReceivedCurrency());
         transaction.setReceivedAmount(makeDepositingRequest.getReceivedAmount());
         transaction.setCommission(calculateCommission(transaction.getReceivedAmount(), transaction.getReceivedCurrency()));
-        log.info("Внесение средств: {}", transaction);
+        log.info("Внесение средств: [{}]", transaction);
         Transaction saveTransaction = transactionDao.saveTransaction(transaction);
         return saveTransaction;
     }
@@ -56,10 +62,15 @@ public class TransactionService {
             log.info("Невозможно произвести вывод средств со счёта: участник с id [{}] не найден", makeWithdrawalRequest.getParticipantId());
             throw new ParticipantNotFoundException(makeWithdrawalRequest.getParticipantId());
         }
+        if(!webCurrencyService.isValidCurrency(makeWithdrawalRequest.getGivenCurrency())) {
+            log.info("Валюта: [{}] не найдена в запросе участника [{}]", makeWithdrawalRequest.getGivenCurrency(), makeWithdrawalRequest.getParticipantId());
+            throw new CurrencyIsNotValidException(makeWithdrawalRequest.getGivenCurrency());
+        }
         if (!isOperationApplicable(makeWithdrawalRequest.getGivenAmount(), makeWithdrawalRequest.getGivenCurrency(), makeWithdrawalRequest.getParticipantId())) {
             log.info("Невозможно вывести: [{}] в количестве [{}] у пользователя: [{}] недостаточно средств", makeWithdrawalRequest.getGivenCurrency(), makeWithdrawalRequest.getGivenCurrency(), makeWithdrawalRequest.getParticipantId());
             throw new NotEnoughCurrencyException(makeWithdrawalRequest.getGivenCurrency());
         }
+        log.trace("Пользователь ввёл корректную валюту для вывода: [{}]", makeWithdrawalRequest.getGivenCurrency());
         log.trace("У пользователя: [{}] хватает средств для проведения операции вывода", makeWithdrawalRequest.getParticipantId());
         Transaction transaction = new Transaction();
         Participant participant = new Participant();
@@ -81,7 +92,7 @@ public class TransactionService {
             throw new ParticipantNotFoundException(makeExchangeRequest.getParticipantId());
         }
         String pair = makeExchangeRequest.getGivenCurrency() + makeExchangeRequest.getReceivedCurrency();
-        if (!webCurrencyService.isValid(pair)) {
+        if (!webCurrencyService.isValidCurrencyPair(pair)) {
             log.warn("Пользователь [{}] ввёл некорректную пару валют: [{}]", makeExchangeRequest.getParticipantId(), pair);
             throw new CurrencyPairIsNotValidException(pair);
         }

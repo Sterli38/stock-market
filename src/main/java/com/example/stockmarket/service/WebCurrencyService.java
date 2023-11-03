@@ -11,6 +11,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -20,32 +21,54 @@ public class WebCurrencyService implements CurrencyService {
     private final ApplicationProperties applicationProperties;
 
     @Override
-    public boolean isValid(String currencyPair) {
+    public boolean isValidCurrencyPair(String currencyPair) {
         String url = applicationProperties.getCurrencyServiceUrl() + "/api/?get=rates&pairs={pair}&key={key}";
-        WebCurrencyServiceResponse webCurrencyServiceResponse = new WebCurrencyServiceResponse();
+        WebCurrencyServiceResponse webCurrencyServiceResponse;
         try {
             webCurrencyServiceResponse = restTemplate.getForObject(url, WebCurrencyServiceResponse.class, currencyPair, applicationProperties.getCurrencyServiceKey());
-        } catch (RestClientException exception)  {
+        } catch (RestClientException exception) {
             log.error("Error while sending request to WebCurrencyService", exception);
             throw new ExternalServiceException(exception);
         }
         if (webCurrencyServiceResponse == null) {
             throw new RuntimeException("answer from Currency service was not received");
         }
-        if ("500".equals(webCurrencyServiceResponse.getStatus())) {
-            return false;
-        } else {
-            return "200".equals(webCurrencyServiceResponse.getStatus());
-        }
+        return "200".equals(webCurrencyServiceResponse.getStatus());
     }
 
     @Override
-    @NotNull
+    public boolean isValidCurrency(String currency) {
+        String url = applicationProperties.getCurrencyServiceUrl() + "/api/?get=currency_list&key={key}";
+        WebCurrencyServiceResponse webCurrencyServiceResponse;
+        try {
+            webCurrencyServiceResponse = restTemplate.getForObject(url, WebCurrencyServiceResponse.class, applicationProperties.getCurrencyServiceKey());
+        } catch (RestClientException exception) {
+            log.error("Error while sending request to WebCurrencyService", exception);
+            throw new ExternalServiceException(exception);
+        }
+        if (webCurrencyServiceResponse == null) {
+            throw new RuntimeException("answer from Currency service was not received");
+        }
+
+        List<String> list = webCurrencyServiceResponse.getDataAsList();
+
+        if (currency.length() != 3) {
+            return false;
+        }
+        for (String value : list) {
+            if (value.contains(currency)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
     public double convert(String from, double amount, String in) {
-        String pair = from + in;
+        String currencyPair = from + in;
         String url = applicationProperties.getCurrencyServiceUrl() + "/api/?get=rates&pairs={pair}&key={key}";
-        WebCurrencyServiceResponse webCurrencyServiceResponse = restTemplate.getForObject(url, WebCurrencyServiceResponse.class, pair, applicationProperties.getCurrencyServiceKey());
-        String rate = new ArrayList<>(webCurrencyServiceResponse.getData().values()).get(0);
+        WebCurrencyServiceResponse webCurrencyServiceResponse = restTemplate.getForObject(url, WebCurrencyServiceResponse.class, currencyPair, applicationProperties.getCurrencyServiceKey());
+        String rate = new ArrayList<>(webCurrencyServiceResponse.getDataAsMap().values()).get(0);
         return Double.parseDouble(rate) * amount;
     }
 }
