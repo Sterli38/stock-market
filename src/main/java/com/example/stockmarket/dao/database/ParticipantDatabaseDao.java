@@ -53,8 +53,20 @@ public class ParticipantDatabaseDao implements ParticipantDao {
     @Override
     @Nullable
     public Participant getParticipantById(long id) {
-        String participantSql = "SELECT participant.id as participant_id, participant.name as participant_name, participant.password, participant.creation_date, participant.enabled FROM participant WHERE participant.id = ?";
-        String roleSql = "SELECT role.id as role_id, role.role_name FROM role JOIN participant_to_role on role.id = participant_to_role.role_id WHERE participant_to_role.participant_id = ?";
+        SqlBuilder participantSqlBuilder = new SqlBuilder();
+        SqlBuilder rolesSqlBuilder = new SqlBuilder();
+
+        String participantSql = participantSqlBuilder.select("participant.id as participant_id, participant.name as participant_name, participant.password, participant.creation_date, participant.enabled")
+                .from("participant")
+                .where("participant.id = ?")
+                .build();
+
+        String roleSql = rolesSqlBuilder.select("role.id as role_id, role.role_name")
+                .from("role")
+                .join("participant_to_role")
+                .on("role.id = participant_to_role.role_id")
+                .where("participant_to_role.participant_id = ?")
+                .build();
         try {
             Participant participant = jdbcTemplate.queryForObject(participantSql, new ParticipantMapper(), id);
             List<Role> list = jdbcTemplate.query(roleSql, new RoleMapper(), id);
@@ -67,8 +79,21 @@ public class ParticipantDatabaseDao implements ParticipantDao {
     }
 
     public Participant getParticipantByName(String name) {
-        String participantSql = "SELECT participant.id as participant_id, participant.name as participant_name, participant.password, participant.creation_date, participant.enabled FROM participant WHERE participant.name = ?";
-        String roleSql = "SELECT role.id, role.role_name FROM role JOIN participant_to_role on role.id = participant_to_role.role_id WHERE participant_to_role.participant_id = ?";
+        SqlBuilder participantSqlBuilder = new SqlBuilder();
+        SqlBuilder rolesSqlBuilder = new SqlBuilder();
+
+        String participantSql = participantSqlBuilder.select("participant.id as participant_id, participant.name as participant_name, participant.password, participant.creation_date, participant.enabled")
+                .from("participant")
+                .where("participant.name = ?")
+                .build();
+
+        String roleSql = rolesSqlBuilder.select("role.id as role_id, role.role_name")
+                .from("role")
+                .join("participant_to_role")
+                .on("role.id = participant_to_role.role_id")
+                .where("participant_to_role.participant_id = ?")
+                .build();
+
         try {
             Participant participant = jdbcTemplate.queryForObject(participantSql, new ParticipantMapper(), name);
             List<Role> list = jdbcTemplate.query(roleSql, new RoleMapper(), participant.getId());

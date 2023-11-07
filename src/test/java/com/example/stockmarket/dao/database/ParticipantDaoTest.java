@@ -39,8 +39,9 @@ public class ParticipantDaoTest {
         egor.setPassword("testPasswordForEgor");
         egor.setEnabled(true);
         egor.setCreationDate(new Date(1687791478000L));
-        Long egorId = dao.createParticipant(egor).getId();
-        egor.setId(egorId);
+        Participant egorr = dao.createParticipant(egor);
+        egor.setId(egorr.getId());
+        egor.setRoles(egorr.getRoles());
 
         lena = new Participant();
         lena.setName("Lena");
@@ -51,8 +52,9 @@ public class ParticipantDaoTest {
         lena.setPassword("testPasswordForLena");
         lena.setEnabled(false);
         lena.setCreationDate(new Date(1687532277000L));
-        Long idLena = dao.createParticipant(lena).getId();
-        lena.setId(idLena);
+        Participant lenaa = dao.createParticipant(lena);
+        lena.setId(lenaa.getId());
+        lena.setRoles(lenaa.getRoles());
     }
 
     @AfterEach
@@ -66,12 +68,7 @@ public class ParticipantDaoTest {
         Participant expectedParticipant = new Participant();
         expectedParticipant.setName("Test");
         Set<Role> expectedParticipantRoles = new HashSet<>();
-        Role roleUser = new Role();
-        roleUser.setRoleName("USER");
-        Role roleReader = new Role();
-        roleReader.setRoleName("READER");
-        expectedParticipantRoles.add(roleUser);
-        expectedParticipantRoles.add(roleReader);
+        expectedParticipantRoles.addAll(lena.getRoles());
         expectedParticipant.setRoles(expectedParticipantRoles);
         expectedParticipant.setPassword("P");
         expectedParticipant.setCreationDate(new Date(1383532237000L));
@@ -111,6 +108,7 @@ public class ParticipantDaoTest {
         expected.setName("newParticipant");
         Set<Role> expectedParticipantRoles = new HashSet<>();
         Role roleUser = new Role();
+        roleUser.setId(2L);
         roleUser.setRoleName("USER");
         expectedParticipantRoles.add(roleUser);
         expected.setRoles(expectedParticipantRoles);
