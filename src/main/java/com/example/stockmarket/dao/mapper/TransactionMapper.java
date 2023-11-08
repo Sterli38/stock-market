@@ -11,9 +11,6 @@ import java.sql.SQLException;
 public class TransactionMapper implements RowMapper<Transaction> {
     @Override
     public Transaction mapRow(ResultSet rs, int rowNum) throws SQLException {
-        ParticipantMapper participantMapper = new ParticipantMapper();
-        Participant participant = participantMapper.mapRow(rs, rowNum);
-
         Transaction transaction = new Transaction();
 
         transaction.setId(rs.getLong("transaction_id"));
@@ -23,7 +20,6 @@ public class TransactionMapper implements RowMapper<Transaction> {
         transaction.setReceivedAmount(rs.getDouble("received_amount"));
         transaction.setGivenCurrency(rs.getString("given_currency"));
         transaction.setGivenAmount(rs.getDouble("given_amount"));
-        transaction.setParticipant(participant);
         transaction.setCommission(rs.getDouble("commission"));
 
         return transaction;

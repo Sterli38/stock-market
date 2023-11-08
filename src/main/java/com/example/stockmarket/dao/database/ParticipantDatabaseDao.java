@@ -2,6 +2,7 @@ package com.example.stockmarket.dao.database;
 
 import com.example.stockmarket.dao.ParticipantDao;
 import com.example.stockmarket.dao.mapper.ParticipantMapper;
+import com.example.stockmarket.dao.mapper.RoleMapper;
 import com.example.stockmarket.entity.Participant;
 import com.example.stockmarket.entity.Role;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +42,7 @@ public class ParticipantDatabaseDao implements ParticipantDao {
             String roleSql = "INSERT INTO participant_to_role(participant_id, role_id) values(?, (SELECT role.id FROM role WHERE role.role_name = ?))";
             jdbcTemplate.batchUpdate(roleSql, participant.getRoles(), 100, (ps, role) -> {
                 ps.setLong(1, participantId);
-                ps.setString(2, role.name());
+                ps.setString(2, role.getRoleName());
             });
         }
 
@@ -52,14 +53,25 @@ public class ParticipantDatabaseDao implements ParticipantDao {
     @Override
     @Nullable
     public Participant getParticipantById(long id) {
-        String sql = "SELECT participant.id as participant_id, participant.name as participant_name, participant.creation_date, participant.password, participant.enabled, string_agg(role.role_name, ',' ORDER BY role.role_name) as role_name " +
-                "FROM participant " +
-                "JOIN participant_to_role on participant_to_role.participant_id = participant.id " +
-                "JOIN role on participant_to_role.role_id = role.id " +
-                "WHERE participant.id = ? " +
-                "GROUP BY participant.id, participant.name, participant.creation_date, participant.password, participant.enabled";
+        SqlBuilder participantSqlBuilder = new SqlBuilder();
+        SqlBuilder rolesSqlBuilder = new SqlBuilder();
+
+        String participantSql = participantSqlBuilder.select("participant.id as participant_id, participant.name as participant_name, participant.password, participant.creation_date, participant.enabled")
+                .from("participant")
+                .where("participant.id = ?")
+                .build();
+
+        String roleSql = rolesSqlBuilder.select("role.id as role_id, role.role_name")
+                .from("role")
+                .join("participant_to_role")
+                .on("role.id = participant_to_role.role_id")
+                .where("participant_to_role.participant_id = ?")
+                .build();
         try {
-            Participant participant = jdbcTemplate.queryForObject(sql, new ParticipantMapper(), id);
+            Participant participant = jdbcTemplate.queryForObject(participantSql, new ParticipantMapper(), id);
+            List<Role> list = jdbcTemplate.query(roleSql, new RoleMapper(), id);
+            Set<Role> participantRoles = new HashSet<Role>(list);
+            participant.setRoles(participantRoles);
             return participant;
         } catch (EmptyResultDataAccessException e) {
             return null;
@@ -67,14 +79,26 @@ public class ParticipantDatabaseDao implements ParticipantDao {
     }
 
     public Participant getParticipantByName(String name) {
-        String sql = "SELECT participant.id as participant_id, participant.name as participant_name, participant.creation_date, participant.password, participant.enabled, string_agg(role.role_name, ',' ORDER BY role.role_name) as role_name " +
-                "FROM participant " +
-                "JOIN participant_to_role on participant_to_role.participant_id = participant.id " +
-                "JOIN role on participant_to_role.role_id = role.id " +
-                "WHERE participant.name = ? " +
-                "GROUP BY participant.id, participant.name, participant.creation_date, participant.password, participant.enabled";
+        SqlBuilder participantSqlBuilder = new SqlBuilder();
+        SqlBuilder rolesSqlBuilder = new SqlBuilder();
+
+        String participantSql = participantSqlBuilder.select("participant.id as participant_id, participant.name as participant_name, participant.password, participant.creation_date, participant.enabled")
+                .from("participant")
+                .where("participant.name = ?")
+                .build();
+
+        String roleSql = rolesSqlBuilder.select("role.id as role_id, role.role_name")
+                .from("role")
+                .join("participant_to_role")
+                .on("role.id = participant_to_role.role_id")
+                .where("participant_to_role.participant_id = ?")
+                .build();
+
         try {
-            Participant participant = jdbcTemplate.queryForObject(sql, new ParticipantMapper(), name);
+            Participant participant = jdbcTemplate.queryForObject(participantSql, new ParticipantMapper(), name);
+            List<Role> list = jdbcTemplate.query(roleSql, new RoleMapper(), participant.getId());
+            Set<Role> participantRoles = new HashSet<Role>(list);
+            participant.setRoles(participantRoles);
             return participant;
         } catch (EmptyResultDataAccessException e) {
             return null;
@@ -89,7 +113,7 @@ public class ParticipantDatabaseDao implements ParticipantDao {
             String roleSql = "INSERT INTO participant_to_role(participant_id, role_id) values(?, (SELECT role.id FROM role WHERE role.role_name = ?))";
             jdbcTemplate.batchUpdate(roleSql, participant.getRoles(), 100, (ps, role) -> {
                 ps.setLong(1, participant.getId());
-                ps.setString(2, role.name());
+                ps.setString(2, role.getRoleName());
             });
         }
         String participantSql = "UPDATE participant SET name = ?, password = ?, enabled = ?, creation_date = ? WHERE id = ?";
