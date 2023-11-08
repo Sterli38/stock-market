@@ -11,6 +11,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
+
 @Component
 @RequiredArgsConstructor
 public class SecurityUtils {
@@ -23,11 +25,9 @@ public class SecurityUtils {
 
     public boolean isOperationAvailableForCurrentParticipant(ParticipantRequest participantRequest) {
         Participant currentParticipant = getCurrentParticipant();
-        Role adminRole = new Role();
-        adminRole.setRoleName("ADMIN");
-        if(currentParticipant.getRoles().contains(adminRole.getRoleName())) {
-            return true;
-        }
-        return currentParticipant.getId() == participantRequest.getId();
+        boolean isAdmin = currentParticipant.getRoles().stream()
+                .map(Role::getRoleName)
+                .anyMatch(i -> i.equals("ADMIN"));
+        return isAdmin || Objects.equals(currentParticipant.getId(), participantRequest.getId());
     }
 }
