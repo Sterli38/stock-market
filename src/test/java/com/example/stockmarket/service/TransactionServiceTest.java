@@ -45,6 +45,7 @@ public class TransactionServiceTest {
         expectedTransaction.setCommission(2.5);
         Transaction actualTransaction = service.depositing(request);
         expectedTransaction.setId(actualTransaction.getId());
+        expectedTransaction.setDate(actualTransaction.getDate());
         Assertions.assertEquals(expectedTransaction, actualTransaction);
     }
 
