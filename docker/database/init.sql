@@ -57,8 +57,8 @@ values ('DEPOSITING'),
 
 -- тестовые данные
 INSERT INTO participant(name, password, creation_date, enabled)
-values ('Egor', 'pasw123', '2023-09-09', 'true'),
-       ('TestName', 'testPassword', '2023-09-08', 'false');
+values ('egor', '$2y$10$XMZ3YMbr8w0klLv7xwJ/Pepun0V1Ip3bCcAerEjQ7irZMkLaOuvtO', '2023-09-09', 'true'), -- egor
+       ('testName', '$2y$10$xmysiQBmQTF4BSr2UV9df.mLG2DVrXpDkqxB2sX1BEh2dDKUa5xVi', '2023-09-08', 'false'); -- testName
 
 INSERT INTO participant_to_role(participant_id, role_id)
 values (1, 1),

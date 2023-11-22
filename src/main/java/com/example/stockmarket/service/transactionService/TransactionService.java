@@ -13,6 +13,7 @@ import com.example.stockmarket.entity.Transaction;
 import com.example.stockmarket.entity.TransactionFilter;
 import com.example.stockmarket.exception.CurrencyIsNotValidException;
 import com.example.stockmarket.exception.CurrencyPairIsNotValidException;
+import com.example.stockmarket.exception.NoCurrencyForAmountException;
 import com.example.stockmarket.exception.NotEnoughCurrencyException;
 import com.example.stockmarket.exception.ParticipantNotFoundException;
 import com.example.stockmarket.service.WebCurrencyService;

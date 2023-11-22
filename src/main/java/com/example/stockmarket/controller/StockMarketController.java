@@ -29,7 +29,7 @@ public interface StockMarketController {
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
-//    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/getProfit")
     List<StockMarketResponse> get(@RequestBody StockMarketRequest stockMarketRequest);
 }

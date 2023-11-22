@@ -1,13 +1,10 @@
 package com.example.stockmarket.dao.mapper;
 
 import com.example.stockmarket.entity.Participant;
-import com.example.stockmarket.entity.Role;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 public class ParticipantMapper implements RowMapper<Participant> {
     @Override
@@ -19,13 +16,6 @@ public class ParticipantMapper implements RowMapper<Participant> {
         participant.setPassword(rs.getString("password"));
         participant.setCreationDate(rs.getTimestamp("creation_date"));
         participant.setEnabled(rs.getBoolean("enabled"));
-        String a = rs.getString("role_name");
-        String[] array = a.split(",");
-        Set<Role> mySet = new LinkedHashSet<>();
-        for(int i = 0; i < array.length; i++) {
-            mySet.add(Role.valueOf(array[i]));
-        }
-        participant.setRoles(mySet);
         return participant;
     }
 }
