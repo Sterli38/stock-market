@@ -17,6 +17,8 @@ import com.example.stockmarket.exception.NoCurrencyForAmountException;
 import com.example.stockmarket.exception.NotEnoughCurrencyException;
 import com.example.stockmarket.exception.ParticipantNotFoundException;
 import com.example.stockmarket.service.WebCurrencyService;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -33,16 +35,21 @@ public class TransactionService {
     private final TransactionDao transactionDao;
     private final WebCurrencyService webCurrencyService;
     private final StockMarketSettings stockMarketSettings;
+    private final MeterRegistry meterRegistry;
 
     public Transaction depositing(MakeDepositingRequest makeDepositingRequest) {
+        Counter unsuccesfullDepositingsCounter = meterRegistry.counter("webCurrencyService.transactionService.unsuccessfulDeposits");
         if (!isParticipantExists(makeDepositingRequest.getParticipantId())) {
+            unsuccesfullDepositingsCounter.increment();
             log.info("Невозможно произвести пополнение: участник с id [{}] не найден", makeDepositingRequest.getParticipantId());
             throw new ParticipantNotFoundException(makeDepositingRequest.getParticipantId());
         }
         if(!webCurrencyService.isValidCurrency(makeDepositingRequest.getReceivedCurrency())) {
+            unsuccesfullDepositingsCounter.increment();
             log.info("Валюта: [{}] не найдена в запросе участника [{}] ", makeDepositingRequest.getReceivedCurrency(), makeDepositingRequest.getParticipantId());
             throw new CurrencyIsNotValidException(makeDepositingRequest.getReceivedCurrency());
         }
+        meterRegistry.counter("stockMarket.transactionService.successfulDeposits").increment();
         log.trace("Пользователь ввёл корректную валюту для пополнения: [{}]", makeDepositingRequest.getReceivedCurrency());
         Transaction transaction = new Transaction();
         Participant participant = new Participant();
@@ -59,18 +66,23 @@ public class TransactionService {
     }
 
     public Transaction withdrawal(MakeWithdrawalRequest makeWithdrawalRequest) {
+        Counter unsuccesfullWithdrawalsCounter = meterRegistry.counter("webCurrencyService.transactionService.unsuccessfulWithdrawals");
         if (!isParticipantExists(makeWithdrawalRequest.getParticipantId())) {
+            unsuccesfullWithdrawalsCounter.increment();
             log.info("Невозможно произвести вывод средств со счёта: участник с id [{}] не найден", makeWithdrawalRequest.getParticipantId());
             throw new ParticipantNotFoundException(makeWithdrawalRequest.getParticipantId());
         }
         if(!webCurrencyService.isValidCurrency(makeWithdrawalRequest.getGivenCurrency())) {
+            unsuccesfullWithdrawalsCounter.increment();
             log.info("Валюта: [{}] не найдена в запросе участника [{}]", makeWithdrawalRequest.getGivenCurrency(), makeWithdrawalRequest.getParticipantId());
             throw new CurrencyIsNotValidException(makeWithdrawalRequest.getGivenCurrency());
         }
         if (!isOperationApplicable(makeWithdrawalRequest.getGivenAmount(), makeWithdrawalRequest.getGivenCurrency(), makeWithdrawalRequest.getParticipantId())) {
+            unsuccesfullWithdrawalsCounter.increment();
             log.info("Невозможно вывести: [{}] в количестве [{}] у пользователя: [{}] недостаточно средств", makeWithdrawalRequest.getGivenCurrency(), makeWithdrawalRequest.getGivenCurrency(), makeWithdrawalRequest.getParticipantId());
             throw new NotEnoughCurrencyException(makeWithdrawalRequest.getGivenCurrency());
         }
+        meterRegistry.counter("webCurrencyService.transactionService.successfulWithdrawals").increment();
         log.trace("Пользователь ввёл корректную валюту для вывода: [{}]", makeWithdrawalRequest.getGivenCurrency());
         log.trace("У пользователя: [{}] хватает средств для проведения операции вывода", makeWithdrawalRequest.getParticipantId());
         Transaction transaction = new Transaction();
@@ -88,22 +100,26 @@ public class TransactionService {
     }
 
     public Transaction exchange(MakeExchangeRequest makeExchangeRequest) {
+        Counter unsuccesfullExchangesCounter = meterRegistry.counter("webCurrencyService.transactionService.unsuccessfulExchanges");
         if (!isParticipantExists(makeExchangeRequest.getParticipantId())) {
+            unsuccesfullExchangesCounter.increment();
             log.info("Невозможно произвести операцию обмена: участник с id [{}] не найден", makeExchangeRequest.getParticipantId());
             throw new ParticipantNotFoundException(makeExchangeRequest.getParticipantId());
         }
         String pair = makeExchangeRequest.getGivenCurrency() + makeExchangeRequest.getReceivedCurrency();
         if (!webCurrencyService.isValidCurrencyPair(pair)) {
+            unsuccesfullExchangesCounter.increment();
             log.warn("Пользователь [{}] ввёл некорректную пару валют: [{}]", makeExchangeRequest.getParticipantId(), pair);
             throw new CurrencyPairIsNotValidException(pair);
         }
         if (!isOperationApplicable(makeExchangeRequest.getGivenAmount(), makeExchangeRequest.getGivenCurrency(), makeExchangeRequest.getParticipantId())) {
+            unsuccesfullExchangesCounter.increment();
             log.warn("Невозможно обменять [{}] на [{}], в количестве [{}] у пользователя: [{}] недостаточно средств", makeExchangeRequest.getGivenCurrency(), makeExchangeRequest.getReceivedCurrency(), makeExchangeRequest.getGivenAmount(), makeExchangeRequest.getParticipantId());
             throw new NotEnoughCurrencyException(makeExchangeRequest.getGivenCurrency());
         }
+        meterRegistry.counter("webCurrencyService.transactionService.successfulExchanges").increment();
         log.trace("Получена валидная пара: [{}]", pair);
         log.trace("У пользователя: [{}] хватает средств для проведения операции вывода", makeExchangeRequest.getParticipantId());
-
         Participant participant = new Participant();
         participant.setId(makeExchangeRequest.getParticipantId());
         Transaction transaction = new Transaction();

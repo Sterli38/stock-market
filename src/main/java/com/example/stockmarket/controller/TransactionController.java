@@ -3,7 +3,6 @@ package com.example.stockmarket.controller;
 import com.example.stockmarket.controller.request.transactionRequest.*;
 import com.example.stockmarket.controller.response.BalanceByCurrencyResponse;
 import com.example.stockmarket.controller.response.ErrorResponse;
-import com.example.stockmarket.controller.response.StockMarketResponse;
 import com.example.stockmarket.controller.response.TransactionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -12,13 +11,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
+
 @RequestMapping("/transactional")
 @Tag(name = "Функционал счёта пользователя на бирже", description = "Позволяет производить операции с валютами на бирже")
 public interface TransactionController {
