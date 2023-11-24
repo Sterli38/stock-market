@@ -50,6 +50,7 @@ public class WebConfig {
                             .requestMatchers("/stockMarket/**").authenticated()
                             .requestMatchers("/login").anonymous()
                             .requestMatchers("/swagger-u/**").permitAll()
+                            .requestMatchers("/actuator/**").hasAuthority("ADMIN")
                             .anyRequest().authenticated();
                 })
                 .httpBasic(Customizer.withDefaults())
