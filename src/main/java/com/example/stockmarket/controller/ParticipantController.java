@@ -32,6 +32,7 @@ public interface ParticipantController {
                     })
 
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     @PostMapping("/create")
     ParticipantResponse createParticipant(@RequestBody CreateParticipantRequest createParticipantRequest);
 
@@ -57,7 +58,7 @@ public interface ParticipantController {
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
-//    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/getByName")
     ResponseEntity<ParticipantResponse> getParticipantByName(@RequestBody GetParticipantByNameRequest getParticipantByNameRequest);
 
@@ -73,6 +74,7 @@ public interface ParticipantController {
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
                     })
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     @PostMapping("/edit")
     ParticipantResponse editParticipant(@RequestBody UpdateParticipantRequest updateParticipantRequest);
 }
