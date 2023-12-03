@@ -4,6 +4,7 @@ import com.example.stockmarket.controller.request.stockMarketRequest.StockMarket
 import com.example.stockmarket.controller.request.transactionRequest.MakeDepositingRequest;
 import com.example.stockmarket.controller.request.transactionRequest.MakeExchangeRequest;
 import com.example.stockmarket.controller.request.transactionRequest.MakeWithdrawalRequest;
+import com.example.stockmarket.service.TestWithWebCurrency;
 import com.example.stockmarket.service.transactionService.TransactionService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -21,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
 @WithMockUser(username="admin",authorities={"ADMIN"})
-public class StockMarketControllerTest {
+public class StockMarketControllerTest extends TestWithWebCurrency {
     @Autowired
     private MockMvc mockMvc;
     @Autowired
@@ -37,6 +38,8 @@ public class StockMarketControllerTest {
 
         StockMarketRequest stockMarketRequest = new StockMarketRequest();
         stockMarketRequest.setCurrency("EUR");
+
+        setExpectedWebCurrencyServiceResponseForAvailableCurrencies();
 
         MakeDepositingRequest depositing = new MakeDepositingRequest();
         depositing.setParticipantId(2L);
@@ -61,7 +64,9 @@ public class StockMarketControllerTest {
         withdrawal.setGivenAmount(5.0);// комиссия = 0.25
 
         transactionService.depositing(depositing);
+        setExpectedWebCurrencyServiceResponseForCurrencyRate("EURRUB", "69.244");
         transactionService.exchange(buying);
+        setExpectedWebCurrencyServiceResponseForCurrencyRate("RUBEUR", "0.0144437");
         transactionService.exchange(selling);
         transactionService.withdrawal(withdrawal);
 
