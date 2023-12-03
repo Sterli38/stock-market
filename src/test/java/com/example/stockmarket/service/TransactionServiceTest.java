@@ -13,11 +13,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.Date;
 
 @SpringBootTest
-public class TransactionServiceTest {
+public class TransactionServiceTest extends TestWithWebCurrency {
     @Autowired
     private TransactionService service;
 
     private MakeDepositingRequest createTransactionRequest(long participantId) {
+        setExpectedWebCurrencyServiceResponseForAvailableCurrencies();
+        setExpectedWebCurrencyServiceResponseForCurrencyRate("EURRUB", "69.244");
         MakeDepositingRequest makeDepositingRequest = new MakeDepositingRequest();
         makeDepositingRequest.setParticipantId(participantId);
         makeDepositingRequest.setReceivedCurrency("EUR");
@@ -29,6 +31,7 @@ public class TransactionServiceTest {
     @Test
     public void depositingTest() {
         MakeDepositingRequest request = new MakeDepositingRequest();
+
         Participant participant = new Participant();
         participant.setId(1L);
         request.setParticipantId(1L);
@@ -43,7 +46,11 @@ public class TransactionServiceTest {
         expectedTransaction.setParticipant(participant);
         expectedTransaction.setReceivedCurrency("EUR");
         expectedTransaction.setCommission(2.5);
+
+        setExpectedWebCurrencyServiceResponseForAvailableCurrencies();
+        setExpectedWebCurrencyServiceResponseForCurrencyRate("EURRUB", "69.244");
         Transaction actualTransaction = service.depositing(request);
+
         expectedTransaction.setId(actualTransaction.getId());
         expectedTransaction.setDate(actualTransaction.getDate());
         Assertions.assertEquals(expectedTransaction, actualTransaction);
@@ -130,8 +137,11 @@ public class TransactionServiceTest {
         withdrawal.setGivenAmount(5.0);
 
         service.depositing(depositing);
-        service.exchange(buying);
         service.exchange(selling);
+
+        setExpectedWebCurrencyServiceResponseForCurrencyRate("RUBEUR", "0.0144437");
+
+        service.exchange(buying);
         service.withdrawal(withdrawal);
 
         Assertions.assertEquals(expectedResult, service.getBalanceByCurrency(getBalanceRequest.getParticipantId(), getBalanceRequest.getCurrency()));
