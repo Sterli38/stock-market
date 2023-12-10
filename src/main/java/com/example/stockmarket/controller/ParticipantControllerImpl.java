@@ -7,7 +7,7 @@ import com.example.stockmarket.controller.request.participantRequest.GetParticip
 import com.example.stockmarket.controller.request.participantRequest.UpdateParticipantRequest;
 import com.example.stockmarket.controller.response.ParticipantResponse;
 import com.example.stockmarket.entity.Participant;
-import com.example.stockmarket.exception.NoAccessForEditParticipantException;
+import com.example.stockmarket.exception.NoAccessToPerformOperation;
 import com.example.stockmarket.service.participantService.ParticipantService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -49,8 +49,8 @@ public class ParticipantControllerImpl implements ParticipantController {
     }
 
     public ParticipantResponse editParticipant(@RequestBody UpdateParticipantRequest updateParticipantRequest) {
-        if(!securityUtils.isOperationAvailableForCurrentParticipant(updateParticipantRequest)) {
-            throw new NoAccessForEditParticipantException();
+        if(!securityUtils.isOperationAvailableForCurrentParticipant(updateParticipantRequest.getId())) {
+            throw new NoAccessToPerformOperation("edit another participant");
         }
         Participant participant = service.editParticipant(convertParticipantRequest(updateParticipantRequest));
         return convertParticipant(participant);

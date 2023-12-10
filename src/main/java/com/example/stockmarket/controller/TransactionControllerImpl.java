@@ -1,9 +1,11 @@
 package com.example.stockmarket.controller;
 
+import com.example.stockmarket.config.security.SecurityUtils;
 import com.example.stockmarket.controller.request.transactionRequest.*;
 import com.example.stockmarket.controller.response.BalanceByCurrencyResponse;
 import com.example.stockmarket.controller.response.TransactionResponse;
 import com.example.stockmarket.entity.Transaction;
+import com.example.stockmarket.exception.NoAccessToPerformOperation;
 import com.example.stockmarket.exception.NoCurrencyForAmountException;
 import com.example.stockmarket.service.transactionService.TransactionService;
 import lombok.RequiredArgsConstructor;
@@ -19,27 +21,43 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TransactionControllerImpl implements TransactionController {
     private final TransactionService service;
+    private final SecurityUtils securityUtils;
 
     public TransactionResponse makeDepositing(@RequestBody MakeDepositingRequest makeDepositingRequest) {
+        if(!securityUtils.isOperationAvailableForCurrentParticipant(makeDepositingRequest.getParticipantId())) {
+            throw new NoAccessToPerformOperation("depositing another participant account");
+        }
         Transaction transaction = service.depositing(makeDepositingRequest);
         return convertToTransactionIdResponse(transaction);
     }
 
     public TransactionResponse makeWithdrawal(@RequestBody MakeWithdrawalRequest makeWithdrawalRequest) {
+        if(!securityUtils.isOperationAvailableForCurrentParticipant(makeWithdrawalRequest.getParticipantId())) {
+            throw new NoAccessToPerformOperation("withdrawal from another participant account");
+        }
         Transaction transaction = service.withdrawal(makeWithdrawalRequest);
         return convertToTransactionIdResponse(transaction);
     }
 
     public TransactionResponse exchange(@RequestBody MakeExchangeRequest makeExchangeRequest) {
+        if(!securityUtils.isOperationAvailableForCurrentParticipant(makeExchangeRequest.getParticipantId())) {
+            throw new NoAccessToPerformOperation("exchange from another participant account");
+        }
         Transaction transaction = service.exchange(makeExchangeRequest);
         return convertToTransactionIdResponse(transaction);
     }
 
     public BalanceByCurrencyResponse getBalanceByCurrency(@RequestBody GetBalanceRequest getBalanceRequest) {
+        if(!securityUtils.isOperationAvailableForCurrentParticipant(getBalanceRequest.getParticipantId())) {
+            throw new NoAccessToPerformOperation("receive the balance of another participant account");
+        }
         return convertToBalanceResponse(service.getBalanceByCurrency(getBalanceRequest.getParticipantId(), getBalanceRequest.getCurrency()));
     }
 
     public List<TransactionResponse> getTransactionsByFilter(@RequestBody GetTransactionsRequest getTransactionsRequest) {
+        if(!securityUtils.isOperationAvailableForCurrentParticipant(getTransactionsRequest.getParticipantId())) {
+            throw new NoAccessToPerformOperation("receive another participant transactions");
+        }
         if (isOperationNotApplicableForHistory(getTransactionsRequest.getReceivedMaxAmount(), getTransactionsRequest.getReceivedMinAmount(), getTransactionsRequest.getReceivedCurrencies(), getTransactionsRequest.getGivenMaxAmount(), getTransactionsRequest.getGivenMinAmount(), getTransactionsRequest.getGivenCurrencies())) {
             throw new NoCurrencyForAmountException();
         }
