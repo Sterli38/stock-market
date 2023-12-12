@@ -5,6 +5,7 @@ import com.example.stockmarket.entity.OperationType;
 import com.example.stockmarket.entity.Participant;
 import com.example.stockmarket.entity.Role;
 import com.example.stockmarket.entity.Transaction;
+import com.example.stockmarket.service.TestWithWebCurrency;
 import com.example.stockmarket.service.participantService.ParticipantService;
 import com.example.stockmarket.service.transactionService.TransactionService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,11 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -31,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
 @WithMockUser(username="admin",authorities={"ADMIN"})
-public class TransactionControllerTest {
+public class TransactionControllerTest extends TestWithWebCurrency {
     @Autowired
     private MockMvc mockMvc;
     @Autowired
@@ -42,10 +39,14 @@ public class TransactionControllerTest {
     private ParticipantService participantService;
 
     private MakeDepositingRequest makeDepositingRequest(long participantId) {
+        setExpectedWebCurrencyServiceResponseForAvailableCurrencies();
+        setExpectedWebCurrencyServiceResponseForCurrencyRate("EURRUB", "69.244");
+
         MakeDepositingRequest makeDepositingRequest = new MakeDepositingRequest();
         makeDepositingRequest.setParticipantId(participantId);
         makeDepositingRequest.setReceivedCurrency("EUR");
         makeDepositingRequest.setReceivedAmount(200.0);
+
         transactionService.depositing(makeDepositingRequest);
         return makeDepositingRequest;
     }
@@ -129,7 +130,6 @@ public class TransactionControllerTest {
 
     @Test
     void getBalanceByCurrencyTest() throws Exception {
-
         GetBalanceRequest getBalanceRequest = new GetBalanceRequest();
         getBalanceRequest.setParticipantId(2L);
         getBalanceRequest.setCurrency("EUR");
@@ -159,8 +159,11 @@ public class TransactionControllerTest {
         withdrawal.setGivenAmount(5.0);
 
         transactionService.depositing(depositing);
-        transactionService.exchange(buying);
         transactionService.exchange(selling);
+
+        setExpectedWebCurrencyServiceResponseForCurrencyRate("RUBEUR", "0.0144437");
+
+        transactionService.exchange(buying);
         transactionService.withdrawal(withdrawal);
 
         mockMvc.perform(get("/transactional/getBalanceByCurrency")
@@ -171,6 +174,7 @@ public class TransactionControllerTest {
 
     @Test
     void getBadBalanceByCurrencyTest() throws Exception {
+        setExpectedWebCurrencyServiceResponseForAvailableCurrencies();
 
         GetBalanceRequest getBalanceRequest = new GetBalanceRequest();
         getBalanceRequest.setParticipantId(2L);
@@ -198,6 +202,9 @@ public class TransactionControllerTest {
         participant.setRoles(participantRoles);
         participant.setCreationDate(new Date(1696232828000L));
         Long participantId = participantService.createParticipant(participant).getId();
+
+        setExpectedWebCurrencyServiceResponseForAvailableCurrencies();
+        setExpectedWebCurrencyServiceResponseForCurrencyRate("EURRUB", "69.244");
 
         MakeDepositingRequest depositingRequest = new MakeDepositingRequest();
         depositingRequest.setParticipantId(participantId);
@@ -290,6 +297,9 @@ public class TransactionControllerTest {
         participant.setCreationDate(new Date(1696232828000L));
         Long participantId = participantService.createParticipant(participant).getId();
 
+        setExpectedWebCurrencyServiceResponseForAvailableCurrencies();
+        setExpectedWebCurrencyServiceResponseForCurrencyRate("EURRUB", "69.244");
+
         MakeDepositingRequest depositing = new MakeDepositingRequest();
         depositing.setParticipantId(participantId);
         depositing.setReceivedCurrency("RUB");
@@ -340,6 +350,8 @@ public class TransactionControllerTest {
         participant.setRoles(participantRoles);
         participant.setCreationDate(new Date(1696232828000L));
         Long participantId = participantService.createParticipant(participant).getId();
+
+        setExpectedWebCurrencyServiceResponseForAvailableCurrencies();
 
         MakeDepositingRequest depositingRequest = new MakeDepositingRequest();
         depositingRequest.setParticipantId(participantId);

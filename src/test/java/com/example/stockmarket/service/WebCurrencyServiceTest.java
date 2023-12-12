@@ -2,18 +2,10 @@ package com.example.stockmarket.service;
 
 import com.example.stockmarket.config.ApplicationProperties;
 import com.example.stockmarket.controller.response.WebCurrencyServiceResponse;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,41 +20,12 @@ import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-@ExtendWith(MockitoExtension.class)
-class WebCurrencyServiceTest {
-    @Autowired
-    ApplicationProperties applicationProperties;
-    @Mock
-    private RestTemplate restTemplate;
-    @Autowired
-    private RestTemplate originalRestTemplate;
-    @Autowired
-    private WebCurrencyService webCurrencyService;
-
-    @BeforeEach
-    public void setup() {
-        ReflectionTestUtils.setField(webCurrencyService, "restTemplate", restTemplate);
-    }
-
-    @AfterEach
-    public void after() {
-        ReflectionTestUtils.setField(webCurrencyService, "restTemplate", originalRestTemplate);
-    }
-
+class WebCurrencyServiceTest extends TestWithWebCurrency {
     @Test
     public void isValidCurrencyPairTest() {
         String currencyPair = "USDRUB";
-        String url = applicationProperties.getCurrencyServiceUrl() + "/api/?get=rates&pairs={pair}&key={key}";
 
-        Map<String, String> response = new HashMap<>();
-        response.put(currencyPair, "64.1824");
-        WebCurrencyServiceResponse webCurrencyServiceResponse = new WebCurrencyServiceResponse();
-        webCurrencyServiceResponse.setStatus("200");
-        webCurrencyServiceResponse.setMessage("rates");
-        webCurrencyServiceResponse.setData(response);
-
-        when(restTemplate.getForObject(eq(url), any(), anyString(), anyString()))
-                .thenReturn(webCurrencyServiceResponse);
+        setExpectedWebCurrencyServiceResponseForCurrencyRate("USDRUB", "64.1824");
 
         boolean result = webCurrencyService.isValidCurrencyPair(currencyPair);
 
@@ -72,20 +35,8 @@ class WebCurrencyServiceTest {
     @Test
     public void IsValidCurrencyTest() {
         String currency = "EUR";
-        String url = applicationProperties.getCurrencyServiceUrl() + "/api/?get=currency_list&key={key}";
 
-        List<String> response = new ArrayList<>();
-        response.add("BCHUSD");
-        response.add("BCHBCH");
-        response.add("BCHEUR");
-
-        WebCurrencyServiceResponse webCurrencyServiceResponse = new WebCurrencyServiceResponse();
-        webCurrencyServiceResponse.setStatus("200");
-        webCurrencyServiceResponse.setMessage("rates");
-        webCurrencyServiceResponse.setData(response);
-
-        when(restTemplate.getForObject(eq(url), any(), anyString()))
-                .thenReturn(webCurrencyServiceResponse);
+        setExpectedWebCurrencyServiceResponseForAvailableCurrencies();
 
         boolean result = webCurrencyService.isValidCurrency(currency);
 
@@ -95,20 +46,8 @@ class WebCurrencyServiceTest {
     @Test
     public void IsNotValidCurrencyTest() {
         String currency = "BCG";
-        String url = applicationProperties.getCurrencyServiceUrl() + "/api/?get=currency_list&key={key}";
 
-        List<String> response = new ArrayList<>();
-        response.add("BCHUSD");
-        response.add("BCHBCH");
-        response.add("BCHEUR");
-
-        WebCurrencyServiceResponse webCurrencyServiceResponse = new WebCurrencyServiceResponse();
-        webCurrencyServiceResponse.setStatus("200");
-        webCurrencyServiceResponse.setMessage("rates");
-        webCurrencyServiceResponse.setData(response);
-
-        when(restTemplate.getForObject(eq(url), any(), anyString()))
-                .thenReturn(webCurrencyServiceResponse);
+        setExpectedWebCurrencyServiceResponseForAvailableCurrencies();
 
         boolean result = webCurrencyService.isValidCurrency(currency);
 
