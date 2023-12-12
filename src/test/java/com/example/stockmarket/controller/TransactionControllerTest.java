@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
-@WithMockUser(username="admin",authorities={"ADMIN"})
+@WithMockUser(username="Pavel",authorities={"ADMIN"})
 public class TransactionControllerTest extends TestWithWebCurrency {
     @Autowired
     private MockMvc mockMvc;
