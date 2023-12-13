@@ -23,11 +23,11 @@ public class SecurityUtils {
         return participantService.getParticipantByName(username);
     }
 
-    public boolean isOperationAvailableForCurrentParticipant(ParticipantRequest participantRequest) {
+    public boolean isOperationAvailableForCurrentParticipant(Long participantId) {
         Participant currentParticipant = getCurrentParticipant();
         boolean isAdmin = currentParticipant.getRoles().stream()
                 .map(Role::getRoleName)
                 .anyMatch(i -> i.equals("ADMIN"));
-        return isAdmin || Objects.equals(currentParticipant.getId(), participantRequest.getId());
+        return isAdmin || Objects.equals(currentParticipant.getId(), participantId);
     }
 }

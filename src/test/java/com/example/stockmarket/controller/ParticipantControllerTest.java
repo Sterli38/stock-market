@@ -32,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
-@WithMockUser(username="admin",authorities={"ADMIN"})
+@WithMockUser(username="Pavel",authorities={"ADMIN"})
 class ParticipantControllerTest {
     @Autowired
     private ParticipantService participantService;
