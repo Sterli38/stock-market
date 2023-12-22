@@ -14,7 +14,7 @@ public class StockMarketBot extends TelegramLongPollingBot {
     private static final String START = "/start";
     private static final String HELP = "/help";
 
-    public StockMarketBot(@Value("${bot.token}")String botToken) { // не понятно зачем
+    public StockMarketBot(@Value("${bot.token}")String botToken) {
         super(botToken);
     }
 
