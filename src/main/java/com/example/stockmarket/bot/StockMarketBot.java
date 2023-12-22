@@ -19,16 +19,16 @@ public class StockMarketBot extends TelegramLongPollingBot {
     }
 
     @Override
-    public void onUpdateReceived(Update update) { // обрабатываем все входящие действия пользователя
-        if(!update.hasMessage() || !update.getMessage().hasText()) { // если сообщение не пришло или пришло сообщение без текста то выходым из метода
+    public void onUpdateReceived(Update update) {
+        if(!update.hasMessage() || !update.getMessage().hasText()) {
             return;
         }
-        String message = update.getMessage().getText(); // Если сообщение пришло то сохраняем его в отдельную переменную
-        Long chatId = update.getMessage().getChatId(); // идентификатор чата, нужен для того чтобы отправить сообщение нужному пользователю
+        String message = update.getMessage().getText();
+        Long chatId = update.getMessage().getChatId();
 
-        switch (message) { // проверяем соответсвие ( НУЖНО НАПИСАТЬ ДЛЯ КАЖДОГО ОБРАБОТЧИКА НАПИСАТЬ ОТДЕЛЬНЫЙ КЛАСС )
+        switch (message) {
             case START -> {
-                String username = update.getMessage().getChat().getUserName(); // получаем userName пользователя для работы команды start
+                String username = update.getMessage().getChat().getUserName();
                 startCommand(chatId, username);
             }
             case HELP ->
@@ -37,7 +37,7 @@ public class StockMarketBot extends TelegramLongPollingBot {
         }
     }
 
-    public void startCommand(Long chatId, String userName) { // chatId - нужен для того чтобы отправить нужно пользователю сообщение
+    public void startCommand(Long chatId, String userName) {
         String text = "Добро пожаловать в stockMarketBot, %s!" +
                 "\nДоступные команды:" +
                 "\n/help - получение справки";
@@ -58,17 +58,17 @@ public class StockMarketBot extends TelegramLongPollingBot {
     }
 
     public void sendMessage(Long chatId, String text) {
-        String chatIdStr = String.valueOf(chatId); // переделываем long в String
-        SendMessage sendMessage = new SendMessage(chatIdStr, text); // отправляем сообщение, по индефикатору пользователя и само сообщение вторым параметром
+        String chatIdStr = String.valueOf(chatId);
+        SendMessage sendMessage = new SendMessage(chatIdStr, text);
         try {
-            execute(sendMessage); // выполняем, отправку сообщения
-        } catch (TelegramApiException e) { // можно добавить свою ошибку, или оставить но изменить под каждую ситуацию ( подумать )
+            execute(sendMessage);
+        } catch (TelegramApiException e) {
             log.error("Ошибка отправки сообщения", e);
         }
     }
 
     @Override
-    public String getBotUsername() { // получение имени бота
+    public String getBotUsername() {
         return "stockMarketBot";
     }
 }
