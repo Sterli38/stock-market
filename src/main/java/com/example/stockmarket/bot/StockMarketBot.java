@@ -13,8 +13,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 public class StockMarketBot extends TelegramLongPollingBot {
     private static final String START = "/start";
     private static final String HELP = "/help";
-
-    public StockMarketBot(@Value("${bot.token}")String botToken) {
+    public StockMarketBot(@Value("${stock.market.bot.token}")String botToken) {
         super(botToken);
     }
 

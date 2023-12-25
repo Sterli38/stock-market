@@ -1,6 +1,5 @@
-package com.example.stockmarket.config.botConfig;
+package com.example.stockmarket.bot;
 
-import com.example.stockmarket.bot.StockMarketBot;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
