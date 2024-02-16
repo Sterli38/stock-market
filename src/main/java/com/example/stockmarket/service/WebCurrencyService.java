@@ -62,14 +62,14 @@ public class WebCurrencyService implements CurrencyService {
             log.error("Error while sending request to WebCurrencyService", exception);
             throw new ExternalServiceException(exception);
         }
+        if (webCurrencyServiceResponse == null) {
+            unsuccessfullCounter.increment();
+            throw new RuntimeException("answer from Currency service was not received");
+        }
         if(webCurrencyServiceResponse.getStatus().equals("400")) {
             unsuccessfullCounter.increment();
             log.error("Error while sending request to WebCurrencyService, response message: " + webCurrencyServiceResponse.getMessage());
             throw new RuntimeException(webCurrencyServiceResponse.getMessage());
-        }
-        if (webCurrencyServiceResponse == null) {
-            unsuccessfullCounter.increment();
-            throw new RuntimeException("answer from Currency service was not received");
         }
         meterRegistry.counter("stockMarket.webCurrencyService.successfulRequest").increment();
         List<String> list = webCurrencyServiceResponse.getDataAsList();
