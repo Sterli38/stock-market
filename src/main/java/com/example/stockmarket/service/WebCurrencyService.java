@@ -66,6 +66,11 @@ public class WebCurrencyService implements CurrencyService {
             unsuccessfullCounter.increment();
             throw new RuntimeException("answer from Currency service was not received");
         }
+        if(webCurrencyServiceResponse.getStatus().equals("400")) {
+            unsuccessfullCounter.increment();
+            log.warn("Error while sending request to WebCurrencyService, response message: {}",  webCurrencyServiceResponse.getMessage());
+            throw new RuntimeException(webCurrencyServiceResponse.getMessage());
+        }
         meterRegistry.counter("stockMarket.webCurrencyService.successfulRequest").increment();
         List<String> list = webCurrencyServiceResponse.getDataAsList();
 
