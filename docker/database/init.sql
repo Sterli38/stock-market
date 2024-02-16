@@ -68,6 +68,7 @@ values (1, 1),
 INSERT INTO transaction(operation_type_id, date, received_currency, received_amount, given_currency, given_amount,
                         participant_id, commission)
 values (1, '2023-09-07', 'EUR', 50.0, null, null, 1, 2.5),-- пополнение
+       (1, '2023-09-07', 'RUB', 150000, null, null, 1, 0), -- пополнение
        (2, '2023-09-07', 'EUR', 20.58, 'RUB', 1500.0, 1, 75), -- обмен
        (2, '2023-09-07', 'RUB', 1315.636, 'EUR', 20, 1, 1), -- обмен
        (3, '2023-09-07', null, null, 'EUR', 5.0, 1, 0.25); -- вывод
