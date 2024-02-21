@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+
+    <changeSet id="initTestDataEgorParticipant" author="Leonid Velikanov">
+        <preConditions>
+            <and>
+                <tableExists tableName="Participant"/>
+                <sqlCheck expectedResult="0">
+                    SELECT COUNT(*)
+                    FROM Participant
+                    WHERE
+                    name = 'egor'
+                    and password = '$2y$10$XMZ3YMbr8w0klLv7xwJ/Pepun0V1Ip3bCcAerEjQ7irZMkLaOuvtO'
+                    and creation_date = '2023-09-09'
+                    and enabled = 'true'
+                </sqlCheck>
+            </and>
+        </preConditions>
+        <sql>
+            INSERT INTO participant(name, password, creation_date, enabled)
+            values ('egor', '$2y$10$XMZ3YMbr8w0klLv7xwJ/Pepun0V1Ip3bCcAerEjQ7irZMkLaOuvtO', '2023-09-09', 'true');
+        </sql>
+    </changeSet>
+
+    <changeSet id="initTestDataTestNameParticipant" author="Leonid Velikanov">
+        <preConditions>
+            <and>
+                <tableExists tableName="Participant"/>
+                <sqlCheck expectedResult="0">
+                    SELECT COUNT(*)
+                    FROM Participant
+                    WHERE
+                    name = 'testName'
+                    and password = '$2y$10$xmysiQBmQTF4BSr2UV9df.mLG2DVrXpDkqxB2sX1BEh2dDKUa5xVi'
+                    and creation_date = '2023-09-08'
+                    and enabled = 'false'
+                </sqlCheck>
+            </and>
+        </preConditions>
+        <sql>
+            INSERT INTO participant(name, password, creation_date, enabled)
+            values ('testName', '$2y$10$xmysiQBmQTF4BSr2UV9df.mLG2DVrXpDkqxB2sX1BEh2dDKUa5xVi', '2023-09-08', 'false');
+        </sql>
+    </changeSet>
+
+
+    <changeSet id="initTestDataParticipant_to_roleFirstValue" author="Leonid Velikanov">
+        <preConditions>
+            <and>
+                <tableExists tableName="participant_to_role"/>
+                <sqlCheck expectedResult="0">
+                    SELECT COUNT(*)
+                    FROM participant_to_role
+                    WHERE
+                    participant_id = 1
+                    and role_id = 1
+                </sqlCheck>
+            </and>
+        </preConditions>
+        <sql>
+            INSERT INTO participant_to_role(participant_id, role_id)
+            values (1, 1);
+        </sql>
+    </changeSet>
+
+    <changeSet id="initTestDataParticipant_to_roleSecondValue" author="Leonid Velikanov">
+        <preConditions>
+            <and>
+                <tableExists tableName="participant_to_role"/>
+                <sqlCheck expectedResult="0">
+                    SELECT COUNT(*)
+                    FROM participant_to_role
+                    WHERE
+                    participant_id = 1
+                    and role_id = 2
+                </sqlCheck>
+            </and>
+        </preConditions>
+        <sql>
+            INSERT INTO participant_to_role(participant_id, role_id)
+            values (1, 2);
+        </sql>
+    </changeSet>
+
+    <changeSet id="initTestDataParticipant_to_roleThirdValue" author="Leonid Velikanov">
+        <preConditions>
+            <and>
+                <tableExists tableName="participant_to_role"/>
+                <sqlCheck expectedResult="0">
+                    SELECT COUNT(*)
+                    FROM participant_to_role
+                    WHERE
+                    participant_id = 2
+                    and role_id = 3
+                </sqlCheck>
+            </and>
+        </preConditions>
+        <sql>
+            INSERT INTO participant_to_role(participant_id, role_id)
+            values (2, 3);
+        </sql>
+    </changeSet>
+
+
+    <changeSet id="initTestDataTransaction" author="Leonid Velikanov">
+        <sql>
+            INSERT INTO transaction(operation_type_id, date, received_currency, received_amount, given_currency, given_amount,
+                                    participant_id, commission)
+            values (1, '2023-09-07', 'EUR', 506.0, null, null, 1, 2.5),
+                (1, '2023-09-07', 'EUR', 50.0, null, null, 1, 2.5),-- пополнение
+                   (1, '2023-09-07', 'RUB', 150000, null, null, 1, 0), -- пополнение
+                   (2, '2023-09-07', 'EUR', 20.58, 'RUB', 1500.0, 1, 75), -- обмен
+                   (2, '2023-09-07', 'RUB', 1315.636, 'EUR', 20, 1, 1), -- обмен
+                   (3, '2023-09-07', null, null, 'EUR', 5.0, 1, 0.25); -- вывод
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>
