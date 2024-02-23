@@ -4,5 +4,3 @@ FROM postgres:latest
 ENV POSTGRES_DB stock_market
 ENV POSTGRES_USER admin
 ENV POSTGRES_PASSWORD admin
-#копируем файл/папку в контейнер
-COPY init.sql docker-entrypoint-initdb.d/init.sql
