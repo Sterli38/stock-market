@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.filter.CommonsRequestLoggingFilter;
 
 import java.util.Collections;
 
@@ -27,5 +28,17 @@ public class ApplicationConfig {
         return new Jackson2ObjectMapperBuilder()
                 .serializationInclusion(JsonInclude.Include.NON_NULL)
                 .propertyNamingStrategy(new PropertyNamingStrategies.SnakeCaseStrategy());
+    }
+
+    @Bean
+    public CommonsRequestLoggingFilter logFilter() {
+        CommonsRequestLoggingFilter filter = new CustomRequestLoggingFilter();
+        filter.setIncludeClientInfo(true);
+        filter.setIncludeQueryString(true);
+        filter.setIncludePayload(true);
+        filter.setMaxPayloadLength(10000);
+        filter.setIncludeHeaders(true);
+        filter.setAfterMessagePrefix("REQUEST DATA: ");
+        return filter;
     }
 }
