@@ -3,9 +3,22 @@ version: "3"
 #раздел сервисов(контейнеров)
 services:
   #сервис
-  stock_market:
+  stock_market_db:
+    container_name: stock-market-db
     # (build) задаём путь к файлу Dockerfile, который используется для создания образа
     build: database/
     # обращение к серверу
     ports:
       - "8091:5432"
+
+  stock_market:
+    container_name: stock-market-backend-application
+    depends_on:
+      - stock_market_db
+    build: application/
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://stock_market_db:5432/stock_market
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=admin
+    ports:
+      - "8080:8080"
