@@ -1,10 +1,14 @@
 #раздел сервисов(контейнеров)
 services:
   #сервис
-  stock_market_db:
-    container_name: stock-market-db
+  stock_market_database:
+    image: postgres
+    container_name: stock-market-database
     # (build) задаём путь к файлу Dockerfile, который используется для создания образа
-    build: database/
+    environment:
+    - POSTGRES_DB=stock_market
+    - POSTGRES_USER=admin
+    - POSTGRES_PASSWORD=admin
     # обращение к серверу
     ports:
       - "8091:5432"
@@ -12,10 +16,10 @@ services:
   stock_market:
     container_name: stock-market-backend-application
     depends_on:
-      - stock_market_db
-    build: application/
+      - stock_market_database
+    build: ./
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://stock_market_db:5432/stock_market
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://stock_market_database:5432/stock_market
       - SPRING_DATASOURCE_USERNAME=admin
       - SPRING_DATASOURCE_PASSWORD=admin
     ports:
