@@ -1,15 +1,12 @@
-#раздел сервисов(контейнеров)
+
 services:
-  #сервис
   stock_market_database:
     image: postgres
     container_name: stock-market-database
-    # (build) задаём путь к файлу Dockerfile, который используется для создания образа
     environment:
     - POSTGRES_DB=stock_market
     - POSTGRES_USER=admin
     - POSTGRES_PASSWORD=admin
-    # обращение к серверу
     ports:
       - "8091:5432"
 
